@@ -26,7 +26,12 @@ function rewriteFile(filePath) {
   const current = readFileSync(filePath, "utf8");
   const next = current
     .replaceAll("/ainovel/_next", "/ainovel/next-assets")
-    .replaceAll("\\/ainovel\\/_next", "\\/ainovel\\/next-assets");
+    .replaceAll("\\/ainovel\\/_next", "\\/ainovel\\/next-assets")
+    .replaceAll("pathname.indexOf('/_next/')", "pathname.indexOf('/next-assets/')")
+    .replaceAll('pathname.indexOf("/_next/")', 'pathname.indexOf("/next-assets/")')
+    .replaceAll("indexOf('/_next/')", "indexOf('/next-assets/')")
+    .replaceAll('indexOf("/_next/")', 'indexOf("/next-assets/")')
+    .replaceAll("to contain '/_next/'", "to contain '/next-assets/'");
 
   if (next !== current) {
     writeFileSync(filePath, next);
