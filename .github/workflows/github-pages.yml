@@ -37,6 +37,9 @@ jobs:
         env:
           STATIC_EXPORT: "1"
 
+      - name: Prepare GitHub Pages assets
+        run: npm run postbuild:pages
+
       - name: Disable Jekyll
         run: touch out/.nojekyll
 

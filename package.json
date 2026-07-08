@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild:pages": "node scripts/prepare-github-pages-assets.mjs",
     "start": "next start",
     "lint": "next lint"
   },
