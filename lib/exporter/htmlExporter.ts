@@ -160,6 +160,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     </div>
   </main>
   <audio id="audio"></audio>
+  <iframe id="youtubeBgm" title="YouTube BGM player" allow="autoplay; encrypted-media" style="display:none"></iframe>
   <script>
     const scenes = ${safeScenes};
     const assets = ${safeAssets};
@@ -198,6 +199,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     const sideBgm = document.getElementById("sideBgm");
     const sideAuto = document.getElementById("sideAuto");
     const audio = document.getElementById("audio");
+    const youtubeBgm = document.getElementById("youtubeBgm");
     let logOpen = false;
 
     const standingById = Object.fromEntries(assets.standingAssets.map((asset) => [asset.id, asset]));
@@ -223,6 +225,23 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       if (scene.role === "narration") return "narration";
       if (scene.role === "system") return "system";
       return "dialogue";
+    }
+
+    function isYoutubeBgm(asset) {
+      return Boolean(asset && (asset.source === "youtube" || asset.youtubeVideoId));
+    }
+
+    function youtubeEmbedUrl(videoId) {
+      const params = new URLSearchParams({
+        autoplay: "1",
+        loop: "1",
+        playlist: videoId,
+        controls: "0",
+        modestbranding: "1",
+        rel: "0",
+        playsinline: "1"
+      });
+      return "https://www.youtube.com/embed/" + videoId + "?" + params.toString();
     }
 
     function sceneShowsDialogue(scene) {
@@ -432,12 +451,49 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       if (scene.cgTransition !== "instant") cgLayer.classList.add("fade");
     }
 
+    function syncBgmForScene(scene) {
+      const asset = scene.bgmAssetId ? bgmById[scene.bgmAssetId] : null;
+      if (!asset) {
+        audio.pause();
+        audio.removeAttribute("src");
+        delete audio.dataset.bgmId;
+        youtubeBgm.src = "about:blank";
+        delete youtubeBgm.dataset.bgmId;
+        bgmEnabled = false;
+        sideBgm.setAttribute("aria-pressed", "false");
+        return;
+      }
+      if (!bgmEnabled) return;
+      if (isYoutubeBgm(asset)) {
+        audio.pause();
+        audio.removeAttribute("src");
+        delete audio.dataset.bgmId;
+        if (asset.youtubeVideoId && youtubeBgm.dataset.bgmId !== asset.id) {
+          youtubeBgm.src = youtubeEmbedUrl(asset.youtubeVideoId);
+          youtubeBgm.dataset.bgmId = asset.id;
+        }
+        return;
+      }
+      youtubeBgm.src = "about:blank";
+      delete youtubeBgm.dataset.bgmId;
+      if (asset.dataUrl && audio.dataset.bgmId !== asset.id) {
+        audio.src = asset.dataUrl;
+        audio.dataset.bgmId = asset.id;
+        audio.play().catch((error) => {
+          console.error("BGM play() failed", error);
+          bgmEnabled = false;
+          sideBgm.setAttribute("aria-pressed", "false");
+        });
+      }
+    }
+
     function render() {
       if (typingTimer) window.clearTimeout(typingTimer);
       typingTimer = null;
       typingComplete = !typingEnabled;
       const scene = scenes[index] || { displayMode: "narration", text: "No scenes yet.", background: "observatory", emotion: "distant", characters: [] };
       const mode = modeOf(scene);
+      syncBgmForScene(scene);
       textPages = mode === "choice" || !sceneShowsDialogue(scene) ? [""] : splitTextPages(scene.text || "");
       textPageIndex = Math.min(textPageIndex, Math.max(textPages.length - 1, 0));
       renderChoices(scene, mode);
@@ -602,11 +658,25 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       if (!asset) return;
       if (bgmEnabled) {
         audio.pause();
+        youtubeBgm.src = "about:blank";
         bgmEnabled = false;
         sideBgm.setAttribute("aria-pressed", "false");
         return;
       }
+      if (isYoutubeBgm(asset)) {
+        audio.pause();
+        audio.removeAttribute("src");
+        if (!asset.youtubeVideoId) return;
+        youtubeBgm.src = youtubeEmbedUrl(asset.youtubeVideoId);
+        youtubeBgm.dataset.bgmId = asset.id;
+        bgmEnabled = true;
+        sideBgm.setAttribute("aria-pressed", "true");
+        return;
+      }
       if (audio.dataset.bgmId !== asset.id) {
+        youtubeBgm.src = "about:blank";
+        delete youtubeBgm.dataset.bgmId;
+        if (!asset.dataUrl) return;
         audio.src = asset.dataUrl;
         audio.dataset.bgmId = asset.id;
       }

@@ -16,7 +16,10 @@ export type BgmAsset = {
   id: string;
   name: string;
   fileName: string;
-  dataUrl: string;
+  dataUrl?: string;
+  source?: "file" | "youtube";
+  youtubeUrl?: string;
+  youtubeVideoId?: string;
 };
 
 export type SceneCharacter = {

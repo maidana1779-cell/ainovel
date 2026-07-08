@@ -651,6 +651,7 @@ function AssetManager({
       setPlayingId(null);
       return;
     }
+    if (!asset.dataUrl) return;
     audioRef.current.src = asset.dataUrl;
     audioRef.current.play().then(() => setPlayingId(asset.id)).catch(() => onError("브라우저 정책상 먼저 재생 버튼을 눌러야 합니다."));
   }
@@ -1105,6 +1106,7 @@ export default function Page() {
       setBgmEnabled(false);
       return;
     }
+    if (!asset.dataUrl) return;
     audioRef.current.src = asset.dataUrl;
     if (bgmEnabled) audioRef.current.play().catch(() => setBgmEnabled(false));
   }, [activeScene.bgmAssetId, assets.bgmAssets, bgmEnabled]);
@@ -1259,7 +1261,8 @@ export default function Page() {
       setBgmEnabled(false);
       return;
     }
-    audioRef.current.src = asset.dataUrl;
+      if (!asset.dataUrl) return;
+      audioRef.current.src = asset.dataUrl;
     audioRef.current.play().then(() => setBgmEnabled(true)).catch(() => setError("브라우저 정책상 BGM 버튼을 한 번 더 눌러 재생해 주세요."));
   }
 

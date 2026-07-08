@@ -436,7 +436,15 @@ function sanitizeAssets(value: unknown): AssetLibrary {
   return {
     standingAssets: Array.isArray(candidate.standingAssets) ? candidate.standingAssets : [],
     backgroundAssets: Array.isArray(candidate.backgroundAssets) ? candidate.backgroundAssets : [],
-    bgmAssets: Array.isArray(candidate.bgmAssets) ? candidate.bgmAssets : []
+    bgmAssets: Array.isArray(candidate.bgmAssets)
+      ? candidate.bgmAssets
+        .filter((asset): asset is BgmAsset => Boolean(asset && typeof asset === "object" && typeof asset.id === "string"))
+        .map((asset) => ({
+          ...asset,
+          source: asset.source ?? (asset.youtubeVideoId ? "youtube" : "file"),
+          fileName: asset.fileName ?? asset.name ?? "BGM"
+        }))
+      : []
   };
 }
 
@@ -516,6 +524,40 @@ function fileToDataUrl(file: File) {
     reader.onerror = () => reject(new Error("파일을 읽을 수 없습니다."));
     reader.readAsDataURL(file);
   });
+}
+
+function parseYoutubeVideoId(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  try {
+    const url = new URL(trimmed);
+    if (url.hostname.includes("youtu.be")) return url.pathname.split("/").filter(Boolean)[0] ?? null;
+    if (url.searchParams.get("v")) return url.searchParams.get("v");
+    const parts = url.pathname.split("/").filter(Boolean);
+    const marker = parts.findIndex((part) => part === "embed" || part === "shorts" || part === "live");
+    if (marker >= 0) return parts[marker + 1] ?? null;
+  } catch {
+    const match = trimmed.match(/^[a-zA-Z0-9_-]{11}$/);
+    if (match) return trimmed;
+  }
+  return null;
+}
+
+function youtubeEmbedUrl(videoId: string) {
+  const params = new URLSearchParams({
+    autoplay: "1",
+    loop: "1",
+    playlist: videoId,
+    controls: "0",
+    modestbranding: "1",
+    rel: "0",
+    playsinline: "1"
+  });
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+}
+
+function isYoutubeBgm(asset?: BgmAsset) {
+  return asset?.source === "youtube" || Boolean(asset?.youtubeVideoId);
 }
 
 function sceneBackground(scene: VisualNovelScene) {
@@ -1831,7 +1873,9 @@ function AssetManager({
 }) {
   const [tab, setTab] = useState<"standing" | "background" | "bgm">("standing");
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const youtubePreviewRef = useRef<HTMLIFrameElement | null>(null);
 
   async function uploadFiles(files: FileList | null, kind: typeof tab) {
     if (!files?.length) return;
@@ -1860,7 +1904,7 @@ function AssetManager({
         continue;
       }
       const dataUrl = await fileToDataUrl(file);
-      const asset = { id: uid(kind), name: file.name.replace(/\.[^.]+$/, ""), fileName: file.name, dataUrl };
+      const asset = { id: uid(kind), name: file.name.replace(/\.[^.]+$/, ""), fileName: file.name, dataUrl, source: "file" as const };
       if (kind === "standing") next.standingAssets.push(asset);
       if (kind === "background") next.backgroundAssets.push(asset);
       if (kind === "bgm") next.bgmAssets.push(asset);
@@ -1876,18 +1920,47 @@ function AssetManager({
   function remove(kind: keyof AssetLibrary, id: string) {
     if (kind === "bgmAssets" && playingId === id) {
       audioRef.current?.pause();
+      if (youtubePreviewRef.current) youtubePreviewRef.current.src = "about:blank";
       setPlayingId(null);
     }
     onAssetsChange({ ...assets, [kind]: assets[kind].filter((asset) => asset.id !== id) });
   }
 
+  function addYoutubeBgm() {
+    const videoId = parseYoutubeVideoId(youtubeUrl);
+    if (!videoId) {
+      onError("유효한 YouTube 링크를 입력해 주세요.");
+      return;
+    }
+    const nextAsset: BgmAsset = {
+      id: uid("bgm"),
+      name: `YouTube BGM ${assets.bgmAssets.filter((asset) => isYoutubeBgm(asset)).length + 1}`,
+      fileName: "YouTube 링크",
+      source: "youtube",
+      youtubeUrl,
+      youtubeVideoId: videoId
+    };
+    onAssetsChange({ ...assets, bgmAssets: [...assets.bgmAssets, nextAsset] });
+    setYoutubeUrl("");
+    onError(null);
+  }
+
   function togglePreview(asset: BgmAsset) {
-    if (!audioRef.current) return;
     if (playingId === asset.id) {
-      audioRef.current.pause();
+      audioRef.current?.pause();
+      if (youtubePreviewRef.current) youtubePreviewRef.current.src = "about:blank";
       setPlayingId(null);
       return;
     }
+    audioRef.current?.pause();
+    if (youtubePreviewRef.current) youtubePreviewRef.current.src = "about:blank";
+    if (isYoutubeBgm(asset)) {
+      if (!asset.youtubeVideoId || !youtubePreviewRef.current) return;
+      youtubePreviewRef.current.src = youtubeEmbedUrl(asset.youtubeVideoId);
+      setPlayingId(asset.id);
+      return;
+    }
+    if (!audioRef.current || !asset.dataUrl) return;
     audioRef.current.src = asset.dataUrl;
     audioRef.current.play().then(() => setPlayingId(asset.id)).catch(() => onError("브라우저 정책상 먼저 재생 버튼을 눌러야 합니다."));
   }
@@ -1896,6 +1969,7 @@ function AssetManager({
     <section className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
       <Card>
         <audio ref={audioRef} onEnded={() => setPlayingId(null)} />
+        <iframe ref={youtubePreviewRef} title="YouTube BGM preview" className="hidden" allow="autoplay; encrypted-media" />
         <div className="flex items-center justify-between gap-4 mb-5">
           <div>
             <h3 className="text-lg font-extrabold text-slate-900">에셋 관리</h3>
@@ -1952,13 +2026,26 @@ function AssetManager({
 
         {tab === "bgm" && (
           <div className="grid gap-3">
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-3">
+              <p className="text-xs font-extrabold text-indigo-700">YouTube 링크로 BGM 추가</p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto]">
+                <input
+                  value={youtubeUrl}
+                  onChange={(event) => setYoutubeUrl(event.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="rounded-xl border border-indigo-100 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+                <Button variant="secondary" size="sm" onClick={addYoutubeBgm}>링크 등록</Button>
+              </div>
+              <p className="mt-2 text-[11px] leading-5 text-indigo-500">YouTube BGM은 인터넷 연결이 필요하고, 영상 소유자 설정에 따라 재생이 제한될 수 있습니다.</p>
+            </div>
             {assets.bgmAssets.map((asset) => (
               <div key={asset.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 p-3">
                 <button type="button" onClick={() => togglePreview(asset)} className={`h-9 w-9 flex items-center justify-center rounded-full border transition-colors ${playingId === asset.id ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
                   {playingId === asset.id ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 </button>
                 <input value={asset.name} onChange={(event) => rename("bgmAssets", asset.id, event.target.value)} className="min-w-[160px] flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-                <span className="truncate text-xs text-slate-400">{asset.fileName}</span>
+                <span className="truncate text-xs text-slate-400">{isYoutubeBgm(asset) ? "YouTube 링크" : asset.fileName}</span>
                 <button type="button" onClick={() => remove("bgmAssets", asset.id)} className="text-xs font-bold text-rose-500">삭제</button>
               </div>
             ))}
@@ -3189,6 +3276,7 @@ export default function App() {
   const [bgmStatus, setBgmStatus] = useState<"없음" | "대기 중" | "재생 중" | "차단됨">("없음");
   const [undoScenes, setUndoScenes] = useState<VisualNovelScene[] | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const youtubeBgmRef = useRef<HTMLIFrameElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const activeScene = scenes[current] ?? fallbackScenes[0];
   const activeBgmAsset = activeScene.bgmAssetId ? assets.bgmAssets.find((item) => item.id === activeScene.bgmAssetId) : undefined;
@@ -3318,18 +3406,46 @@ export default function App() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    const youtubeFrame = youtubeBgmRef.current;
     const asset = activeBgmAsset;
     if (!asset) {
-      audio.pause();
-      audio.removeAttribute("src");
-      delete audio.dataset.bgmId;
+      audio?.pause();
+      audio?.removeAttribute("src");
+      if (audio) delete audio.dataset.bgmId;
+      if (youtubeFrame) {
+        youtubeFrame.src = "about:blank";
+        delete youtubeFrame.dataset.bgmId;
+      }
       setBgmEnabled(false);
       setBgmStatus("없음");
       return;
     }
+    if (isYoutubeBgm(asset)) {
+      audio?.pause();
+      audio?.removeAttribute("src");
+      if (audio) delete audio.dataset.bgmId;
+      if (youtubeFrame?.dataset.bgmId !== asset.id) {
+        if (youtubeFrame) {
+          youtubeFrame.src = "about:blank";
+          youtubeFrame.dataset.bgmId = asset.id;
+        }
+        setBgmStatus("대기 중");
+      }
+      if (bgmEnabled && asset.youtubeVideoId && youtubeFrame) {
+        if (youtubeFrame.src === "about:blank") youtubeFrame.src = youtubeEmbedUrl(asset.youtubeVideoId);
+        setBgmStatus("재생 중");
+      } else if (!bgmEnabled) {
+        setBgmStatus("대기 중");
+      }
+      return;
+    }
+    if (!audio || !asset.dataUrl) return;
     if (audio.dataset.bgmId !== asset.id) {
       audio.pause();
+      if (youtubeFrame) {
+        youtubeFrame.src = "about:blank";
+        delete youtubeFrame.dataset.bgmId;
+      }
       audio.src = asset.dataUrl;
       audio.dataset.bgmId = asset.id;
       setBgmStatus(bgmEnabled ? "대기 중" : "대기 중");
@@ -3529,14 +3645,33 @@ export default function App() {
   function toggleBgm() {
     const asset = activeBgmAsset;
     const audio = audioRef.current;
-    if (!asset || !audio) {
+    const youtubeFrame = youtubeBgmRef.current;
+    if (!asset) {
       setBgmStatus("없음");
       return;
     }
     if (bgmEnabled) {
-      audio.pause();
+      audio?.pause();
+      if (youtubeFrame) youtubeFrame.src = "about:blank";
       setBgmEnabled(false);
       setBgmStatus("대기 중");
+      return;
+    }
+    if (isYoutubeBgm(asset)) {
+      if (!asset.youtubeVideoId || !youtubeFrame) {
+        setBgmStatus("차단됨");
+        setError("YouTube BGM 정보를 확인할 수 없습니다.");
+        return;
+      }
+      audio?.pause();
+      youtubeFrame.src = youtubeEmbedUrl(asset.youtubeVideoId);
+      youtubeFrame.dataset.bgmId = asset.id;
+      setBgmEnabled(true);
+      setBgmStatus("재생 중");
+      return;
+    }
+    if (!audio || !asset.dataUrl) {
+      setBgmStatus("없음");
       return;
     }
     if (audio.dataset.bgmId !== asset.id) {
@@ -3619,6 +3754,7 @@ export default function App() {
     <div className="als-root min-h-screen bg-slate-50">
       <FontStyles />
       <audio ref={audioRef} loop />
+      <iframe ref={youtubeBgmRef} title="YouTube BGM player" className="hidden" allow="autoplay; encrypted-media" />
       <Toolbar
         onSample={loadSample}
         onConvert={convertLog}
