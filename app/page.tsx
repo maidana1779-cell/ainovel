@@ -143,16 +143,26 @@ function sceneMergeKey(scene: VisualNovelScene) {
   return `${scene.speaker ?? ""}::${scene.text.trim().slice(0, 160)}`;
 }
 
+function sceneTextKey(scene: VisualNovelScene) {
+  return scene.text.replace(/\s+/g, " ").trim().slice(0, 220);
+}
+
 function mergeSceneAssetLinks(nextScenes: VisualNovelScene[], previousScenes: VisualNovelScene[]) {
   const previousByKey = new Map(previousScenes.map((scene) => [sceneMergeKey(scene), scene]));
+  const previousByText = new Map(previousScenes.map((scene) => [sceneTextKey(scene), scene]));
   return nextScenes.map((scene, index) => {
-    const previous = previousByKey.get(sceneMergeKey(scene)) ?? previousScenes[index];
+    const previous = previousByKey.get(sceneMergeKey(scene)) ?? previousByText.get(sceneTextKey(scene)) ?? previousScenes[index];
     if (!previous) return scene;
     return {
       ...scene,
+      id: previous.id ?? scene.id,
+      displayMode: previous.displayMode ?? scene.displayMode,
+      speaker: previous.speaker ?? scene.speaker,
       backgroundAssetId: previous.backgroundAssetId ?? scene.backgroundAssetId,
       bgmAssetId: previous.bgmAssetId ?? scene.bgmAssetId,
-      characters: previous.characters?.length ? previous.characters : scene.characters
+      characters: previous.characters?.length ? previous.characters : scene.characters,
+      effects: previous.effects?.length ? previous.effects : scene.effects,
+      directorNotes: previous.directorNotes?.length ? previous.directorNotes : scene.directorNotes
     };
   });
 }
@@ -1934,7 +1944,9 @@ function SceneCard({
 }) {
   const bg = sceneBackground(scene);
   const uploadedBg = scene.backgroundAssetId ? assets.backgroundAssets.find((asset) => asset.id === scene.backgroundAssetId) : undefined;
-  const isChoiceScene = sceneDisplayMode(scene) === "choice" || Boolean(scene.choices?.length);
+  const displayMode = sceneDisplayMode(scene);
+  const isChoiceScene = displayMode === "choice" || Boolean(scene.choices?.length);
+  const isDialogueScene = displayMode === "dialogue";
   const sceneIds = new Set(scenes.map((item) => item.id));
   return (
     <div
@@ -1979,15 +1991,36 @@ function SceneCard({
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2.5">
           <Avatar tone={scene.role === "user" ? "purple" : "indigo"} size={6} />
-          <input value={scene.speaker ?? ""} onChange={(event) => onUpdateScene(index, { speaker: event.target.value })} className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1 text-[13px] font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-          <Pill role={scene.role} />
+          <input
+            value={scene.speaker ?? ""}
+            onChange={(event) => onUpdateScene(index, { speaker: event.target.value })}
+            placeholder={isDialogueScene ? "화자 이름 입력" : "화자 이름"}
+            className={`min-w-0 flex-1 rounded-lg border px-2 py-1 text-[13px] font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-100 ${isDialogueScene && !scene.speaker ? "border-amber-200 bg-amber-50/70" : "border-slate-200"}`}
+          />
+          <select
+            value={displayMode === "code" || displayMode === "system" ? "narration" : displayMode}
+            onChange={(event) => {
+              const nextMode = event.target.value as VisualNovelScene["displayMode"];
+              onUpdateScene(index, {
+                displayMode: nextMode,
+                role: nextMode === "narration" ? "narration" : nextMode === "dialogue" ? "assistant" : scene.role,
+                choices: nextMode === "choice" ? (scene.choices?.length ? scene.choices : [{ id: uid("choice"), text: "선택지", targetSceneId: undefined }]) : undefined
+              });
+            }}
+            className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+          >
+            <option value="narration">나레이션</option>
+            <option value="dialogue">대사</option>
+            <option value="choice">선택지</option>
+            <option value="cg">CG Scene</option>
+          </select>
         </div>
 
         <textarea value={scene.text} onChange={(event) => onUpdateScene(index, { text: event.target.value })} className="als-scrollbar min-h-[72px] w-full resize-none rounded-xl border border-slate-200 bg-slate-50/60 p-2 text-[13px] leading-relaxed text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
 
         {scene.choices?.length ? (
           <div className="mt-3 rounded-xl border border-purple-100 bg-purple-50/50 p-2">
-            <p className="mb-2 text-[11px] font-extrabold text-purple-600">선택지 노드 · Branch 연결</p>
+            <p className="mb-2 text-[11px] font-extrabold text-purple-600">선택지 노드 · 분기 연결</p>
             <div className="space-y-2">
               {scene.choices.map((choice, choiceIndex) => (
                 <div key={choice.id} className="grid gap-1">
@@ -2243,7 +2276,7 @@ function EditToolsPanel({
             className="w-full rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3 text-left transition hover:bg-indigo-50 disabled:opacity-45"
           >
             <span className="block text-xs font-extrabold text-indigo-700">AI · 선택지 생성</span>
-            <span className="mt-1 block text-xs leading-5 text-indigo-500">선택 영역의 흐름 뒤에 독자 선택지를 candidate로 만듭니다.</span>
+            <span className="mt-1 block text-xs leading-5 text-indigo-500">선택한 장면 뒤에 이어질 선택지를 만들어 줍니다.</span>
           </button>
           <button
             type="button"
@@ -2266,7 +2299,7 @@ function EditToolsPanel({
             <p className="text-xs font-extrabold text-slate-600">Batch Edit · 일반 편집</p>
             <input value={batchSpeaker} onChange={(event) => setBatchSpeaker(event.target.value)} placeholder="speaker 일괄 변경, 비우면 유지" className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
             <select value={batchMode} onChange={(event) => setBatchMode(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-              <option value="">displayMode 유지</option>
+              <option value="">장면 타입 유지</option>
               <option value="dialogue">dialogue</option>
               <option value="narration">narration</option>
               <option value="system">system</option>
@@ -2479,7 +2512,7 @@ function WorkflowToolsPanel({
             ) : (
               <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
                 <p className="text-xs font-semibold text-slate-500">
-                  {aiTool === "choices" ? "선택 영역 뒤에 독자 선택지 candidate를 만듭니다." : "선택 영역에 VN 연출 문장 candidate를 제안합니다."}
+                  {aiTool === "choices" ? "선택한 장면 뒤에 이어질 선택지를 만들어 줍니다." : "선택한 장면에 어울리는 연출을 AI가 제안합니다."}
                 </p>
               </div>
             )}
@@ -2505,7 +2538,7 @@ function WorkflowToolsPanel({
           <div className="grid gap-2 border-t border-slate-100 p-4 md:grid-cols-[1fr_180px_220px_auto]">
             <input value={batchSpeaker} onChange={(event) => setBatchSpeaker(event.target.value)} placeholder="speaker 일괄 변경" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
             <select value={batchMode} onChange={(event) => setBatchMode(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-              <option value="">displayMode 유지</option>
+              <option value="">장면 타입 유지</option>
               <option value="dialogue">dialogue</option>
               <option value="narration">narration</option>
               <option value="system">system</option>
@@ -2664,7 +2697,7 @@ function SceneAccordion({
               <Button variant="secondary" size="sm" icon={Download} iconPosition="left" onClick={onExportJson}>JSON Export</Button>
               <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={(event) => onImportJson(event.target.files?.[0])} />
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="als-scrollbar grid max-h-[72vh] gap-4 overflow-y-auto rounded-2xl border border-slate-100 bg-slate-50/60 p-3 pr-4 sm:grid-cols-2 lg:grid-cols-3">
               {scenes.map((scene, index) => (
                 <SceneCard
                   key={scene.id}
@@ -2882,10 +2915,12 @@ export default function App() {
   const [assetStoreReady, setAssetStoreReady] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [bgmEnabled, setBgmEnabled] = useState(false);
+  const [bgmStatus, setBgmStatus] = useState<"없음" | "대기 중" | "재생 중" | "차단됨">("없음");
   const [undoScenes, setUndoScenes] = useState<VisualNovelScene[] | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const activeScene = scenes[current] ?? fallbackScenes[0];
+  const activeBgmAsset = activeScene.bgmAssetId ? assets.bgmAssets.find((item) => item.id === activeScene.bgmAssetId) : undefined;
   const activeTextPages = sceneDisplayMode(activeScene) === "choice" ? [""] : splitTextPages(activeScene.text);
   const activePageText = activeTextPages[Math.min(textPageIndex, activeTextPages.length - 1)] ?? activeTextPages[0] ?? "";
   const playerFont = getPlayerFontOption(playerFontId);
@@ -3011,17 +3046,35 @@ export default function App() {
   }, [scenes.length, typingComplete, typingEnabled]);
 
   useEffect(() => {
-    const asset = activeScene.bgmAssetId ? assets.bgmAssets.find((item) => item.id === activeScene.bgmAssetId) : undefined;
-    if (!audioRef.current) return;
-    audioRef.current.pause();
+    const audio = audioRef.current;
+    if (!audio) return;
+    const asset = activeBgmAsset;
     if (!asset) {
-      audioRef.current.removeAttribute("src");
+      audio.pause();
+      audio.removeAttribute("src");
+      delete audio.dataset.bgmId;
       setBgmEnabled(false);
+      setBgmStatus("없음");
       return;
     }
-    audioRef.current.src = asset.dataUrl;
-    if (bgmEnabled) audioRef.current.play().catch(() => setBgmEnabled(false));
-  }, [activeScene.bgmAssetId, assets.bgmAssets, bgmEnabled]);
+    if (audio.dataset.bgmId !== asset.id) {
+      audio.pause();
+      audio.src = asset.dataUrl;
+      audio.dataset.bgmId = asset.id;
+      setBgmStatus(bgmEnabled ? "대기 중" : "대기 중");
+    }
+    if (bgmEnabled && audio.paused) {
+      audio.play()
+        .then(() => setBgmStatus("재생 중"))
+        .catch((error) => {
+          console.error("BGM play() failed", error);
+          setBgmEnabled(false);
+          setBgmStatus("차단됨");
+        });
+    } else if (!bgmEnabled) {
+      setBgmStatus("대기 중");
+    }
+  }, [activeBgmAsset, bgmEnabled]);
 
   function setScenesAndJson(next: VisualNovelScene[]) {
     const normalized = normalizeScenes(next);
@@ -3203,15 +3256,33 @@ export default function App() {
   }
 
   function toggleBgm() {
-    const asset = activeScene.bgmAssetId ? assets.bgmAssets.find((item) => item.id === activeScene.bgmAssetId) : undefined;
-    if (!asset || !audioRef.current) return;
-    if (bgmEnabled) {
-      audioRef.current.pause();
-      setBgmEnabled(false);
+    const asset = activeBgmAsset;
+    const audio = audioRef.current;
+    if (!asset || !audio) {
+      setBgmStatus("없음");
       return;
     }
-    audioRef.current.src = asset.dataUrl;
-    audioRef.current.play().then(() => setBgmEnabled(true)).catch(() => setError("브라우저 정책상 BGM 버튼을 한 번 더 눌러 재생해 주세요."));
+    if (bgmEnabled) {
+      audio.pause();
+      setBgmEnabled(false);
+      setBgmStatus("대기 중");
+      return;
+    }
+    if (audio.dataset.bgmId !== asset.id) {
+      audio.src = asset.dataUrl;
+      audio.dataset.bgmId = asset.id;
+    }
+    audio.play()
+      .then(() => {
+        setBgmEnabled(true);
+        setBgmStatus("재생 중");
+      })
+      .catch((error) => {
+        console.error("BGM play() failed", error);
+        setBgmEnabled(false);
+        setBgmStatus("차단됨");
+        setError("브라우저 정책상 BGM 재생이 차단되었습니다. BGM 버튼을 다시 눌러 주세요.");
+      });
   }
 
   function handleAdvance() {
@@ -3316,6 +3387,11 @@ export default function App() {
         onTypingSpeedChange={updateTypingSpeed}
         onTypingComplete={handleTypingComplete}
       />
+      <div className="mx-auto -mt-3 max-w-7xl px-6 pb-3 text-xs font-semibold text-slate-500 lg:px-8">
+        현재 Scene BGM: <span className="text-slate-800">{activeBgmAsset?.fileName ?? activeBgmAsset?.name ?? "없음"}</span>
+        <span className="mx-2 text-slate-300">·</span>
+        재생 상태: <span className={bgmStatus === "차단됨" ? "text-rose-500" : bgmStatus === "재생 중" ? "text-emerald-600" : "text-slate-600"}>{bgmStatus}</span>
+      </div>
       <section id="workspace" className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[420px_1fr] lg:items-start">
           <LogInputCard log={log} onLogChange={setLog} onConvert={convertLog} error={error} />

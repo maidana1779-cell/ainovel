@@ -87,7 +87,7 @@ function detectSpeakerParagraph(paragraph: string): ParsedMessage | null {
   const text = paragraph.trim();
   if (!text) return null;
 
-  const legacy = text.match(/^([A-Za-z가-힣][A-Za-z가-힣0-9 _-]{0,39})\s*:\s*([\s\S]*)$/);
+  const legacy = text.match(/^([^:\n]{1,40})\s*:\s*([\s\S]*)$/);
   if (legacy) {
     const label = cleanSpeaker(legacy[1]);
     const role = normalizeRole(label);

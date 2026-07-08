@@ -53,12 +53,16 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: background 240ms ease; z-index: -3; }
     .shade { position: absolute; inset: 0; background: radial-gradient(circle at 26% 18%, rgba(255,255,255,.2), transparent 26%), linear-gradient(to top, rgba(2,6,23,.72), transparent 58%); z-index: -2; }
     .characters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+    .cg-layer { position: absolute; inset: 0; z-index: 4; display: none; pointer-events: none; background: rgba(0,0,0,.2); }
+    .cg-layer.open { display: block; }
+    .cg-layer.fade { animation: cgfade .45s ease-out 1; }
+    .cg-layer img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
     .character { position: absolute; bottom: 0; height: 80%; width: var(--character-width, 36%); object-fit: contain; object-position: bottom center; transition: filter .3s ease, opacity .3s ease, transform .3s ease; transform: translateX(-50%) scale(1.02); filter: brightness(1); opacity: 1; z-index: 3; }
     .character[data-speaking="false"] { opacity: .7; filter: brightness(.6) blur(1px); transform: translateX(-50%) scale(1); z-index: 2; }
     .fallback-character { width: min(28vw, 260px); aspect-ratio: .72; border-radius: 999px 999px 18px 18px; background: linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.16)); border: 1px solid rgba(255,255,255,.34); display: grid; place-items: start center; padding-top: 42px; box-shadow: 0 24px 80px rgba(0,0,0,.28); }
     .face { width: 54px; height: 54px; border-radius: 999px; background: #fed7aa; box-shadow: inset 0 -8px 18px rgba(15,23,42,.12); }
     .panel { position: absolute; left: 50%; bottom: 32px; z-index: 5; display: flex; align-items: center; width: 88%; max-width: 1320px; height: 156px; padding: 24px 56px; transform: translateX(-50%); box-sizing: border-box; color: #f4f0e6; background: rgba(10,13,18,.84); border-top: 1px solid rgba(255,255,255,.06); box-shadow: 0 -18px 60px rgba(0,0,0,.22); }
-    .panel.choice { display: none; }
+    .panel.choice, .panel.hidden { display: none; }
     .panel.dialogue, .panel.system, .panel.code { text-align: left; }
     .panel.narration { text-align: center; }
     .meta { position: absolute; left: 0; top: -24px; }
@@ -111,6 +115,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     @keyframes vnflash { 0% { opacity:0; } 14% { opacity:.86; } 100% { opacity:0; } }
     @keyframes vnfadein { from { opacity:.55; } to { opacity:0; } }
     @keyframes vnfadeout { from { opacity:0; } to { opacity:.55; } }
+    @keyframes cgfade { from { opacity:0; } to { opacity:1; } }
     button:disabled { opacity: .45; cursor: not-allowed; }
   </style>
 </head>
@@ -119,11 +124,13 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     <div id="bg" class="bg"></div>
     <div class="shade"></div>
     <div id="characters" class="characters" aria-hidden="true"></div>
+    <div id="cgLayer" class="cg-layer" aria-hidden="true"></div>
     <div class="side-menu">
-      <button id="logButton" type="button" aria-pressed="false"><span class="icon">☰</span>Log</button>
-      <button type="button" disabled><span class="icon">»</span>Skip</button>
-      <button id="sideAuto" type="button" aria-pressed="false"><span class="icon">▶</span>Auto</button>
-      <button type="button" disabled><span class="icon">≡</span>Menu</button>
+      <button id="logButton" type="button" aria-pressed="false"><span class="icon">L</span>Log</button>
+      <button id="sideBgm" type="button" aria-pressed="false"><span class="icon">B</span>BGM</button>
+      <button type="button" disabled><span class="icon">&gt;</span>Skip</button>
+      <button id="sideAuto" type="button" aria-pressed="false"><span class="icon">A</span>Auto</button>
+      <button type="button" disabled><span class="icon">M</span>Menu</button>
     </div>
     <section id="panel" class="panel dialogue" aria-live="polite">
       <span id="narrationDot" class="narration-dot" hidden></span>
@@ -145,7 +152,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
         <div class="log-head">
           <div>
             <h2 class="log-title">LOG</h2>
-            <p class="log-subtitle">현재 장면까지의 대사 기록</p>
+            <p class="log-subtitle">현재 장면까지의 기록</p>
           </div>
           <button id="logClose" class="log-close" type="button">Close</button>
         </div>
@@ -173,6 +180,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     const bg = document.getElementById("bg");
     const stage = document.querySelector(".stage");
     const characters = document.getElementById("characters");
+    const cgLayer = document.getElementById("cgLayer");
     const panel = document.getElementById("panel");
     const meta = document.getElementById("meta");
     const speaker = document.getElementById("speaker");
@@ -188,6 +196,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     const choicePrompt = document.getElementById("choicePrompt");
     const choiceList = document.getElementById("choiceList");
     const fxLayer = document.getElementById("fxLayer");
+    const sideBgm = document.getElementById("sideBgm");
     const sideAuto = document.getElementById("sideAuto");
     const audio = document.getElementById("audio");
     let logOpen = false;
@@ -215,6 +224,10 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       if (scene.role === "narration") return "narration";
       if (scene.role === "system") return "system";
       return "dialogue";
+    }
+
+    function sceneShowsDialogue(scene) {
+      return modeOf(scene) !== "cg" || (scene.showDialogue !== false && String(scene.text || "").trim().length > 0);
     }
 
     function normalizeCharacterName(value) {
@@ -318,12 +331,22 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       if (!asset) {
         audio.pause();
         audio.removeAttribute("src");
+        delete audio.dataset.bgmId;
+        bgmEnabled = false;
+        sideBgm.setAttribute("aria-pressed", "false");
         return;
       }
-      if (audio.src !== asset.dataUrl) {
+      if (audio.dataset.bgmId !== asset.id) {
         audio.pause();
         audio.src = asset.dataUrl;
-        if (bgmEnabled) audio.play().catch(() => {});
+        audio.dataset.bgmId = asset.id;
+      }
+      if (bgmEnabled && audio.paused) {
+        audio.play().catch((error) => {
+          console.error("BGM play() failed", error);
+          bgmEnabled = false;
+          sideBgm.setAttribute("aria-pressed", "false");
+        });
       }
     }
 
@@ -398,15 +421,28 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       });
     }
 
+    function renderCg(scene, mode) {
+      cgLayer.innerHTML = "";
+      cgLayer.className = "cg-layer";
+      if (mode !== "cg" || !scene.imageAsset) return;
+      const image = document.createElement("img");
+      image.src = scene.imageAsset;
+      image.alt = scene.imageFileName || "CG Scene";
+      cgLayer.appendChild(image);
+      cgLayer.classList.add("open");
+      if (scene.cgTransition !== "instant") cgLayer.classList.add("fade");
+    }
+
     function render() {
       if (typingTimer) window.clearTimeout(typingTimer);
       typingTimer = null;
       typingComplete = !typingEnabled;
       const scene = scenes[index] || { displayMode: "narration", text: "No scenes yet.", background: "observatory", emotion: "distant", characters: [] };
       const mode = modeOf(scene);
-      textPages = mode === "choice" ? [""] : splitTextPages(scene.text || "");
+      textPages = mode === "choice" || !sceneShowsDialogue(scene) ? [""] : splitTextPages(scene.text || "");
       textPageIndex = Math.min(textPageIndex, Math.max(textPages.length - 1, 0));
       renderChoices(scene, mode);
+      renderCg(scene, mode);
       runVisualEffects(scene);
       const bgAsset = scene.backgroundAssetId ? backgroundById[scene.backgroundAssetId] : null;
       bg.style.background = bgAsset ? "url('" + bgAsset.dataUrl + "') center / cover" : (fallbacks[scene.backgroundAsset || scene.background] || fallbacks.observatory);
@@ -427,8 +463,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
         }
         characters.appendChild(el);
       });
-      panel.className = "panel " + mode;
-      const showMeta = mode !== "narration" && mode !== "choice";
+      const showDialoguePanel = sceneShowsDialogue(scene);
+      panel.className = "panel " + (showDialoguePanel ? mode : "hidden");
+      const showMeta = showDialoguePanel && mode !== "narration" && mode !== "choice" && Boolean(scene.speaker);
       meta.hidden = !showMeta;
       narrationDot.hidden = showMeta;
       speaker.textContent = showMeta ? (scene.speaker || "") : "";
@@ -437,13 +474,15 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       replacement.id = "text";
       text.replaceWith(replacement);
       text = replacement;
-      if (mode === "choice") {
+      if (mode === "choice" || !showDialoguePanel) {
         text.textContent = "";
         completeTyping();
       } else {
         typeText(textPages[textPageIndex] || "", scene);
       }
       sideAuto.setAttribute("aria-pressed", String(autoPlay));
+      sideBgm.disabled = !scene.bgmAssetId || !bgmById[scene.bgmAssetId];
+      sideBgm.setAttribute("aria-pressed", String(bgmEnabled));
       continueMark.classList.toggle("visible", typingComplete);
       syncBgmSource(scene);
       if (logOpen) {
@@ -556,6 +595,32 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     sideAuto.addEventListener("click", (event) => {
       event.stopPropagation();
       setAutoPlay(!autoPlay);
+    });
+    sideBgm.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const scene = scenes[index] || scenes[0] || {};
+      const asset = scene.bgmAssetId ? bgmById[scene.bgmAssetId] : null;
+      if (!asset) return;
+      if (bgmEnabled) {
+        audio.pause();
+        bgmEnabled = false;
+        sideBgm.setAttribute("aria-pressed", "false");
+        return;
+      }
+      if (audio.dataset.bgmId !== asset.id) {
+        audio.src = asset.dataUrl;
+        audio.dataset.bgmId = asset.id;
+      }
+      audio.play()
+        .then(() => {
+          bgmEnabled = true;
+          sideBgm.setAttribute("aria-pressed", "true");
+        })
+        .catch((error) => {
+          console.error("BGM play() failed", error);
+          bgmEnabled = false;
+          sideBgm.setAttribute("aria-pressed", "false");
+        });
     });
     window.addEventListener("keydown", (event) => {
       const tagName = event.target && event.target.tagName ? event.target.tagName.toLowerCase() : "";

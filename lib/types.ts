@@ -26,7 +26,7 @@ export type SceneCharacter = {
   isSpeaking: boolean;
 };
 
-export type SceneDisplayMode = "dialogue" | "narration" | "system" | "code" | "choice";
+export type SceneDisplayMode = "dialogue" | "narration" | "system" | "code" | "choice" | "cg";
 
 export type ChoiceOption = {
   id: string;
@@ -49,6 +49,10 @@ export type Scene = {
   displayMode: SceneDisplayMode;
   speaker?: string;
   text: string;
+  imageAsset?: string;
+  imageFileName?: string;
+  cgTransition?: "fade" | "instant";
+  showDialogue?: boolean;
   choices?: ChoiceOption[];
   effects?: VnEffect[];
   directorNotes?: string[];
