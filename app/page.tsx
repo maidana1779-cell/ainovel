@@ -397,6 +397,26 @@ function createBatchEditCandidate(scenes: VisualNovelScene[], selection: Selecti
   };
 }
 
+function createTargetedBatchEditCandidate(
+  scenes: VisualNovelScene[],
+  selection: SelectionState,
+  title: string,
+  summary: string,
+  updater: (scene: VisualNovelScene) => VisualNovelScene
+): ToolCandidate {
+  const originalScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
+  const candidateScenes = originalScenes.map((scene) => updater(scene));
+  return {
+    id: uid("candidate"),
+    toolId: "batch-edit",
+    title,
+    summary,
+    selection,
+    originalScenes,
+    candidateScenes
+  };
+}
+
 function effectLabel(effect: VnEffect) {
   if (effect.type === "pause") return `pause ${effect.durationMs}ms ${effect.position === "beforeText" ? "before text" : "after text"}`;
   if (effect.type === "textSpeed") return `textSpeed ${effect.value}`;
@@ -775,11 +795,13 @@ function DialoguePanel({
   const afterTextDelay = scenePause(scene, "afterText");
   const isNarration = displayMode === "narration";
   const isCode = displayMode === "code" || scene.type === "code";
+  const isCg = displayMode === "cg";
   const isInline = variant === "inline";
   if (displayMode === "choice") return null;
+  if (isCg && scene.showDialogue === false) return null;
   return (
     <div className="pointer-events-none absolute bottom-8 left-1/2 h-[156px] w-[88%] max-w-[1320px] -translate-x-1/2 text-white">
-      {!isNarration && !isCode ? (
+      {!isNarration && !isCode && !isCg ? (
         <div
           className={cn(
             "absolute -top-6 left-0 z-10 ml-[26px] inline-block rounded-tr-md bg-[#0f141c] px-[18px] py-[5px] text-[13px] font-medium tracking-[0.3px] text-[#f2eee2]",
@@ -792,7 +814,7 @@ function DialoguePanel({
       <div
         className={cn(
           "relative flex h-[156px] w-full items-center border-t border-white/[0.06] bg-[rgba(10,13,18,0.84)] px-14 py-6 text-[#f4f0e6]",
-          isNarration ? "text-center" : "text-left"
+          "text-left"
         )}
       >
         {isCode ? (
@@ -823,7 +845,7 @@ function DialoguePanel({
             className={cn(
               "max-w-[1160px] min-h-0 flex-1 overflow-hidden whitespace-pre-wrap break-keep px-12 text-[17px] leading-[1.85] text-[#f4f0e6]",
               isNarration
-                ? "italic text-center"
+                ? "italic text-left"
                 : "text-left"
             )}
           />
@@ -1040,6 +1062,17 @@ function VNStage({
               />
             ))}
           </div> : null}
+          {displayMode === "cg" && scene.imageAsset ? (
+            <motion.img
+              key={`${scene.id}-cg`}
+              src={scene.imageAsset}
+              alt={scene.imageFileName ?? "CG Scene"}
+              initial={{ opacity: scene.cgTransition === "instant" ? 1 : 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: scene.cgTransition === "instant" ? 0 : 0.45 }}
+              className="pointer-events-none absolute inset-0 z-20 h-full w-full object-cover"
+            />
+          ) : null}
         </motion.div>
       </AnimatePresence>
 
@@ -1064,6 +1097,7 @@ function VNStage({
         {[
           ["Log", "☰"],
           ["Skip", "»"],
+          ["BGM", "♪"],
           ["Auto", "▶"],
           ["Menu", "≡"]
         ].map(([label, icon]) => (
@@ -1073,10 +1107,11 @@ function VNStage({
             onClick={(event) => {
               event.stopPropagation();
               if (label === "Log") setLogOpen((value) => !value);
+              if (label === "BGM") onToggleBgm();
               if (label === "Auto") onToggleAuto();
             }}
-            disabled={label === "Skip" || label === "Menu"}
-            className={`flex flex-col items-center gap-0.5 bg-transparent p-0 text-[9px] font-semibold text-[#e8e4d8cc] shadow-none transition disabled:pointer-events-none disabled:opacity-55 ${(label === "Auto" && autoPlay) || (label === "Log" && logOpen) ? "text-white" : ""}`}
+            disabled={label === "Skip" || label === "Menu" || (label === "BGM" && !scene.bgmAssetId)}
+            className={`flex flex-col items-center gap-0.5 bg-transparent p-0 text-[9px] font-semibold text-[#e8e4d8cc] shadow-none transition disabled:pointer-events-none disabled:opacity-55 ${(label === "Auto" && autoPlay) || (label === "Log" && logOpen) || (label === "BGM" && bgmEnabled) ? "text-white" : ""}`}
           >
             <span className="text-[17px] leading-none">{icon}</span>
             {label}
@@ -1494,6 +1529,17 @@ function VNStageInline({
               />
             ))}
           </div> : null}
+          {displayMode === "cg" && scene.imageAsset ? (
+            <motion.img
+              key={`${scene.id}-cg-inline`}
+              src={scene.imageAsset}
+              alt={scene.imageFileName ?? "CG Scene"}
+              initial={{ opacity: scene.cgTransition === "instant" ? 1 : 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: scene.cgTransition === "instant" ? 0 : 0.45 }}
+              className="pointer-events-none absolute inset-0 z-20 h-full w-full object-cover"
+            />
+          ) : null}
         </motion.div>
       </AnimatePresence>
 
@@ -1512,6 +1558,7 @@ function VNStageInline({
         {[
           ["Log", "☰"],
           ["Skip", "»"],
+          ["BGM", "♪"],
           ["Auto", "▶"],
           ["Menu", "≡"]
         ].map(([label, icon]) => (
@@ -1520,10 +1567,11 @@ function VNStageInline({
             type="button"
             onClick={(event) => {
               event.stopPropagation();
+              if (label === "BGM") onToggleBgm();
               if (label === "Auto") onToggleAuto();
             }}
-            disabled={label !== "Auto"}
-            className={`flex flex-col items-center gap-0.5 bg-transparent p-0 text-[8px] font-semibold text-[#e8e4d8cc] shadow-none transition disabled:pointer-events-none disabled:opacity-55 ${label === "Auto" && autoPlay ? "text-white" : ""}`}
+            disabled={(label !== "Auto" && label !== "BGM") || (label === "BGM" && !scene.bgmAssetId)}
+            className={`flex flex-col items-center gap-0.5 bg-transparent p-0 text-[8px] font-semibold text-[#e8e4d8cc] shadow-none transition disabled:pointer-events-none disabled:opacity-55 ${(label === "Auto" && autoPlay) || (label === "BGM" && bgmEnabled) ? "text-white" : ""}`}
           >
             <span className="text-[15px] leading-none">{icon}</span>
             {label}
@@ -1642,6 +1690,7 @@ function LargeVNPreviewSection({
   typingSpeedMode: TypingSpeedMode;
   onTypingSpeedChange: (mode: TypingSpeedMode) => void;
 }) {
+  const currentBgmAsset = scene.bgmAssetId ? assets.bgmAssets.find((asset) => asset.id === scene.bgmAssetId) : undefined;
   return (
     <section className="mx-auto max-w-[1440px] px-4 pb-8 sm:px-6 lg:px-8">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -1650,6 +1699,17 @@ function LargeVNPreviewSection({
           <p className="mt-1 text-sm font-medium text-slate-500">화면을 클릭하거나 Space / Enter로 다음 대사를 진행합니다.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={onToggleBgm}
+            disabled={!currentBgmAsset}
+            className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-300 ${bgmEnabled ? "border-emerald-200 bg-emerald-50 text-emerald-600" : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"}`}
+            aria-pressed={bgmEnabled}
+            title={currentBgmAsset ? currentBgmAsset.name : "이 장면에는 BGM이 없습니다"}
+          >
+            <Music className="h-3.5 w-3.5" />
+            {bgmEnabled ? "BGM 재생 중" : currentBgmAsset ? "BGM 재생" : "BGM 없음"}
+          </button>
           <button
             type="button"
             onClick={onToggleTyping}
@@ -1946,8 +2006,46 @@ function SceneCard({
   const uploadedBg = scene.backgroundAssetId ? assets.backgroundAssets.find((asset) => asset.id === scene.backgroundAssetId) : undefined;
   const displayMode = sceneDisplayMode(scene);
   const isChoiceScene = displayMode === "choice" || Boolean(scene.choices?.length);
+  const isCgScene = displayMode === "cg";
+  const isNormalScene = !isChoiceScene && !isCgScene;
   const isDialogueScene = displayMode === "dialogue";
   const sceneIds = new Set(scenes.map((item) => item.id));
+  const previewImage = isCgScene && scene.imageAsset ? scene.imageAsset : uploadedBg?.dataUrl;
+  const previewStyle = previewImage ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined;
+  const [cgError, setCgError] = useState<string | null>(null);
+  async function handleCgUpload(file?: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setCgError("png, jpg, webp 이미지만 사용할 수 있습니다.");
+      return;
+    }
+    if (file.size > IMAGE_LIMIT) {
+      setCgError("CG 이미지는 5MB 이하 파일을 권장합니다.");
+      return;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setCgError(null);
+      onUpdateScene(index, { imageAsset: dataUrl, imageFileName: file.name });
+    } catch (error) {
+      setCgError(error instanceof Error ? error.message : "이미지를 불러오지 못했습니다.");
+    }
+  }
+  function updateChoice(choiceIndex: number, patch: Partial<NonNullable<VisualNovelScene["choices"]>[number]>) {
+    onUpdateScene(index, {
+      choices: (scene.choices ?? []).map((choice, innerIndex) => innerIndex === choiceIndex ? { ...choice, ...patch } : choice)
+    });
+  }
+  function addChoice() {
+    onUpdateScene(index, {
+      choices: [...(scene.choices ?? []), { id: uid("choice"), text: "새 선택지", targetSceneId: undefined }]
+    });
+  }
+  function removeChoice(choiceIndex: number) {
+    onUpdateScene(index, {
+      choices: (scene.choices ?? []).filter((_, innerIndex) => innerIndex !== choiceIndex)
+    });
+  }
   return (
     <div
       draggable
@@ -1959,10 +2057,10 @@ function SceneCard({
       <button
         type="button"
         onClick={() => onSelect(index)}
-        className={`relative aspect-video w-full bg-gradient-to-br ${uploadedBg ? "" : bg.gradient} flex items-center justify-center`}
-        style={uploadedBg ? { backgroundImage: `url(${uploadedBg.dataUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+        className={`relative aspect-video w-full bg-gradient-to-br ${previewImage ? "" : bg.gradient} flex items-center justify-center`}
+        style={previewStyle}
       >
-        {!uploadedBg && <span className="text-3xl font-black text-white/80">{bg.icon}</span>}
+        {!previewImage && <span className="text-3xl font-black text-white/80">{bg.icon}</span>}
         <span className="absolute top-2 left-2 h-6 w-6 rounded-md bg-black/30 text-white text-[11px] font-bold flex items-center justify-center">
           {index + 1}
         </span>
@@ -1986,17 +2084,21 @@ function SceneCard({
             선택지 노드
           </span>
         ) : null}
+        {isCgScene ? (
+          <span className="absolute bottom-2 right-2 rounded-full bg-pink-400 px-2.5 py-1 text-[11px] font-extrabold text-pink-950 shadow-sm">
+            CG Scene
+          </span>
+        ) : null}
       </button>
 
       <div className="p-4">
-        <div className="flex items-center gap-2 mb-2.5">
-          <Avatar tone={scene.role === "user" ? "purple" : "indigo"} size={6} />
-          <input
-            value={scene.speaker ?? ""}
-            onChange={(event) => onUpdateScene(index, { speaker: event.target.value })}
-            placeholder={isDialogueScene ? "화자 이름 입력" : "화자 이름"}
-            className={`min-w-0 flex-1 rounded-lg border px-2 py-1 text-[13px] font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-100 ${isDialogueScene && !scene.speaker ? "border-amber-200 bg-amber-50/70" : "border-slate-200"}`}
-          />
+        <div className="mb-2.5 flex items-center gap-2">
+          <Avatar tone={isChoiceScene ? "slate" : isCgScene ? "rose" : scene.role === "user" ? "purple" : "indigo"} size={6} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[11px] font-extrabold text-slate-500">
+              {isChoiceScene ? "선택지 노드" : isCgScene ? "CG Scene" : "일반 Scene"}
+            </p>
+          </div>
           <select
             value={displayMode === "code" || displayMode === "system" ? "narration" : displayMode}
             onChange={(event) => {
@@ -2004,6 +2106,7 @@ function SceneCard({
               onUpdateScene(index, {
                 displayMode: nextMode,
                 role: nextMode === "narration" ? "narration" : nextMode === "dialogue" ? "assistant" : scene.role,
+                imageAsset: nextMode === "cg" ? scene.imageAsset : scene.imageAsset,
                 choices: nextMode === "choice" ? (scene.choices?.length ? scene.choices : [{ id: uid("choice"), text: "선택지", targetSceneId: undefined }]) : undefined
               });
             }}
@@ -2016,39 +2119,145 @@ function SceneCard({
           </select>
         </div>
 
-        <textarea value={scene.text} onChange={(event) => onUpdateScene(index, { text: event.target.value })} className="als-scrollbar min-h-[72px] w-full resize-none rounded-xl border border-slate-200 bg-slate-50/60 p-2 text-[13px] leading-relaxed text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-
-        {scene.choices?.length ? (
-          <div className="mt-3 rounded-xl border border-purple-100 bg-purple-50/50 p-2">
-            <p className="mb-2 text-[11px] font-extrabold text-purple-600">선택지 노드 · 분기 연결</p>
-            <div className="space-y-2">
-              {scene.choices.map((choice, choiceIndex) => (
-                <div key={choice.id} className="grid gap-1">
-                  <input
-                    value={choice.text}
-                    onChange={(event) => onUpdateScene(index, { choices: scene.choices?.map((item, innerIndex) => innerIndex === choiceIndex ? { ...item, text: event.target.value } : item) })}
-                    className="rounded-lg border border-purple-100 bg-white px-2 py-1 text-[11px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-100"
-                  />
-                  <select
-                    value={choice.targetSceneId ?? ""}
-                    onChange={(event) => onUpdateScene(index, { choices: scene.choices?.map((item, innerIndex) => innerIndex === choiceIndex ? { ...item, targetSceneId: event.target.value || undefined } : item) })}
-                    className="rounded-lg border border-purple-100 bg-white px-2 py-1 text-[11px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-100"
-                  >
-                    <option value="">다음 Scene으로 이동</option>
-                    {scenes.map((targetScene, targetIndex) => (
-                      <option key={targetScene.id} value={targetScene.id}>Scene {targetIndex + 1} · {sceneExcerpt(targetScene, 32)}</option>
-                    ))}
-                  </select>
-                  <p className={`text-[10px] font-semibold ${choice.targetSceneId && sceneIds.has(choice.targetSceneId) ? "text-purple-500" : "text-rose-500"}`}>
-                    {choice.targetSceneId
-                      ? sceneIds.has(choice.targetSceneId)
-                        ? `연결 대상: Scene ${scenes.findIndex((targetScene) => targetScene.id === choice.targetSceneId) + 1}`
-                        : "경고: 삭제되었거나 존재하지 않는 Scene을 가리킵니다."
-                      : "경고: 연결 대상이 비어 있습니다. 선택 시 다음 Scene으로 이동합니다."}
-                  </p>
-                </div>
-              ))}
+        {isNormalScene ? (
+          <>
+            <div className="flex items-center gap-2">
+              <input
+                value={scene.speaker ?? ""}
+                onChange={(event) => onUpdateScene(index, { speaker: event.target.value })}
+                placeholder={isDialogueScene ? "화자 이름 입력" : "나레이션은 화자가 화면에 표시되지 않습니다"}
+                className={`min-w-0 flex-1 rounded-lg border px-2 py-1.5 text-[13px] font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-100 ${isDialogueScene && !scene.speaker ? "border-amber-200 bg-amber-50/70" : "border-slate-200"}`}
+              />
             </div>
+
+            <textarea value={scene.text} onChange={(event) => onUpdateScene(index, { text: event.target.value })} className="als-scrollbar mt-2 h-[104px] w-full resize-none rounded-xl border border-slate-200 bg-slate-50/60 p-2 text-[13px] leading-relaxed text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <select value={scene.backgroundAssetId ?? ""} onChange={(event) => onUpdateScene(index, { backgroundAssetId: event.target.value || undefined })} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-600">
+                <option value="">더미 배경</option>
+                {assets.backgroundAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+              </select>
+              <select value={scene.bgmAssetId ?? ""} onChange={(event) => onUpdateScene(index, { bgmAssetId: event.target.value || undefined })} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-600">
+                <option value="">BGM 없음</option>
+                {assets.bgmAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+              </select>
+            </div>
+
+            <div className="mt-3 rounded-xl bg-slate-50 p-2">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-slate-500">캐릭터</span>
+                <button type="button" onClick={() => onAddCharacter(index)} disabled={scene.characters.length >= 3} className="text-[11px] font-bold text-indigo-600 disabled:text-slate-300">추가</button>
+              </div>
+              <div className="space-y-2">
+                {scene.characters.map((character, characterIndex) => (
+                  <div key={`${character.position}-${characterIndex}`} className="grid grid-cols-[1fr_76px_70px_24px] gap-1">
+                    <select
+                      value={character.assetId}
+                      onChange={(event) => {
+                        const asset = assets.standingAssets.find((item) => item.id === event.target.value);
+                        onUpdateCharacter(index, characterIndex, { assetId: event.target.value, name: asset?.name ?? character.name });
+                      }}
+                      className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600"
+                    >
+                      <option value="">미등록</option>
+                      {assets.standingAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+                    </select>
+                    <select value={character.position} onChange={(event) => onUpdateCharacter(index, characterIndex, { position: event.target.value as SceneCharacter["position"] })} className="rounded-lg border border-slate-200 bg-white px-1 py-1 text-[11px] text-slate-600">
+                      <option value="left">왼쪽</option>
+                      <option value="center">중앙</option>
+                      <option value="right">오른쪽</option>
+                    </select>
+                    <label className="flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-1 py-1 text-[11px] text-slate-600">
+                      <input type="checkbox" checked={character.isSpeaking} onChange={(event) => onUpdateCharacter(index, characterIndex, { isSpeaking: event.target.checked })} className="accent-indigo-600" />
+                      말함
+                    </label>
+                    <button type="button" onClick={() => onRemoveCharacter(index, characterIndex)} className="rounded-lg text-rose-400 hover:bg-rose-50">×</button>
+                    <input value={character.name} onChange={(event) => onUpdateCharacter(index, characterIndex, { name: event.target.value })} className="col-span-4 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {isChoiceScene ? (
+          <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <p className="text-[11px] font-extrabold text-amber-700">선택지 목록</p>
+              <button type="button" onClick={addChoice} className="rounded-full bg-white px-2.5 py-1 text-[11px] font-extrabold text-amber-700 ring-1 ring-amber-100">선택지 추가</button>
+            </div>
+            <textarea value={scene.text} onChange={(event) => onUpdateScene(index, { text: event.target.value })} placeholder="선택지 위에 보여줄 짧은 안내 문장" className="als-scrollbar mb-3 h-[56px] w-full resize-none rounded-xl border border-amber-100 bg-white/80 p-2 text-[12px] leading-relaxed text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-100" />
+            <div className="space-y-2">
+              {(scene.choices ?? []).map((choice, choiceIndex) => {
+                const targetIndex = choice.targetSceneId ? scenes.findIndex((targetScene) => targetScene.id === choice.targetSceneId) : -1;
+                const validTarget = targetIndex >= 0;
+                return (
+                  <div key={choice.id} className="rounded-xl border border-amber-100 bg-white p-2">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-[11px] font-extrabold text-amber-700">{choiceIndex + 1}</span>
+                      <input
+                        value={choice.text}
+                        onChange={(event) => updateChoice(choiceIndex, { text: event.target.value })}
+                        placeholder="선택지 문구"
+                        className="min-w-0 flex-1 rounded-lg border border-amber-100 bg-white px-2 py-1.5 text-[12px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-100"
+                      />
+                      <button type="button" onClick={() => removeChoice(choiceIndex)} className="h-8 w-8 rounded-lg text-rose-400 hover:bg-rose-50">×</button>
+                    </div>
+                    <div className="mt-2 grid gap-1">
+                      <select
+                        value={choice.targetSceneId ?? ""}
+                        onChange={(event) => updateChoice(choiceIndex, { targetSceneId: event.target.value || undefined })}
+                        className="rounded-lg border border-amber-100 bg-white px-2 py-1.5 text-[11px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-100"
+                      >
+                        <option value="">다음 Scene으로 이동</option>
+                        {scenes.map((targetScene, targetSceneIndex) => (
+                          <option key={targetScene.id} value={targetScene.id}>Scene {targetSceneIndex + 1} · {sceneExcerpt(targetScene, 32)}</option>
+                        ))}
+                      </select>
+                      <p className={`text-[10px] font-semibold ${validTarget ? "text-amber-700" : "text-rose-500"}`}>
+                        {choice.targetSceneId
+                          ? validTarget
+                            ? `연결 대상: Scene ${targetIndex + 1}`
+                            : "경고: 삭제되었거나 존재하지 않는 Scene을 가리킵니다."
+                          : "연결 대상이 비어 있으면 다음 Scene으로 이동합니다."}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        {isCgScene ? (
+          <div className="rounded-xl border border-pink-100 bg-pink-50/50 p-3">
+            <p className="mb-2 text-[11px] font-extrabold text-pink-600">CG 이미지</p>
+            {scene.imageAsset ? (
+              <img src={scene.imageAsset} alt={scene.imageFileName ?? "CG Scene"} className="mb-2 aspect-video w-full rounded-xl object-cover ring-1 ring-pink-100" />
+            ) : (
+              <div className="mb-2 flex aspect-video w-full items-center justify-center rounded-xl border border-dashed border-pink-200 bg-white/70 text-xs font-bold text-pink-300">
+                CG 이미지를 업로드하세요
+              </div>
+            )}
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-pink-100 bg-white px-3 py-2 text-xs font-extrabold text-pink-600 transition-colors hover:bg-pink-50">
+              <Upload className="h-3.5 w-3.5" />
+              이미지 업로드
+              <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => void handleCgUpload(event.target.files?.[0])} />
+            </label>
+            {cgError ? <p className="mt-2 rounded-lg bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-500">{cgError}</p> : null}
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <select value={scene.cgTransition ?? "fade"} onChange={(event) => onUpdateScene(index, { cgTransition: event.target.value as VisualNovelScene["cgTransition"] })} className="rounded-lg border border-pink-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+                <option value="fade">서서히 표시</option>
+                <option value="instant">바로 표시</option>
+              </select>
+              <label className="flex items-center justify-center gap-2 rounded-lg border border-pink-100 bg-white px-2 py-1.5 text-xs font-semibold text-slate-600">
+                <input type="checkbox" checked={scene.showDialogue !== false} onChange={(event) => onUpdateScene(index, { showDialogue: event.target.checked })} className="accent-pink-500" />
+                대사창 표시
+              </label>
+            </div>
+            {scene.showDialogue !== false ? (
+              <textarea value={scene.text} onChange={(event) => onUpdateScene(index, { text: event.target.value })} placeholder="이미지 위에 함께 보여줄 문장" className="als-scrollbar mt-2 h-[72px] w-full resize-none rounded-xl border border-pink-100 bg-white/80 p-2 text-[13px] leading-relaxed text-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-100" />
+            ) : null}
           </div>
         ) : null}
 
@@ -2064,52 +2273,6 @@ function SceneCard({
             </div>
           </div>
         ) : null}
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <select value={scene.backgroundAssetId ?? ""} onChange={(event) => onUpdateScene(index, { backgroundAssetId: event.target.value || undefined })} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-600">
-            <option value="">더미 배경</option>
-            {assets.backgroundAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
-          </select>
-          <select value={scene.bgmAssetId ?? ""} onChange={(event) => onUpdateScene(index, { bgmAssetId: event.target.value || undefined })} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-600">
-            <option value="">BGM 없음</option>
-            {assets.bgmAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
-          </select>
-        </div>
-
-        <div className="mt-3 rounded-xl bg-slate-50 p-2">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-500">Characters</span>
-            <button type="button" onClick={() => onAddCharacter(index)} disabled={scene.characters.length >= 3} className="text-[11px] font-bold text-indigo-600 disabled:text-slate-300">추가</button>
-          </div>
-          <div className="space-y-2">
-            {scene.characters.map((character, characterIndex) => (
-              <div key={`${character.position}-${characterIndex}`} className="grid grid-cols-[1fr_76px_70px_24px] gap-1">
-                <select
-                  value={character.assetId}
-                  onChange={(event) => {
-                    const asset = assets.standingAssets.find((item) => item.id === event.target.value);
-                    onUpdateCharacter(index, characterIndex, { assetId: event.target.value, name: asset?.name ?? character.name });
-                  }}
-                  className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600"
-                >
-                  <option value="">미등록</option>
-                  {assets.standingAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
-                </select>
-                <select value={character.position} onChange={(event) => onUpdateCharacter(index, characterIndex, { position: event.target.value as SceneCharacter["position"] })} className="rounded-lg border border-slate-200 bg-white px-1 py-1 text-[11px] text-slate-600">
-                  <option value="left">left</option>
-                  <option value="center">center</option>
-                  <option value="right">right</option>
-                </select>
-                <label className="flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-1 py-1 text-[11px] text-slate-600">
-                  <input type="checkbox" checked={character.isSpeaking} onChange={(event) => onUpdateCharacter(index, characterIndex, { isSpeaking: event.target.checked })} className="accent-indigo-600" />
-                  말함
-                </label>
-                <button type="button" onClick={() => onRemoveCharacter(index, characterIndex)} className="rounded-lg text-rose-400 hover:bg-rose-50">×</button>
-                <input value={character.name} onChange={(event) => onUpdateCharacter(index, characterIndex, { name: event.target.value })} className="col-span-4 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600" />
-              </div>
-            ))}
-          </div>
-        </div>
 
         <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
           <span className="text-[11px] text-slate-400 font-medium">Scene {String(index + 1).padStart(2, "0")}</span>
@@ -2358,12 +2521,12 @@ function WorkflowCandidateDiff({
     <div className="mt-4 rounded-2xl border border-purple-100 bg-purple-50/40 p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-xs font-extrabold text-purple-700">Preview / Diff</p>
+          <p className="text-xs font-extrabold text-purple-700">미리보기 / 변경 내용</p>
           <p className="mt-1 text-xs text-purple-500">{candidate.title} · {candidate.summary}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onCancel}>Cancel</Button>
-          <Button variant="primary" size="sm" onClick={onApply}>Apply</Button>
+          <Button variant="ghost" size="sm" onClick={onCancel}>취소</Button>
+          <Button variant="primary" size="sm" onClick={onApply}>적용하기</Button>
         </div>
       </div>
       {candidate.toolId === "enhance" && candidate.effectSuggestions ? (
@@ -2375,7 +2538,7 @@ function WorkflowCandidateDiff({
               <div key={suggestion.sceneId} className="rounded-xl border border-slate-200 bg-white p-3">
                 <p className="mb-1 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">Scene {suggestion.sceneIndex + 1}</p>
                 <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-600">{original?.text ?? ""}</p>
-                <p className="mt-3 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">Suggested Effects</p>
+                <p className="mt-3 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">제안된 연출</p>
                 <div className="mt-2 grid gap-2">
                   {suggestion.effects.map((effect) => (
                     <label key={effect.id} className="flex items-center gap-2 rounded-lg border border-purple-100 bg-purple-50/60 px-3 py-2 text-xs font-semibold text-slate-700">
@@ -2384,7 +2547,7 @@ function WorkflowCandidateDiff({
                     </label>
                   ))}
                 </div>
-                <p className="mt-3 text-xs font-semibold text-slate-400">Text change: 없음</p>
+                <p className="mt-3 text-xs font-semibold text-slate-400">대사 변경: 없음</p>
               </div>
             );
           })}
@@ -2396,11 +2559,11 @@ function WorkflowCandidateDiff({
           return (
             <div key={`${candidate.id}-${original.id}-${index}`} className="contents">
               <div className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">Original · Scene {candidate.selection.sceneIndexes[index] + 1}</p>
+                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">원본 · Scene {candidate.selection.sceneIndexes[index] + 1}</p>
                 <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-600">{original.text}</p>
               </div>
               <div className="rounded-xl border border-purple-200 bg-white p-3 shadow-sm">
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">Candidate</p>
+                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">AI 제안</p>
                 <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-700">{next?.text ?? ""}</p>
               </div>
             </div>
@@ -2433,12 +2596,29 @@ function WorkflowToolsPanel({
   const [query, setQuery] = useState("");
   const [replacement, setReplacement] = useState("");
   const [batchOpen, setBatchOpen] = useState(false);
-  const [batchSpeaker, setBatchSpeaker] = useState("");
-  const [batchMode, setBatchMode] = useState("");
-  const [batchBackgroundId, setBatchBackgroundId] = useState("");
+  const [editTarget, setEditTarget] = useState<"speaker" | "background" | "bgm">("speaker");
+  const [speakerFrom, setSpeakerFrom] = useState("__any__");
+  const [speakerTo, setSpeakerTo] = useState("");
+  const [backgroundFrom, setBackgroundFrom] = useState("__any__");
+  const [backgroundTo, setBackgroundTo] = useState("__unset__");
+  const [bgmFrom, setBgmFrom] = useState("__any__");
+  const [bgmTo, setBgmTo] = useState("__unset__");
   const selectedScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
   const disabled = selectedScenes.length === 0;
   const currentStep = candidate ? 5 : disabled ? 1 : 2;
+  const selectedSpeakers = Array.from(new Set(selectedScenes.map((scene) => scene.speaker?.trim()).filter(Boolean) as string[]));
+
+  function matchesAssetFilter(currentId: string | undefined, filter: string) {
+    if (filter === "__any__") return true;
+    if (filter === "__empty__") return !currentId;
+    return currentId === filter;
+  }
+
+  function assetName(id: string | undefined, kind: "background" | "bgm") {
+    if (!id) return kind === "background" ? "배경 없음" : "BGM 없음";
+    const list = kind === "background" ? assets.backgroundAssets : assets.bgmAssets;
+    return list.find((asset) => asset.id === id)?.name ?? "삭제된 에셋";
+  }
 
   function generateCandidate() {
     if (disabled) return;
@@ -2449,11 +2629,39 @@ function WorkflowToolsPanel({
 
   function generateBatchCandidate() {
     if (disabled) return;
-    const patch: Partial<VisualNovelScene> = {};
-    if (batchSpeaker.trim()) patch.speaker = batchSpeaker.trim();
-    if (batchMode) patch.displayMode = batchMode as VisualNovelScene["displayMode"];
-    if (batchBackgroundId) patch.backgroundAssetId = batchBackgroundId === "__clear__" ? undefined : batchBackgroundId;
-    if (Object.keys(patch).length) onCandidate(createBatchEditCandidate(scenes, selection, patch));
+    if (editTarget === "speaker") {
+      const nextSpeaker = speakerTo.trim();
+      if (!nextSpeaker) return;
+      onCandidate(createTargetedBatchEditCandidate(
+        scenes,
+        selection,
+        "화자 변경",
+        `선택한 장면에서 ${speakerFrom === "__any__" ? "모든 화자" : `"${speakerFrom}"`}를 "${nextSpeaker}"로 바꿉니다.`,
+        (scene) => speakerFrom === "__any__" || (scene.speaker ?? "") === speakerFrom ? { ...scene, speaker: nextSpeaker } : scene
+      ));
+      return;
+    }
+    if (editTarget === "background" && backgroundTo !== "__unset__") {
+      const nextBackgroundId = backgroundTo === "__clear__" ? undefined : backgroundTo;
+      onCandidate(createTargetedBatchEditCandidate(
+        scenes,
+        selection,
+        "배경 변경",
+        `선택한 장면에서 ${backgroundFrom === "__any__" ? "모든 배경" : assetName(backgroundFrom === "__empty__" ? undefined : backgroundFrom, "background")}을 ${assetName(nextBackgroundId, "background")}으로 바꿉니다.`,
+        (scene) => matchesAssetFilter(scene.backgroundAssetId, backgroundFrom) ? { ...scene, backgroundAssetId: nextBackgroundId } : scene
+      ));
+      return;
+    }
+    if (editTarget === "bgm" && bgmTo !== "__unset__") {
+      const nextBgmId = bgmTo === "__clear__" ? undefined : bgmTo;
+      onCandidate(createTargetedBatchEditCandidate(
+        scenes,
+        selection,
+        "BGM 변경",
+        `선택한 장면에서 ${bgmFrom === "__any__" ? "모든 BGM" : assetName(bgmFrom === "__empty__" ? undefined : bgmFrom, "bgm")}을 ${assetName(nextBgmId, "bgm")}으로 바꿉니다.`,
+        (scene) => matchesAssetFilter(scene.bgmAssetId, bgmFrom) ? { ...scene, bgmAssetId: nextBgmId } : scene
+      ));
+    }
   }
 
   return (
@@ -2518,7 +2726,7 @@ function WorkflowToolsPanel({
             )}
 
             <Button variant="primary" size="md" icon={Wand2} iconPosition="left" onClick={generateCandidate}>
-              Generate
+              AI 제안 만들기
             </Button>
           </div>
 
@@ -2529,27 +2737,90 @@ function WorkflowToolsPanel({
       <div className="mt-3 rounded-2xl border border-slate-100 bg-white">
         <button type="button" onClick={() => setBatchOpen((value) => !value)} className="flex w-full items-center justify-between px-4 py-3 text-left">
           <div>
-            <p className="text-xs font-extrabold text-slate-600">General Edit Tools</p>
-            <p className="mt-0.5 text-xs text-slate-400">Batch Edit는 AI가 아닌 일반 편집 도구입니다.</p>
+            <p className="text-xs font-extrabold text-slate-600">일괄 편집</p>
+            <p className="mt-0.5 text-xs text-slate-400">선택한 장면에서 화자, 배경, BGM을 한 번에 바꿉니다.</p>
           </div>
           <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${batchOpen ? "rotate-180" : ""}`} />
         </button>
         {batchOpen ? (
-          <div className="grid gap-2 border-t border-slate-100 p-4 md:grid-cols-[1fr_180px_220px_auto]">
-            <input value={batchSpeaker} onChange={(event) => setBatchSpeaker(event.target.value)} placeholder="speaker 일괄 변경" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-            <select value={batchMode} onChange={(event) => setBatchMode(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-              <option value="">장면 타입 유지</option>
-              <option value="dialogue">dialogue</option>
-              <option value="narration">narration</option>
-              <option value="system">system</option>
-              <option value="code">code</option>
-            </select>
-            <select value={batchBackgroundId} onChange={(event) => setBatchBackgroundId(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-              <option value="">background 유지</option>
-              <option value="__clear__">background 비우기</option>
-              {assets.backgroundAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
-            </select>
-            <Button variant="secondary" size="sm" disabled={disabled} onClick={generateBatchCandidate}>Candidate</Button>
+          <div className="border-t border-slate-100 p-4">
+            <div className="grid gap-3 md:grid-cols-[220px_1fr_auto] md:items-end">
+              <div>
+                <label className="text-[11px] font-extrabold text-slate-400">무엇을 수정할까요?</label>
+                <select value={editTarget} onChange={(event) => setEditTarget(event.target.value as "speaker" | "background" | "bgm")} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                  <option value="speaker">화자 변경</option>
+                  <option value="background">배경 변경</option>
+                  <option value="bgm">BGM 변경</option>
+                </select>
+              </div>
+
+              {editTarget === "speaker" ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <label className="text-[11px] font-extrabold text-slate-400">기존 화자</label>
+                    <select value={speakerFrom} onChange={(event) => setSpeakerFrom(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                      <option value="__any__">선택한 장면 전체</option>
+                      {selectedSpeakers.map((speaker) => <option key={speaker} value={speaker}>{speaker}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-extrabold text-slate-400">변경할 화자</label>
+                    <input value={speakerTo} onChange={(event) => setSpeakerTo(event.target.value)} placeholder="새 화자 이름" className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                  </div>
+                </div>
+              ) : null}
+
+              {editTarget === "background" ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <label className="text-[11px] font-extrabold text-slate-400">기존 배경</label>
+                    <select value={backgroundFrom} onChange={(event) => setBackgroundFrom(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                      <option value="__any__">선택한 장면 전체</option>
+                      <option value="__empty__">배경 없음</option>
+                      {assets.backgroundAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-extrabold text-slate-400">변경할 배경</label>
+                    <select value={backgroundTo} onChange={(event) => setBackgroundTo(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                      <option value="__unset__">배경 선택</option>
+                      <option value="__clear__">배경 없음</option>
+                      {assets.backgroundAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+                    </select>
+                  </div>
+                </div>
+              ) : null}
+
+              {editTarget === "bgm" ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <label className="text-[11px] font-extrabold text-slate-400">기존 BGM</label>
+                    <select value={bgmFrom} onChange={(event) => setBgmFrom(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                      <option value="__any__">선택한 장면 전체</option>
+                      <option value="__empty__">BGM 없음</option>
+                      {assets.bgmAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-extrabold text-slate-400">변경할 BGM</label>
+                    <select value={bgmTo} onChange={(event) => setBgmTo(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                      <option value="__unset__">BGM 선택</option>
+                      <option value="__clear__">BGM 없음</option>
+                      {assets.bgmAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+                    </select>
+                  </div>
+                </div>
+              ) : null}
+
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={disabled || (editTarget === "speaker" && !speakerTo.trim()) || (editTarget === "background" && backgroundTo === "__unset__") || (editTarget === "bgm" && bgmTo === "__unset__")}
+                onClick={generateBatchCandidate}
+              >
+                수정안 만들기
+              </Button>
+            </div>
           </div>
         ) : null}
       </div>
@@ -2631,7 +2902,7 @@ function SceneAccordion({
             </div>
             <div className="text-left">
               <h3 className="text-[15px] font-extrabold text-slate-900">장면 편집</h3>
-              <p className="text-xs text-slate-400">카드를 열어 speaker · background · text · asset을 수정</p>
+              <p className="text-xs text-slate-400">카드를 열어 화자, 대사, 배경, 에셋을 수정</p>
             </div>
           </div>
           <ChevronDown className={`h-5 w-5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />

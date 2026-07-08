@@ -63,14 +63,13 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .face { width: 54px; height: 54px; border-radius: 999px; background: #fed7aa; box-shadow: inset 0 -8px 18px rgba(15,23,42,.12); }
     .panel { position: absolute; left: 50%; bottom: 32px; z-index: 5; display: flex; align-items: center; width: 88%; max-width: 1320px; height: 156px; padding: 24px 56px; transform: translateX(-50%); box-sizing: border-box; color: #f4f0e6; background: rgba(10,13,18,.84); border-top: 1px solid rgba(255,255,255,.06); box-shadow: 0 -18px 60px rgba(0,0,0,.22); }
     .panel.choice, .panel.hidden { display: none; }
-    .panel.dialogue, .panel.system, .panel.code { text-align: left; }
-    .panel.narration { text-align: center; }
+    .panel.dialogue, .panel.system, .panel.code, .panel.narration, .panel.cg { text-align: left; }
     .meta { position: absolute; left: 0; top: -24px; }
     .speaker { display: inline-block; margin-left: 26px; border-radius: 0 6px 0 0; background: #0f141c; color: #f2eee2; padding: 5px 18px; font-size: 13px; font-weight: 500; letter-spacing: .3px; }
     .pill, .counter { border-radius: 999px; padding: 6px 10px; background: rgba(255,255,255,.12); color: #dbeafe; font-size: 13px; font-weight: 800; }
     .narration-dot { position: absolute; left: 18px; top: 18px; width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.35); }
     .text { flex: 1; max-width: 1160px; min-height: 0; max-height: 100%; white-space: pre-wrap; word-break: keep-all; overflow: hidden; padding-left: 48px; padding-right: 48px; font-family: var(--vn-font-family); font-size: 17px; line-height: 1.85; color: #f4f0e6; }
-    .text.narration { display: flex; align-items: center; justify-content: center; max-width: none; width: 100%; text-align: center; font-family: var(--vn-font-family); font-style: italic; font-size: 17px; line-height: 1.85; color: #f4f0e6; }
+    .text.narration { display: block; max-width: 1160px; width: auto; text-align: left; font-family: var(--vn-font-family); font-style: italic; font-size: 17px; line-height: 1.85; color: #f4f0e6; }
     .continue { margin-left: auto; color: #f4f0e6; font-size: 18px; opacity: 0; }
     .continue.visible { animation: vnbounce 1.6s ease-in-out infinite; }
     pre.text { margin: 0; border-radius: 12px; padding: 12px; background: rgba(0,0,0,.45); color: #d9f99d; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
@@ -467,7 +466,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       panel.className = "panel " + (showDialoguePanel ? mode : "hidden");
       const showMeta = showDialoguePanel && mode !== "narration" && mode !== "choice" && Boolean(scene.speaker);
       meta.hidden = !showMeta;
-      narrationDot.hidden = showMeta;
+      narrationDot.hidden = true;
       speaker.textContent = showMeta ? (scene.speaker || "") : "";
       const replacement = document.createElement(mode === "code" ? "pre" : "div");
       replacement.className = "text " + mode;
