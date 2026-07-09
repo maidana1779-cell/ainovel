@@ -4,6 +4,12 @@ import { getPlayerFontOption } from "../playerFonts";
 
 export type StandaloneHtmlOptions = {
   fontId?: string;
+  typingEnabled?: boolean;
+  bgmEnabled?: boolean;
+  includeFonts?: boolean;
+  includeAssets?: boolean;
+  aspectRatio?: "pc" | "mobile";
+  fullscreen?: boolean;
 };
 
 const FALLBACK_BACKGROUNDS: Record<string, string> = {
@@ -32,10 +38,15 @@ function escapeHtml(value: string) {
 
 export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLibrary = EMPTY_ASSETS, options: StandaloneHtmlOptions = {}) {
   const safeScenes = JSON.stringify(scenes).replace(/</g, "\\u003c");
-  const safeAssets = JSON.stringify(assets).replace(/</g, "\\u003c");
+  const exportAssets = options.includeAssets === false ? EMPTY_ASSETS : assets;
+  const safeAssets = JSON.stringify(exportAssets).replace(/</g, "\\u003c");
   const safeFallbacks = JSON.stringify(FALLBACK_BACKGROUNDS).replace(/</g, "\\u003c");
-  const playerFont = getPlayerFontOption(options.fontId);
-  const googleFontHref = playerFont.googleFont ? `https://fonts.googleapis.com/css2?family=${playerFont.googleFont}&display=swap` : "";
+  const playerFont = getPlayerFontOption(options.includeFonts === false ? "system-sans" : options.fontId);
+  const googleFontHref = options.includeFonts === false ? "" : playerFont.googleFont ? `https://fonts.googleapis.com/css2?family=${playerFont.googleFont}&display=swap` : "";
+  const stageSize = options.aspectRatio === "mobile" ? "width: 900px; height: 1600px;" : "width: 1600px; height: 900px;";
+  const initialTyping = options.typingEnabled === false ? "false" : "true";
+  const allowBgm = options.bgmEnabled === false ? "false" : "true";
+  const startFullscreen = options.fullscreen ? "true" : "false";
 
   return `<!doctype html>
 <html lang="ko">
@@ -49,7 +60,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; overflow: auto; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f8fafc; background: #0f172a; }
-    .stage { --vn-font-family: ${playerFont.cssFamily}; width: 1600px; height: 900px; position: relative; overflow: hidden; isolation: isolate; cursor: pointer; }
+    .stage { --vn-font-family: ${playerFont.cssFamily}; ${stageSize} position: relative; overflow: hidden; isolation: isolate; cursor: pointer; }
     .bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: background 240ms ease; z-index: -3; }
     .shade { position: absolute; inset: 0; background: radial-gradient(circle at 26% 18%, rgba(255,255,255,.2), transparent 26%), linear-gradient(to top, rgba(2,6,23,.72), transparent 58%); z-index: -2; }
     .characters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -167,11 +178,12 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     const fallbacks = ${safeFallbacks};
     const STORAGE_KEY = "exported-chatlog-vn-progress";
     const AUTO_PLAY_MS = 3200;
+    const START_FULLSCREEN = ${startFullscreen};
     const signature = scenes.length + ":" + scenes.map((scene) => (scene.displayMode || "") + ":" + (scene.speaker || "") + ":" + scene.text.length).join("|");
     let index = 0;
     let autoPlay = false;
     let bgmEnabled = false;
-    let typingEnabled = true;
+    let typingEnabled = ${initialTyping};
     let typingComplete = false;
     let textPageIndex = 0;
     let textPages = [""];
@@ -204,7 +216,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
 
     const standingById = Object.fromEntries(assets.standingAssets.map((asset) => [asset.id, asset]));
     const backgroundById = Object.fromEntries(assets.backgroundAssets.map((asset) => [asset.id, asset]));
-    const bgmById = Object.fromEntries(assets.bgmAssets.map((asset) => [asset.id, asset]));
+    const bgmById = ${allowBgm} ? Object.fromEntries(assets.bgmAssets.map((asset) => [asset.id, asset])) : {};
 
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
@@ -633,7 +645,10 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       sideAuto.setAttribute("aria-pressed", String(autoPlay));
     }
 
-    stage.addEventListener("click", () => handleAdvance());
+    stage.addEventListener("click", () => {
+      if (START_FULLSCREEN && !document.fullscreenElement) stage.requestFullscreen?.().catch(() => {});
+      handleAdvance();
+    });
     logButton.addEventListener("click", (event) => {
       event.stopPropagation();
       setLogOpen(!logOpen);

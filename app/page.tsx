@@ -67,6 +67,20 @@ type ToolCandidate = {
   branchScenes?: VisualNovelScene[];
   effectSuggestions?: Array<{ sceneIndex: number; sceneId: string; effects: VnEffect[] }>;
   selectedEffectIds?: string[];
+  selectedSceneIds?: string[];
+};
+type HistorySnapshot = {
+  scenes: VisualNovelScene[];
+  assets: AssetLibrary;
+  current: number;
+};
+type ExportPreferences = {
+  aspectRatio: "pc" | "mobile";
+  typingEnabled: boolean;
+  bgmEnabled: boolean;
+  includeFonts: boolean;
+  includeAssets: boolean;
+  fullscreen: boolean;
 };
 const IMAGE_LIMIT = 5 * 1024 * 1024;
 const BGM_LIMIT = 15 * 1024 * 1024;
@@ -226,9 +240,11 @@ function buildSelection(sceneIndexes: number[], scenes: VisualNovelScene[]): Sel
 function replaceSelectedScenes(scenes: VisualNovelScene[], candidate: ToolCandidate) {
   if (candidate.applyScenes) return candidate.applyScenes;
   if (candidate.toolId === "enhance" && candidate.effectSuggestions) {
+    const selectedSceneIds = new Set(candidate.selectedSceneIds ?? candidate.originalScenes.map((scene) => scene.id));
     const selectedIds = new Set(candidate.selectedEffectIds ?? candidate.effectSuggestions.flatMap((item) => item.effects.map((effect) => effect.id)));
     const effectsByScene = new Map<string, VnEffect[]>();
     candidate.effectSuggestions.forEach((suggestion) => {
+      if (!selectedSceneIds.has(suggestion.sceneId)) return;
       const selectedEffects = suggestion.effects.filter((effect) => selectedIds.has(effect.id));
       if (selectedEffects.length) effectsByScene.set(suggestion.sceneId, selectedEffects);
     });
@@ -239,9 +255,11 @@ function replaceSelectedScenes(scenes: VisualNovelScene[], candidate: ToolCandid
     });
   }
   const next = [...scenes];
+  const selectedSceneIds = new Set(candidate.selectedSceneIds ?? candidate.originalScenes.map((scene) => scene.id));
   candidate.selection.sceneIndexes.forEach((sceneIndex, index) => {
     const candidateScene = candidate.candidateScenes[index];
-    if (candidateScene) next[sceneIndex] = candidateScene;
+    const originalScene = candidate.originalScenes[index];
+    if (candidateScene && (!originalScene || selectedSceneIds.has(originalScene.id))) next[sceneIndex] = candidateScene;
   });
   return next;
 }
@@ -339,14 +357,18 @@ function createEnhanceEffectCandidate(scenes: VisualNovelScene[], selection: Sel
   const originalScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
   const effectSuggestions = selection.sceneIndexes.map((sceneIndex, suggestionIndex) => {
     const scene = scenes[sceneIndex];
-    const effects: VnEffect[] = [
-      { id: uid("effect"), type: "pause", durationMs: 600, position: "beforeText" },
-      { id: uid("effect"), type: "textSpeed", value: "slow" },
-      { id: uid("effect"), type: "pause", durationMs: 800, position: "afterText" }
-    ];
-    if (suggestionIndex % 2 === 1) effects.push({ id: uid("effect"), type: "screenShake", intensity: "soft" });
+    const text = scene?.text ?? "";
+    const isShort = Array.from(text).length < 80;
+    const effects: VnEffect[] = [];
+    if (suggestionIndex % 4 === 0) effects.push({ id: uid("effect"), type: "fadeIn", durationMs: 500 });
+    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 420 : 650, position: "beforeText" });
+    if (/!|！|충격|흔들|무너|폭발|뛰/.test(text)) effects.push({ id: uid("effect"), type: "screenShake", intensity: "soft" });
+    if (/\?|？|침묵|정적|멈/.test(text)) effects.push({ id: uid("effect"), type: "textSpeed", value: "slow" });
     if ((scene?.text ?? "").length > TEXT_PAGE_LIMIT) effects.push({ id: uid("effect"), type: "splitTextPage" });
-    if (suggestionIndex % 3 === 2) effects.push({ id: uid("effect"), type: "flash", durationMs: 220 });
+    if (suggestionIndex % 3 === 1) effects.push({ id: uid("effect"), type: "soundEffect", placeholder: "sfx_placeholder" });
+    if (suggestionIndex % 3 === 2) effects.push({ id: uid("effect"), type: "flash", durationMs: 180 });
+    if (suggestionIndex % 5 === 3) effects.push({ id: uid("effect"), type: "fadeOut", durationMs: 520 });
+    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 500 : 850, position: "afterText" });
     return { sceneIndex, sceneId: scene.id, effects };
   });
   return {
@@ -358,7 +380,8 @@ function createEnhanceEffectCandidate(scenes: VisualNovelScene[], selection: Sel
     originalScenes,
     candidateScenes: originalScenes,
     effectSuggestions,
-    selectedEffectIds: effectSuggestions.flatMap((item) => item.effects.map((effect) => effect.id))
+    selectedEffectIds: effectSuggestions.flatMap((item) => item.effects.map((effect) => effect.id)),
+    selectedSceneIds: originalScenes.map((scene) => scene.id)
   };
 }
 
@@ -389,7 +412,7 @@ function createBatchEditCandidate(scenes: VisualNovelScene[], selection: Selecti
   return {
     id: uid("candidate"),
     toolId: "batch-edit",
-    title: "Batch Edit",
+    title: "일괄 수정",
     summary: "선택 영역의 공통 속성을 한 번에 수정하는 일반 편집 초안입니다.",
     selection,
     originalScenes,
@@ -418,16 +441,29 @@ function createTargetedBatchEditCandidate(
 }
 
 function effectLabel(effect: VnEffect) {
-  if (effect.type === "pause") return `pause ${effect.durationMs}ms ${effect.position === "beforeText" ? "before text" : "after text"}`;
-  if (effect.type === "textSpeed") return `textSpeed ${effect.value}`;
-  if (effect.type === "screenShake") return `screenShake ${effect.intensity}`;
-  if (effect.type === "fadeIn") return `fadeIn ${effect.durationMs}ms`;
-  if (effect.type === "fadeOut") return `fadeOut ${effect.durationMs}ms`;
-  if (effect.type === "flash") return `flash ${effect.durationMs}ms`;
-  if (effect.type === "splitTextPage") return "splitTextPage";
-  if (effect.type === "emphasis") return `emphasis ${effect.value}`;
-  if (effect.type === "soundEffect") return `soundEffect ${effect.placeholder}`;
+  if (effect.type === "pause") return effect.position === "beforeText" ? "⏳ 대사 전에 잠시 멈춥니다" : "🌙 대사 뒤에 여운을 둡니다";
+  if (effect.type === "textSpeed") return effect.value === "slow" ? "🐢 글자를 천천히 보여줍니다" : "✍️ 글자 속도를 조절합니다";
+  if (effect.type === "screenShake") return "📳 화면을 살짝 흔듭니다";
+  if (effect.type === "fadeIn") return "✨ 화면이 천천히 나타납니다";
+  if (effect.type === "fadeOut") return "🌑 화면이 서서히 어두워집니다";
+  if (effect.type === "flash") return "⚡ 순간적으로 번쩍입니다";
+  if (effect.type === "splitTextPage") return "📖 긴 대사를 읽기 좋게 나눕니다";
+  if (effect.type === "emphasis") return "💬 중요한 표현을 강조합니다";
+  if (effect.type === "soundEffect") return "🔊 효과음 위치를 표시합니다";
   return effect.type;
+}
+
+function effectNote(effect: VnEffect) {
+  if (effect.type === "pause" && effect.position === "beforeText") return "대사가 나오기 전에 호흡을 만들어 긴장감을 줍니다.";
+  if (effect.type === "pause") return "다음 장면으로 넘어가기 전에 감정이 남도록 합니다.";
+  if (effect.type === "textSpeed") return "중요하거나 조심스러운 말을 더 천천히 읽히게 합니다.";
+  if (effect.type === "screenShake") return "놀람이나 충격이 있는 순간을 더 생생하게 만듭니다.";
+  if (effect.type === "fadeIn") return "장면이 시작되는 느낌을 부드럽게 만듭니다.";
+  if (effect.type === "fadeOut") return "장면이 끝나는 느낌을 또렷하게 줍니다.";
+  if (effect.type === "flash") return "짧고 강한 반응을 보여줄 때 어울립니다.";
+  if (effect.type === "splitTextPage") return "긴 문장을 한 번에 보여주지 않아 읽기 편합니다.";
+  if (effect.type === "soundEffect") return "나중에 효과음을 넣을 위치를 표시해 둡니다.";
+  return "이 장면의 분위기를 더 분명하게 보여주기 위한 연출입니다.";
 }
 
 function sanitizeAssets(value: unknown): AssetLibrary {
@@ -2380,15 +2416,19 @@ function SceneCard({
 function SelectionStatusBar({
   selection,
   canUndo,
+  canRedo,
   onSelectAll,
   onClear,
-  onUndo
+  onUndo,
+  onRedo
 }: {
   selection: SelectionState;
   canUndo: boolean;
+  canRedo: boolean;
   onSelectAll: () => void;
   onClear: () => void;
   onUndo: () => void;
+  onRedo: () => void;
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-3">
@@ -2401,186 +2441,9 @@ function SelectionStatusBar({
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="secondary" size="sm" onClick={onSelectAll}>전체 선택</Button>
         <Button variant="ghost" size="sm" onClick={onClear}>선택 해제</Button>
-        <Button variant="secondary" size="sm" onClick={onUndo} disabled={!canUndo}>Undo</Button>
+        <Button variant="secondary" size="sm" onClick={onUndo} disabled={!canUndo}>되돌리기</Button>
+        <Button variant="secondary" size="sm" onClick={onRedo} disabled={!canRedo}>다시 실행</Button>
       </div>
-    </div>
-  );
-}
-
-function CandidateDiff({
-  candidate
-}: {
-  candidate: ToolCandidate | null;
-}) {
-  if (!candidate) {
-    return (
-      <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-4">
-        <p className="text-xs font-extrabold text-slate-500">Preview / Diff</p>
-        <p className="mt-2 text-xs leading-5 text-slate-400">도구를 실행하면 원본과 candidate가 여기에 나란히 표시됩니다. Apply 전까지 실제 Scene 데이터는 바뀌지 않습니다.</p>
-      </div>
-    );
-  }
-  return (
-    <div className="rounded-2xl border border-purple-100 bg-purple-50/40 p-4">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="text-xs font-extrabold text-purple-700">{candidate.title}</p>
-          <p className="mt-1 text-xs text-purple-500">{candidate.summary}</p>
-        </div>
-        <Badge tone="purple">{selectionLabel(candidate.selection)}</Badge>
-      </div>
-      {candidate.toolId === "choices" ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="mb-3 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">choiceScene + choices[] + branchScenes[]</p>
-          {candidate.choiceScene?.choices?.length ? (
-            <div className="rounded-2xl bg-slate-950 px-6 py-5 text-[#f4f0e6]">
-              <p className="mb-4 text-center text-sm font-semibold">{candidate.choiceScene.text}</p>
-              <div className="space-y-2 border-y border-white/15 py-4">
-                {candidate.choiceScene.choices.map((choice, index) => (
-                  <div key={choice.id} className="rounded-lg px-3 py-2 text-sm hover:bg-white/10">
-                    <span className="mr-3 text-white/45">{index + 1}.</span>
-                    {choice.text}
-                    <span className="ml-3 text-xs text-white/35">→ branch Scene {index + 1}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-          <div className="mt-3 grid gap-2 md:grid-cols-2">
-            {(candidate.branchScenes ?? candidate.candidateScenes.slice(1)).map((branchScene, index) => (
-              <div key={branchScene.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <p className="text-[11px] font-extrabold text-slate-400">branchScenes[{index}]</p>
-                <p className="mt-1 whitespace-pre-wrap text-xs leading-5 text-slate-600">{branchScene.text}</p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">Apply하면 현재 선택 영역 뒤에 choiceScene 1개와 branchScenes {Math.max((candidate.branchScenes ?? []).length, candidate.candidateScenes.length - 1)}개가 삽입되고, 각 choice.targetSceneId가 branch Scene으로 연결됩니다.</p>
-        </div>
-      ) : (
-      <div className="grid gap-3 lg:grid-cols-2">
-        {candidate.originalScenes.map((original, index) => {
-          const next = candidate.candidateScenes[index];
-          return (
-            <div key={`${candidate.id}-${original.id}-${index}`} className="contents">
-              <div className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">Original · Scene {candidate.selection.sceneIndexes[index] + 1}</p>
-                <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-600">{original.text}</p>
-              </div>
-              <div className="rounded-xl border border-purple-200 bg-white p-3 shadow-sm">
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">Candidate</p>
-                <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-700">{next?.text ?? ""}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      )}
-    </div>
-  );
-}
-
-function EditToolsPanel({
-  scenes,
-  assets,
-  selection,
-  candidate,
-  onCandidate
-}: {
-  scenes: VisualNovelScene[];
-  assets: AssetLibrary;
-  selection: SelectionState;
-  candidate: ToolCandidate | null;
-  onCandidate: (candidate: ToolCandidate) => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [replacement, setReplacement] = useState("");
-  const [batchSpeaker, setBatchSpeaker] = useState("");
-  const [batchMode, setBatchMode] = useState("");
-  const [batchBackgroundId, setBatchBackgroundId] = useState("");
-  const selectedScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
-  const disabled = selectedScenes.length === 0;
-
-  function runBatchEdit() {
-    const patch: Partial<VisualNovelScene> = {};
-    if (batchSpeaker.trim()) patch.speaker = batchSpeaker.trim();
-    if (batchMode) patch.displayMode = batchMode as VisualNovelScene["displayMode"];
-    if (batchBackgroundId !== "") patch.backgroundAssetId = batchBackgroundId || undefined;
-    if (!Object.keys(patch).length) return;
-    onCandidate(createBatchEditCandidate(scenes, selection, patch));
-  }
-
-  return (
-    <div className="mb-4 grid gap-4 lg:grid-cols-[360px_1fr]">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-indigo-500" />
-          <h4 className="text-sm font-extrabold text-slate-900">Edit Tools</h4>
-        </div>
-        <p className="mt-1 text-xs leading-5 text-slate-400">선택 영역만 대상으로 도구를 실행하고, Preview/Diff 확인 후 Apply하세요.</p>
-
-        <div className="mt-4 space-y-3">
-          <button
-            type="button"
-            onClick={() => onCandidate(createChoiceCandidate(scenes, selection))}
-            disabled={disabled}
-            className="w-full rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3 text-left transition hover:bg-indigo-50 disabled:opacity-45"
-          >
-            <span className="block text-xs font-extrabold text-indigo-700">AI · 선택지 생성</span>
-            <span className="mt-1 block text-xs leading-5 text-indigo-500">선택한 장면 뒤에 이어질 선택지를 만들어 줍니다.</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onCandidate(createEnhanceEffectCandidate(scenes, selection))}
-            disabled={disabled}
-            className="w-full rounded-2xl border border-purple-100 bg-purple-50/60 p-3 text-left transition hover:bg-purple-50 disabled:opacity-45"
-          >
-            <span className="block text-xs font-extrabold text-purple-700">AI · 연출 강화</span>
-            <span className="mt-1 block text-xs leading-5 text-purple-500">장면의 정적, 시선, 분위기 같은 VN 연출 문장을 제안합니다.</span>
-          </button>
-
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
-            <p className="text-xs font-extrabold text-slate-600">AI · 검색 + 수정</p>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="선택 영역에서 찾을 문구" className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-            <input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="바꿀 문구 또는 수정 방향" className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-            <Button variant="secondary" size="sm" className="mt-2 w-full" disabled={disabled} onClick={() => onCandidate(createSearchAiCandidate(scenes, selection, query, replacement))}>Candidate 생성</Button>
-          </div>
-
-          <div className="rounded-2xl border border-slate-100 bg-white p-3">
-            <p className="text-xs font-extrabold text-slate-600">Batch Edit · 일반 편집</p>
-            <input value={batchSpeaker} onChange={(event) => setBatchSpeaker(event.target.value)} placeholder="speaker 일괄 변경, 비우면 유지" className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-            <select value={batchMode} onChange={(event) => setBatchMode(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-              <option value="">장면 타입 유지</option>
-              <option value="dialogue">dialogue</option>
-              <option value="narration">narration</option>
-              <option value="system">system</option>
-              <option value="code">code</option>
-            </select>
-            <select value={batchBackgroundId} onChange={(event) => setBatchBackgroundId(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-              <option value="">background 유지</option>
-              <option value="__clear__">background 비우기</option>
-              {assets.backgroundAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
-            </select>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="mt-2 w-full"
-              disabled={disabled}
-              onClick={() => {
-                const normalizedBackground = batchBackgroundId === "__clear__" ? "" : batchBackgroundId;
-                setBatchBackgroundId(normalizedBackground);
-                const patch: Partial<VisualNovelScene> = {};
-                if (batchSpeaker.trim()) patch.speaker = batchSpeaker.trim();
-                if (batchMode) patch.displayMode = batchMode as VisualNovelScene["displayMode"];
-                if (batchBackgroundId) patch.backgroundAssetId = batchBackgroundId === "__clear__" ? undefined : batchBackgroundId;
-                if (Object.keys(patch).length) onCandidate(createBatchEditCandidate(scenes, selection, patch));
-              }}
-            >
-              Batch Candidate 생성
-            </Button>
-          </div>
-        </div>
-      </div>
-      <CandidateDiff candidate={candidate} />
     </div>
   );
 }
@@ -2589,20 +2452,30 @@ function WorkflowCandidateDiff({
   candidate,
   onCandidateChange,
   onApply,
-  onCancel
+  onCancel,
+  onRegenerate
 }: {
   candidate: ToolCandidate | null;
   onCandidateChange: (candidate: ToolCandidate) => void;
   onApply: () => void;
   onCancel: () => void;
+  onRegenerate: () => void;
 }) {
   if (!candidate) return null;
+  const selectedSceneIds = new Set(candidate.selectedSceneIds ?? candidate.originalScenes.map((scene) => scene.id));
   function toggleEffect(effectId: string) {
     if (!candidate) return;
     const selected = new Set(candidate.selectedEffectIds ?? []);
     if (selected.has(effectId)) selected.delete(effectId);
     else selected.add(effectId);
     onCandidateChange({ ...candidate, selectedEffectIds: Array.from(selected) });
+  }
+  function toggleScene(sceneId: string) {
+    if (!candidate) return;
+    const selected = new Set(candidate.selectedSceneIds ?? candidate.originalScenes.map((scene) => scene.id));
+    if (selected.has(sceneId)) selected.delete(sceneId);
+    else selected.add(sceneId);
+    onCandidateChange({ ...candidate, selectedSceneIds: Array.from(selected) });
   }
   return (
     <div className="mt-4 rounded-2xl border border-purple-100 bg-purple-50/40 p-4">
@@ -2612,25 +2485,49 @@ function WorkflowCandidateDiff({
           <p className="mt-1 text-xs text-purple-500">{candidate.title} · {candidate.summary}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onCancel}>취소</Button>
+          <Button variant="ghost" size="sm" onClick={onCancel}>제안 버리기</Button>
+          <Button variant="secondary" size="sm" onClick={onRegenerate}>다시 만들기</Button>
           <Button variant="primary" size="sm" onClick={onApply}>적용하기</Button>
         </div>
       </div>
-      {candidate.toolId === "enhance" && candidate.effectSuggestions ? (
+      <div className="als-scrollbar max-h-[520px] overflow-y-auto pr-2">
+      {candidate.toolId === "choices" && candidate.choiceScene ? (
+        <div className="rounded-xl border border-purple-100 bg-white p-3">
+          <p className="text-sm font-extrabold text-slate-800">선택지 노드 1개 + 분기 장면 {candidate.branchScenes?.length ?? 0}개가 생성됩니다.</p>
+          <div className="mt-3 grid gap-2">
+            {candidate.choiceScene.choices?.map((choice, index) => {
+              const branch = candidate.branchScenes?.find((scene) => scene.id === choice.targetSceneId);
+              return (
+                <div key={choice.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                  <p className="text-xs font-extrabold text-purple-600">선택지 {index + 1}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-800">{choice.text}</p>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">이어질 장면: {branch?.text ?? "다음 장면"}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : candidate.toolId === "enhance" && candidate.effectSuggestions ? (
         <div className="grid gap-3">
           {candidate.effectSuggestions.map((suggestion) => {
             const original = candidate.originalScenes.find((scene) => scene.id === suggestion.sceneId);
             const selected = new Set(candidate.selectedEffectIds ?? []);
             return (
               <div key={suggestion.sceneId} className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="mb-1 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">Scene {suggestion.sceneIndex + 1}</p>
+                <label className="mb-2 flex items-center gap-2 text-xs font-extrabold text-slate-500">
+                  <input type="checkbox" checked={selectedSceneIds.has(suggestion.sceneId)} onChange={() => toggleScene(suggestion.sceneId)} className="accent-purple-600" />
+                  Scene {suggestion.sceneIndex + 1}에 적용
+                </label>
                 <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-600">{original?.text ?? ""}</p>
                 <p className="mt-3 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">제안된 연출</p>
                 <div className="mt-2 grid gap-2">
                   {suggestion.effects.map((effect) => (
-                    <label key={effect.id} className="flex items-center gap-2 rounded-lg border border-purple-100 bg-purple-50/60 px-3 py-2 text-xs font-semibold text-slate-700">
+                    <label key={effect.id} className="flex items-start gap-2 rounded-lg border border-purple-100 bg-purple-50/60 px-3 py-2 text-xs font-semibold text-slate-700">
                       <input type="checkbox" checked={selected.has(effect.id)} onChange={() => toggleEffect(effect.id)} className="accent-purple-600" />
-                      {effectLabel(effect)}
+                      <span>
+                        <span className="block text-slate-800">{effectLabel(effect)}</span>
+                        <span className="mt-0.5 block font-medium text-slate-400">{effectNote(effect)}</span>
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -2640,24 +2537,31 @@ function WorkflowCandidateDiff({
           })}
         </div>
       ) : (
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-3">
         {candidate.originalScenes.map((original, index) => {
           const next = candidate.candidateScenes[index];
           return (
-            <div key={`${candidate.id}-${original.id}-${index}`} className="contents">
-              <div className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">원본 · Scene {candidate.selection.sceneIndexes[index] + 1}</p>
+            <div key={`${candidate.id}-${original.id}-${index}`} className="rounded-xl border border-slate-200 bg-white p-3">
+              <label className="mb-2 flex items-center gap-2 text-xs font-extrabold text-slate-500">
+                <input type="checkbox" checked={selectedSceneIds.has(original.id)} onChange={() => toggleScene(original.id)} className="accent-purple-600" />
+                Scene {candidate.selection.sceneIndexes[index] + 1}에 적용
+              </label>
+              <div className="grid gap-3 lg:grid-cols-2">
+              <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">원본</p>
                 <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-600">{original.text}</p>
               </div>
-              <div className="rounded-xl border border-purple-200 bg-white p-3 shadow-sm">
+              <div className="rounded-xl border border-purple-100 bg-purple-50/40 p-3 shadow-sm">
                 <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">AI 제안</p>
                 <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-700">{next?.text ?? ""}</p>
+              </div>
               </div>
             </div>
           );
         })}
       </div>
       )}
+      </div>
     </div>
   );
 }
@@ -2692,7 +2596,7 @@ function WorkflowToolsPanel({
   const [bgmTo, setBgmTo] = useState("__unset__");
   const selectedScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
   const disabled = selectedScenes.length === 0;
-  const currentStep = candidate ? 5 : disabled ? 1 : 2;
+  const currentStep = candidate ? "③ 확인 후 적용" : disabled ? "① 장면 선택" : "② AI 기능 선택";
   const selectedSpeakers = Array.from(new Set(selectedScenes.map((scene) => scene.speaker?.trim()).filter(Boolean) as string[]));
 
   function matchesAssetFilter(currentId: string | undefined, filter: string) {
@@ -2757,15 +2661,15 @@ function WorkflowToolsPanel({
         <div>
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-indigo-500" />
-            <h4 className="text-sm font-extrabold text-slate-900">Selection Workflow</h4>
+            <h4 className="text-sm font-extrabold text-slate-900">AI 작업</h4>
           </div>
-          <p className="mt-1 text-xs leading-5 text-slate-400">선택 영역을 정한 뒤, 하나의 작업만 골라 candidate를 확인하고 Apply합니다.</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">장면을 선택하고, AI가 만든 제안을 확인한 뒤 적용합니다.</p>
         </div>
-        <Badge tone={candidate ? "purple" : disabled ? "slate" : "indigo"}>Step {currentStep}</Badge>
+        <Badge tone={candidate ? "purple" : disabled ? "slate" : "indigo"}>{currentStep}</Badge>
       </div>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
-        {["1 Selection", "2 AI Tool", "3 Preview / Apply"].map((label, index) => {
+        {["① 장면 선택", "② AI 기능 선택", "③ 확인 후 적용"].map((label, index) => {
           const active = index === 0 ? disabled : index === 1 ? !disabled && !candidate : Boolean(candidate);
           return (
             <div key={label} className={`rounded-xl border px-3 py-2 text-xs font-bold ${active ? "border-indigo-200 bg-indigo-50 text-indigo-700" : "border-slate-100 bg-slate-50 text-slate-400"}`}>
@@ -2777,14 +2681,14 @@ function WorkflowToolsPanel({
 
       {disabled ? (
         <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4">
-          <p className="text-sm font-extrabold text-slate-700">먼저 Selection / 선택 영역을 지정하세요.</p>
-          <p className="mt-1 text-xs leading-5 text-slate-400">아래 Scene 카드에서 Select를 누르면 다음 단계가 열립니다. 선택하지 않으면 현재 Scene을 기본 대상으로 사용합니다.</p>
+          <p className="text-sm font-extrabold text-slate-700">먼저 장면을 선택하세요.</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">아래 장면 카드에서 Select를 누르면 AI 기능을 사용할 수 있습니다. 선택하지 않으면 현재 장면을 대상으로 사용합니다.</p>
         </div>
       ) : (
         <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
           <div className="grid gap-3 md:grid-cols-[240px_1fr_auto] md:items-end">
             <div>
-              <label className="text-[11px] font-extrabold uppercase tracking-wide text-slate-400">AI Tool</label>
+              <label className="text-[11px] font-extrabold uppercase tracking-wide text-slate-400">AI 기능</label>
               <select
                 value={aiTool}
                 onChange={(event) => {
@@ -2801,8 +2705,8 @@ function WorkflowToolsPanel({
 
             {aiTool === "search-ai" ? (
               <div className="grid gap-2 sm:grid-cols-2">
-                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="선택 영역에서 찾을 문구" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-                <input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="바꿀 문구 또는 수정 방향" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="찾을 문장" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                <input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="어떻게 바꿀지 입력" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
               </div>
             ) : (
               <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
@@ -2817,7 +2721,7 @@ function WorkflowToolsPanel({
             </Button>
           </div>
 
-          <WorkflowCandidateDiff candidate={candidate} onCandidateChange={onCandidate} onApply={onApply} onCancel={onCancel} />
+          <WorkflowCandidateDiff candidate={candidate} onCandidateChange={onCandidate} onApply={onApply} onCancel={onCancel} onRegenerate={generateCandidate} />
         </div>
       )}
 
@@ -2935,7 +2839,9 @@ function SceneAccordion({
   onApplyBgmBulk,
   onCommitCandidate,
   canUndo,
-  onUndo
+  canRedo,
+  onUndo,
+  onRedo
 }: {
   scenes: VisualNovelScene[];
   assets: AssetLibrary;
@@ -2956,7 +2862,9 @@ function SceneAccordion({
   onApplyBgmBulk: (bgmAssetId: string | undefined, mode: "all" | "empty") => void;
   onCommitCandidate: (candidate: ToolCandidate) => void;
   canUndo: boolean;
+  canRedo: boolean;
   onUndo: () => void;
+  onRedo: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [bulkBackgroundId, setBulkBackgroundId] = useState("");
@@ -3000,6 +2908,7 @@ function SceneAccordion({
             <SelectionStatusBar
               selection={selection}
               canUndo={canUndo}
+              canRedo={canRedo}
               onSelectAll={() => {
                 setSelectedIndexes(scenes.map((_, index) => index));
                 setCandidate(null);
@@ -3009,6 +2918,7 @@ function SceneAccordion({
                 setCandidate(null);
               }}
               onUndo={onUndo}
+              onRedo={onRedo}
             />
             <WorkflowToolsPanel
               scenes={scenes}
@@ -3051,8 +2961,6 @@ function SceneAccordion({
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2 mb-4">
               <Button variant="secondary" size="sm" icon={Plus} iconPosition="left" onClick={onAddScene}>새 장면 추가</Button>
-              <Button variant="secondary" size="sm" icon={Upload} iconPosition="left" onClick={() => fileInputRef.current?.click()}>JSON Import</Button>
-              <Button variant="secondary" size="sm" icon={Download} iconPosition="left" onClick={onExportJson}>JSON Export</Button>
               <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={(event) => onImportJson(event.target.files?.[0])} />
             </div>
             <div className="als-scrollbar grid max-h-[72vh] gap-4 overflow-y-auto rounded-2xl border border-slate-100 bg-slate-50/60 p-3 pr-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -3077,6 +2985,13 @@ function SceneAccordion({
                 />
               ))}
             </div>
+            <details className="mt-4 rounded-2xl border border-slate-100 bg-white p-3">
+              <summary className="cursor-pointer text-xs font-extrabold text-slate-500">고급 기능</summary>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button variant="secondary" size="sm" icon={Upload} iconPosition="left" onClick={() => fileInputRef.current?.click()}>JSON 가져오기</Button>
+                <Button variant="secondary" size="sm" icon={Download} iconPosition="left" onClick={onExportJson}>JSON 내보내기</Button>
+              </div>
+            </details>
           </div>
         )}
       </Card>
@@ -3124,10 +3039,18 @@ function ExportCard({
   playerFontId: string;
   onPlayerFontChange: (fontId: string) => void;
   onExportJson: () => void;
-  onExportHtml: () => void;
+  onExportHtml: (preferences: ExportPreferences) => void;
   onResetProgress: () => void;
 }) {
   const assetCount = assets.standingAssets.length + assets.backgroundAssets.length + assets.bgmAssets.length;
+  const [exportTarget, setExportTarget] = useState<"pc" | "mobile">("pc");
+  const [exportOptions, setExportOptions] = useState({
+    typing: true,
+    bgm: true,
+    fonts: true,
+    assets: true,
+    fullscreen: false
+  });
   return (
     <section className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
       <Card>
@@ -3136,8 +3059,8 @@ function ExportCard({
             <Download className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-extrabold text-slate-900">작품 내보내기</h3>
-            <p className="text-[13px] text-slate-500 mt-0.5">완성한 비주얼 노벨을 하나의 HTML 파일로 내보내요.</p>
+            <h3 className="text-lg font-extrabold text-slate-900">Export</h3>
+            <p className="text-[13px] text-slate-500 mt-0.5">완성한 이야기를 하나의 HTML 파일로 내보냅니다.</p>
           </div>
         </div>
 
@@ -3191,6 +3114,40 @@ function ExportCard({
               </select>
             </div>
 
+            <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+              <p className="text-xs font-extrabold text-slate-600">화면 비율</p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {[
+                  ["pc", "PC · 16:9"],
+                  ["mobile", "Mobile · 9:16"]
+                ].map(([id, label]) => (
+                  <label key={id} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold ${exportTarget === id ? "border-indigo-200 bg-white text-indigo-600" : "border-slate-200 bg-white text-slate-500"}`}>
+                    <input type="radio" checked={exportTarget === id} onChange={() => setExportTarget(id as "pc" | "mobile")} className="accent-indigo-600" />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {[
+                  ["typing", "타이핑 효과"],
+                  ["bgm", "BGM 포함"],
+                  ["fonts", "폰트 포함"],
+                  ["assets", "Assets 포함"],
+                  ["fullscreen", "전체 화면 시작"]
+                ].map(([id, label]) => (
+                  <label key={id} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-600 ring-1 ring-slate-100">
+                    <input
+                      type="checkbox"
+                      checked={exportOptions[id as keyof typeof exportOptions]}
+                      onChange={(event) => setExportOptions((value) => ({ ...value, [id]: event.target.checked }))}
+                      className="accent-indigo-600"
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-5 grid grid-cols-3 gap-3">
               <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2.5 flex items-center gap-2">
                 <Layers className="h-4 w-4 text-indigo-500" />
@@ -3217,11 +3174,27 @@ function ExportCard({
 
             <div className="mt-auto pt-6 flex items-center gap-3">
               <Button variant="secondary" size="lg" icon={Eye} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>미리보기</Button>
-              <Button variant="secondary" size="lg" icon={FileJson} onClick={onExportJson}>JSON</Button>
-              <Button variant="accent" size="lg" icon={Download} className="flex-1" onClick={onExportHtml}>
-                HTML로 내보내기
+              <Button
+                variant="accent"
+                size="lg"
+                icon={Download}
+                className="flex-1"
+                onClick={() => onExportHtml({
+                  aspectRatio: exportTarget,
+                  typingEnabled: exportOptions.typing,
+                  bgmEnabled: exportOptions.bgm,
+                  includeFonts: exportOptions.fonts,
+                  includeAssets: exportOptions.assets,
+                  fullscreen: exportOptions.fullscreen
+                })}
+              >
+                Export HTML
               </Button>
             </div>
+            <details className="mt-3 rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+              <summary className="cursor-pointer text-xs font-extrabold text-slate-500">고급 기능</summary>
+              <Button variant="secondary" size="sm" icon={FileJson} className="mt-3" onClick={onExportJson}>JSON 내보내기</Button>
+            </details>
           </div>
         </div>
       </Card>
@@ -3275,6 +3248,8 @@ export default function App() {
   const [bgmEnabled, setBgmEnabled] = useState(false);
   const [bgmStatus, setBgmStatus] = useState<"없음" | "대기 중" | "재생 중" | "차단됨">("없음");
   const [undoScenes, setUndoScenes] = useState<VisualNovelScene[] | null>(null);
+  const [historyPast, setHistoryPast] = useState<HistorySnapshot[]>([]);
+  const [historyFuture, setHistoryFuture] = useState<HistorySnapshot[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const youtubeBgmRef = useRef<HTMLIFrameElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -3395,6 +3370,17 @@ export default function App() {
       const target = event.target as HTMLElement | null;
       const tagName = target?.tagName.toLowerCase();
       if (tagName === "input" || tagName === "textarea" || tagName === "select") return;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) redoChange();
+        else undoToolApply();
+        return;
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        redoChange();
+        return;
+      }
       if (event.key === " " || event.key === "Enter") {
         event.preventDefault();
         handleAdvance();
@@ -3402,7 +3388,7 @@ export default function App() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [scenes.length, typingComplete, typingEnabled]);
+  }, [scenes.length, typingComplete, typingEnabled, historyPast, historyFuture, scenes, assets, current]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -3463,11 +3449,22 @@ export default function App() {
     }
   }, [activeBgmAsset, bgmEnabled]);
 
-  function setScenesAndJson(next: VisualNovelScene[]) {
+  function rememberHistory() {
+    setHistoryPast((value) => [...value.slice(-49), { scenes, assets, current }]);
+    setHistoryFuture([]);
+  }
+
+  function setScenesAndJson(next: VisualNovelScene[], options: { record?: boolean } = {}) {
+    if (options.record !== false) rememberHistory();
     const normalized = normalizeScenes(next);
     setScenes(normalized);
     setJsonText(stringifyScenes(normalized));
     setCurrent((value) => Math.min(value, Math.max(normalized.length - 1, 0)));
+  }
+
+  function setAssetsWithHistory(next: AssetLibrary) {
+    rememberHistory();
+    setAssets(next);
   }
 
   function loadSample() {
@@ -3506,7 +3503,7 @@ export default function App() {
         setJsonError("Scene JSON은 speaker와 text를 가진 배열이어야 합니다.");
         return;
       }
-      setScenes(normalizeScenes(parsed));
+      setScenesAndJson(parsed);
       setJsonError(null);
     } catch {
       setJsonError("JSON 형식이 올바르지 않습니다. 쉼표와 따옴표를 확인해 주세요.");
@@ -3536,7 +3533,6 @@ export default function App() {
   }
 
   function commitToolCandidate(candidate: ToolCandidate) {
-    setUndoScenes(scenes);
     const next = replaceSelectedScenes(scenes, candidate);
     setScenesAndJson(next);
     const firstIndex = candidate.selection.sceneIndexes[0] ?? current;
@@ -3545,12 +3541,32 @@ export default function App() {
     setError(`${candidate.title} candidate를 선택 영역에 적용했습니다.`);
   }
 
+  function applyHistorySnapshot(snapshot: HistorySnapshot) {
+    const normalized = normalizeScenes(snapshot.scenes);
+    setScenes(normalized);
+    setJsonText(stringifyScenes(normalized));
+    setAssets(snapshot.assets);
+    setCurrent(Math.min(snapshot.current, Math.max(normalized.length - 1, 0)));
+  }
+
   function undoToolApply() {
-    if (!undoScenes) return;
-    setScenesAndJson(undoScenes);
-    setUndoScenes(null);
+    const previous = historyPast[historyPast.length - 1];
+    if (!previous) return;
+    setHistoryPast((value) => value.slice(0, -1));
+    setHistoryFuture((value) => [...value, { scenes, assets, current }]);
+    applyHistorySnapshot(previous);
     setTypingResetToken((value) => value + 1);
-    setError("마지막 Apply를 되돌렸습니다.");
+    setError("마지막 작업을 되돌렸습니다.");
+  }
+
+  function redoChange() {
+    const next = historyFuture[historyFuture.length - 1];
+    if (!next) return;
+    setHistoryFuture((value) => value.slice(0, -1));
+    setHistoryPast((value) => [...value, { scenes, assets, current }]);
+    applyHistorySnapshot(next);
+    setTypingResetToken((value) => value + 1);
+    setError("되돌린 작업을 다시 적용했습니다.");
   }
 
   function updateSceneCharacter(sceneIndex: number, characterIndex: number, patch: Partial<SceneCharacter>) {
@@ -3767,43 +3783,10 @@ export default function App() {
         onSample={loadSample}
         onExport={() => downloadStandaloneHtml(scenes, assets, { fontId: playerFont.id })}
       />
-      <LargeVNPreviewSection
-        scene={activeScene}
-        scenes={scenes}
-        assets={assets}
-        current={current}
-        total={scenes.length}
-        autoPlay={autoPlay}
-        typingEnabled={typingEnabled}
-        typingSpeed={TYPING_SPEEDS[typingSpeedMode]}
-        typingComplete={typingComplete}
-        revealToken={revealToken}
-        typingResetToken={typingResetToken}
-        pageText={activePageText}
-        textPageIndex={textPageIndex}
-        textPageTotal={activeTextPages.length}
-        playerFontFamily={playerFont.cssFamily}
-        onNext={handleAdvance}
-        onJumpScene={jumpToScene}
-        onChoose={chooseBranch}
-        onToggleAuto={() => setAutoPlay((value) => !value)}
-        bgmEnabled={bgmEnabled}
-        onToggleBgm={toggleBgm}
-        onToggleTyping={toggleTyping}
-        typingSpeedMode={typingSpeedMode}
-        onTypingSpeedChange={updateTypingSpeed}
-        onTypingComplete={handleTypingComplete}
-      />
-      <div className="mx-auto -mt-3 max-w-7xl px-6 pb-3 text-xs font-semibold text-slate-500 lg:px-8">
-        현재 Scene BGM: <span className="text-slate-800">{activeBgmAsset?.fileName ?? activeBgmAsset?.name ?? "없음"}</span>
-        <span className="mx-2 text-slate-300">·</span>
-        재생 상태: <span className={bgmStatus === "차단됨" ? "text-rose-500" : bgmStatus === "재생 중" ? "text-emerald-600" : "text-slate-600"}>{bgmStatus}</span>
-      </div>
       <section id="workspace" className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[420px_1fr] lg:items-start">
           <LogInputCard log={log} onLogChange={setLog} onConvert={convertLog} error={error} />
           <div className="space-y-6 [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
-            <AssetManager assets={assets} onAssetsChange={setAssets} onError={setError} />
             <SceneAccordion
               scenes={scenes}
               assets={assets}
@@ -3823,9 +3806,44 @@ export default function App() {
               onApplyBackgroundBulk={applyBackgroundBulk}
               onApplyBgmBulk={applyBgmBulk}
               onCommitCandidate={commitToolCandidate}
-              canUndo={Boolean(undoScenes)}
+              canUndo={historyPast.length > 0}
+              canRedo={historyFuture.length > 0}
               onUndo={undoToolApply}
+              onRedo={redoChange}
             />
+            <LargeVNPreviewSection
+              scene={activeScene}
+              scenes={scenes}
+              assets={assets}
+              current={current}
+              total={scenes.length}
+              autoPlay={autoPlay}
+              typingEnabled={typingEnabled}
+              typingSpeed={TYPING_SPEEDS[typingSpeedMode]}
+              typingComplete={typingComplete}
+              revealToken={revealToken}
+              typingResetToken={typingResetToken}
+              pageText={activePageText}
+              textPageIndex={textPageIndex}
+              textPageTotal={activeTextPages.length}
+              playerFontFamily={playerFont.cssFamily}
+              onNext={handleAdvance}
+              onJumpScene={jumpToScene}
+              onChoose={chooseBranch}
+              onToggleAuto={() => setAutoPlay((value) => !value)}
+              bgmEnabled={bgmEnabled}
+              onToggleBgm={toggleBgm}
+              onToggleTyping={toggleTyping}
+              typingSpeedMode={typingSpeedMode}
+              onTypingSpeedChange={updateTypingSpeed}
+              onTypingComplete={handleTypingComplete}
+            />
+            <div className="-mt-5 rounded-2xl border border-slate-100 bg-white px-4 py-2 text-xs font-semibold text-slate-500">
+              현재 Scene BGM: <span className="text-slate-800">{activeBgmAsset?.fileName ?? activeBgmAsset?.name ?? "없음"}</span>
+              <span className="mx-2 text-slate-300">·</span>
+              재생 상태: <span className={bgmStatus === "차단됨" ? "text-rose-500" : bgmStatus === "재생 중" ? "text-emerald-600" : "text-slate-600"}>{bgmStatus}</span>
+            </div>
+            <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onError={setError} />
             <JsonEditor open={jsonOpen} jsonText={jsonText} error={jsonError} onChange={applyJsonText} />
             <ExportCard
               scenes={scenes}
@@ -3833,7 +3851,19 @@ export default function App() {
               playerFontId={playerFont.id}
               onPlayerFontChange={setPlayerFontId}
               onExportJson={exportJson}
-              onExportHtml={() => downloadStandaloneHtml(scenes, assets, { fontId: playerFont.id })}
+              onExportHtml={(preferences) => downloadStandaloneHtml(
+                scenes,
+                preferences.includeAssets ? assets : EMPTY_ASSETS,
+                {
+                  fontId: playerFont.id,
+                  typingEnabled: preferences.typingEnabled,
+                  bgmEnabled: preferences.bgmEnabled,
+                  includeFonts: preferences.includeFonts,
+                  includeAssets: preferences.includeAssets,
+                  aspectRatio: preferences.aspectRatio,
+                  fullscreen: preferences.fullscreen
+                }
+              )}
               onResetProgress={resetProgress}
             />
           </div>
