@@ -33,7 +33,7 @@ import { downloadStandaloneHtml } from "@/lib/exporter/htmlExporter";
 import { BACKGROUND_ASSETS, EMOTION_ASSETS, messagesToScenes, parseChatLog } from "@/lib/parser/chatLogParser";
 import { DEFAULT_PLAYER_FONT_ID, PLAYER_FONT_OPTIONS, getPlayerFontOption } from "@/lib/playerFonts";
 import type { VisualNovelScene } from "@/lib/parser/types";
-import type { AssetLibrary, BgmAsset, SceneCharacter, VnEffect } from "@/lib/types";
+import type { AssetLibrary, BgmAsset, SceneCharacter, StandingAsset, VnEffect } from "@/lib/types";
 
 const STATE_KEY = "ai-log-studio-state-v2";
 const ASSET_KEY = "ai-log-studio-assets";
@@ -177,7 +177,7 @@ function normalizeScenes(scenes: VisualNovelScene[]) {
     cgTransform: scene.displayMode === "cg" ? normalizeCgTransform(scene.cgTransform) : scene.cgTransform,
     characters: (Array.isArray(scene.characters) ? scene.characters : []).map((character) => ({
       ...character,
-      characterTransform: normalizeCharacterTransform(character.characterTransform)
+      ...(character.characterTransform ? { characterTransform: normalizeCharacterTransform(character.characterTransform) } : {})
     }))
   }));
 }
@@ -502,7 +502,15 @@ function sanitizeAssets(value: unknown): AssetLibrary {
   if (!value || typeof value !== "object") return EMPTY_ASSETS;
   const candidate = value as Partial<AssetLibrary>;
   return {
-    standingAssets: Array.isArray(candidate.standingAssets) ? candidate.standingAssets : [],
+    standingAssets: Array.isArray(candidate.standingAssets)
+      ? candidate.standingAssets
+        .filter((asset): asset is StandingAsset => Boolean(asset && typeof asset === "object" && typeof asset.id === "string"))
+        .map((asset) => ({
+          ...asset,
+          fileName: asset.fileName ?? asset.name ?? "Standing",
+          defaultTransform: normalizeCharacterTransform(asset.defaultTransform)
+        }))
+      : [],
     backgroundAssets: Array.isArray(candidate.backgroundAssets) ? candidate.backgroundAssets : [],
     bgmAssets: Array.isArray(candidate.bgmAssets)
       ? candidate.bgmAssets
@@ -981,7 +989,7 @@ function CharacterFigure({
   variant = "hero"
 }: {
   character: SceneCharacter;
-  asset?: { dataUrl: string; name: string };
+  asset?: StandingAsset;
   leftPercent: number;
   style?: React.CSSProperties;
   variant?: "hero" | "inline";
@@ -989,7 +997,7 @@ function CharacterFigure({
   const tones = { indigo: "from-indigo-300/40 to-indigo-500/10", purple: "from-purple-300/40 to-purple-500/10", rose: "from-rose-300/40 to-rose-500/10" };
   const tone = character.position === "left" ? "purple" : character.position === "right" ? "rose" : "indigo";
   const characterWidth = variant === "inline" ? "var(--character-width, 36%)" : "var(--character-width, 36%)";
-  const transform = normalizeCharacterTransform(character.characterTransform);
+  const transform = normalizeCharacterTransform(character.characterTransform ?? asset?.defaultTransform);
   const baseScale = character.isSpeaking ? 1.02 : 0.94;
   const flipScale = transform.flipX ? -1 : 1;
   return (
@@ -1943,10 +1951,12 @@ function Workspace({
 function AssetManager({
   assets,
   onAssetsChange,
+  onApplyStandingTransform,
   onError
 }: {
   assets: AssetLibrary;
   onAssetsChange: (assets: AssetLibrary) => void;
+  onApplyStandingTransform: (assetId: string, transform: NonNullable<SceneCharacter["characterTransform"]>) => void;
   onError: (message: string | null) => void;
 }) {
   const [tab, setTab] = useState<"standing" | "background" | "bgm">("standing");
@@ -1983,7 +1993,7 @@ function AssetManager({
       }
       const dataUrl = await fileToDataUrl(file);
       const asset = { id: uid(kind), name: file.name.replace(/\.[^.]+$/, ""), fileName: file.name, dataUrl, source: "file" as const };
-      if (kind === "standing") next.standingAssets.push(asset);
+      if (kind === "standing") next.standingAssets.push({ ...asset, defaultTransform: DEFAULT_CHARACTER_TRANSFORM });
       if (kind === "background") next.backgroundAssets.push(asset);
       if (kind === "bgm") next.bgmAssets.push(asset);
       onError(null);
@@ -1993,6 +2003,14 @@ function AssetManager({
 
   function rename(kind: keyof AssetLibrary, id: string, name: string) {
     onAssetsChange({ ...assets, [kind]: assets[kind].map((asset) => (asset.id === id ? { ...asset, name } : asset)) });
+  }
+
+  function updateStandingTransform(id: string, transform: NonNullable<SceneCharacter["characterTransform"]>) {
+    const normalized = normalizeCharacterTransform(transform);
+    onAssetsChange({
+      ...assets,
+      standingAssets: assets.standingAssets.map((asset) => (asset.id === id ? { ...asset, defaultTransform: normalized } : asset))
+    });
   }
 
   function remove(kind: keyof AssetLibrary, id: string) {
@@ -2074,18 +2092,71 @@ function AssetManager({
         {tab === "standing" && (
           <div>
             <p className="mb-3 rounded-xl bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700">
-              스탠딩 이름을 대사 화자명과 같게 맞추면, 해당 캐릭터 대사 장면에 자동으로 표시됩니다.
+              스탠딩 이름을 화자명과 같게 맞추면 자동으로 표시됩니다. 구도는 여기서 맞추고 필요한 장면에 한 번에 적용할 수 있습니다.
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {assets.standingAssets.map((asset) => (
-                <div key={asset.id} className="rounded-2xl border border-slate-200 p-3">
-                  <div className="flex aspect-[3/4] items-end justify-center overflow-hidden rounded-xl bg-slate-100">
-                    <img src={asset.dataUrl} alt={asset.name} className="max-h-full max-w-full object-contain" />
+              {assets.standingAssets.map((asset) => {
+                const transform = normalizeCharacterTransform(asset.defaultTransform);
+                return (
+                  <div key={asset.id} className="rounded-2xl border border-slate-200 p-3">
+                    <div className="flex aspect-[3/4] items-end justify-center overflow-hidden rounded-xl bg-slate-100">
+                      <img
+                        src={asset.dataUrl}
+                        alt={asset.name}
+                        className="max-h-full max-w-full object-contain object-bottom"
+                        style={{
+                          transform: `translate(${transform.x}%, ${transform.y}%) scaleX(${transform.flipX ? -transform.scale : transform.scale}) scaleY(${transform.scale})`,
+                          transformOrigin: "bottom center"
+                        }}
+                      />
+                    </div>
+                    <input value={asset.name} onChange={(event) => rename("standingAssets", asset.id, event.target.value)} className="mt-3 w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                    <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
+                      <p className="mb-2 text-[11px] font-extrabold text-indigo-700">스탠딩 기본 구도</p>
+                      {([
+                        ["scale", "확대/축소", 0.5, 2, 0.05, `${Math.round(transform.scale * 100)}%`],
+                        ["x", "가로 위치", -100, 100, 1, `${transform.x}`],
+                        ["y", "세로 위치", -100, 100, 1, `${transform.y}`]
+                      ] as const).map(([field, label, min, max, step, valueLabel]) => (
+                        <label key={field} className="mb-2 block text-[11px] font-bold text-slate-600">
+                          <span className="mb-1 flex items-center justify-between"><span>{label}</span><span>{valueLabel}</span></span>
+                          <input
+                            type="range"
+                            min={min}
+                            max={max}
+                            step={step}
+                            value={transform[field]}
+                            onChange={(event) => updateStandingTransform(asset.id, { ...transform, [field]: Number(event.target.value) })}
+                            className="w-full accent-indigo-600"
+                          />
+                        </label>
+                      ))}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <label className="flex items-center gap-1 rounded-lg bg-white px-2 py-1.5 text-[11px] font-bold text-slate-600 ring-1 ring-indigo-100">
+                          <input
+                            type="checkbox"
+                            checked={transform.flipX}
+                            onChange={(event) => updateStandingTransform(asset.id, { ...transform, flipX: event.target.checked })}
+                            className="accent-indigo-600"
+                          />
+                          좌우 반전
+                        </label>
+                        <button type="button" onClick={() => updateStandingTransform(asset.id, DEFAULT_CHARACTER_TRANSFORM)} className="rounded-lg bg-white px-2 py-1.5 text-[11px] font-extrabold text-slate-500 ring-1 ring-indigo-100 hover:bg-slate-100">
+                          위치 초기화
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button type="button" onClick={() => onApplyStandingTransform(asset.id, transform)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-[11px] font-extrabold text-white shadow-sm shadow-indigo-100 hover:bg-indigo-500">
+                        전체 장면에 적용
+                      </button>
+                      <button type="button" onClick={() => remove("standingAssets", asset.id)} className="rounded-lg bg-rose-50 px-3 py-1.5 text-[11px] font-extrabold text-rose-500 hover:bg-rose-100">
+                        삭제
+                      </button>
+                    </div>
                   </div>
-                  <input value={asset.name} onChange={(event) => rename("standingAssets", asset.id, event.target.value)} className="mt-3 w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-                  <button type="button" onClick={() => remove("standingAssets", asset.id)} className="mt-2 text-xs font-bold text-rose-500">삭제</button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -2317,13 +2388,11 @@ function SceneCard({
               </div>
               {scene.characters.length === 0 ? (
                 <p className="rounded-lg border border-dashed border-indigo-100 bg-white px-3 py-2 text-[11px] font-semibold text-slate-400">
-                  스탠딩 이미지를 넣으려면 캐릭터를 추가하세요. 추가하면 위치와 크기 조절이 바로 표시됩니다.
+                  스탠딩 이미지를 넣으려면 캐릭터를 추가하세요. 스탠딩 구도는 에셋 관리에서 한 번에 조절할 수 있습니다.
                 </p>
               ) : null}
               <div className="space-y-2">
-                {scene.characters.map((character, characterIndex) => {
-                  const characterTransform = normalizeCharacterTransform(character.characterTransform);
-                  return (
+                {scene.characters.map((character, characterIndex) => (
                   <div key={`${character.position}-${characterIndex}`} className="grid grid-cols-[1fr_76px_70px_24px] gap-1 rounded-xl border border-slate-100 bg-white p-2">
                     <select
                       value={character.assetId}
@@ -2347,44 +2416,8 @@ function SceneCard({
                     </label>
                     <button type="button" onClick={() => onRemoveCharacter(index, characterIndex)} className="rounded-lg text-rose-400 hover:bg-rose-50">×</button>
                     <input value={character.name} onChange={(event) => onUpdateCharacter(index, characterIndex, { name: event.target.value })} className="col-span-4 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600" />
-                    <div className="col-span-4 mt-2 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
-                      <p className="mb-2 text-[11px] font-extrabold text-indigo-700">스탠딩 위치/크기 조절</p>
-                      {[
-                        ["scale", "확대/축소", 0.5, 2, 0.05, `${Math.round(characterTransform.scale * 100)}%`],
-                        ["x", "가로 위치", -100, 100, 1, `${characterTransform.x}`],
-                        ["y", "세로 위치", -100, 100, 1, `${characterTransform.y}`]
-                      ].map(([field, label, min, max, step, valueLabel]) => (
-                        <label key={field} className="mb-2 block text-[11px] font-bold text-slate-600">
-                          <span className="mb-1 flex items-center justify-between"><span>{label}</span><span>{valueLabel}</span></span>
-                          <input
-                            type="range"
-                            min={min as number}
-                            max={max as number}
-                            step={step as number}
-                            value={characterTransform[field as "scale" | "x" | "y"]}
-                            onChange={(event) => onUpdateCharacter(index, characterIndex, { characterTransform: { ...characterTransform, [field]: Number(event.target.value) } })}
-                            className="w-full accent-indigo-600"
-                          />
-                        </label>
-                      ))}
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <label className="flex items-center gap-1 rounded-lg bg-white px-2 py-1.5 text-[11px] font-bold text-slate-600 ring-1 ring-indigo-100">
-                          <input
-                            type="checkbox"
-                            checked={characterTransform.flipX}
-                            onChange={(event) => onUpdateCharacter(index, characterIndex, { characterTransform: { ...characterTransform, flipX: event.target.checked } })}
-                            className="accent-indigo-600"
-                          />
-                          좌우 반전
-                        </label>
-                        <button type="button" onClick={() => onUpdateCharacter(index, characterIndex, { characterTransform: DEFAULT_CHARACTER_TRANSFORM })} className="rounded-lg bg-white px-2 py-1.5 text-[11px] font-extrabold text-slate-500 ring-1 ring-indigo-100 hover:bg-slate-100">
-                          위치 초기화
-                        </button>
-                      </div>
-                    </div>
                   </div>
-                  );
-                })}
+                ))}
               </div>
             </div>
           </>
@@ -3802,6 +3835,21 @@ export default function App() {
     setError(mode === "all" ? "모든 장면에 BGM을 적용했습니다." : "BGM이 비어 있는 장면에만 적용했습니다.");
   }
 
+  function applyStandingTransformBulk(assetId: string, transform: NonNullable<SceneCharacter["characterTransform"]>) {
+    const normalized = normalizeCharacterTransform(transform);
+    let changed = 0;
+    const next = scenes.map((scene) => ({
+      ...scene,
+      characters: scene.characters.map((character) => {
+        if (character.assetId !== assetId) return character;
+        changed += 1;
+        return { ...character, characterTransform: normalized };
+      })
+    }));
+    setScenesAndJson(next);
+    setError(changed > 0 ? `${changed}개 캐릭터 배치에 스탠딩 구도를 적용했습니다.` : "현재 장면 중 이 스탠딩을 직접 연결한 캐릭터가 없습니다. 화자명 자동 매칭 장면은 에셋 기본 구도를 바로 사용합니다.");
+  }
+
   function commitToolCandidate(candidate: ToolCandidate) {
     const next = replaceSelectedScenes(scenes, candidate);
     setScenesAndJson(next);
@@ -3860,7 +3908,7 @@ export default function App() {
         const position = positions.find((item) => !used.has(item)) ?? "center";
         return {
           ...scene,
-          characters: [...scene.characters, { assetId: "", name: "Character", position, isSpeaking: scene.characters.length === 0, characterTransform: DEFAULT_CHARACTER_TRANSFORM }]
+          characters: [...scene.characters, { assetId: "", name: "Character", position, isSpeaking: scene.characters.length === 0 }]
         };
       })
     );
@@ -4143,7 +4191,7 @@ export default function App() {
               onRedo={redoChange}
             />
             )}
-            {workspaceTab === "assets" && <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onError={setError} />}
+            {workspaceTab === "assets" && <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onApplyStandingTransform={applyStandingTransformBulk} onError={setError} />}
             <JsonEditor open={jsonOpen} jsonText={jsonText} error={jsonError} onChange={applyJsonText} />
             {workspaceTab === "export" && (
               <SimpleExportPanel

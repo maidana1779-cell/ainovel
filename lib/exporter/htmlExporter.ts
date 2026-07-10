@@ -524,7 +524,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
         el.className = asset ? "character" : "character fallback-character";
         el.style.left = characterLeftPercent(character.position) + "%";
         el.style.setProperty("--character-width", characterWidthPercent(visibleCharacters.length));
-        const transform = Object.assign({ scale: 1, x: 0, y: 0, flipX: false }, character.characterTransform || {});
+        const transform = Object.assign({ scale: 1, x: 0, y: 0, flipX: false }, (asset && asset.defaultTransform) || {}, character.characterTransform || {});
         const baseScale = character.isSpeaking ? 1.02 : 0.94;
         el.style.setProperty("--char-x", Number(transform.x || 0) + "%");
         el.style.setProperty("--char-y", Number(transform.y || 0) + "%");

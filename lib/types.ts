@@ -3,6 +3,12 @@ export type StandingAsset = {
   name: string;
   fileName: string;
   dataUrl: string;
+  defaultTransform?: {
+    scale: number;
+    x: number;
+    y: number;
+    flipX: boolean;
+  };
 };
 
 export type BackgroundAsset = {
