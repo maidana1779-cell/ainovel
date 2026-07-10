@@ -2866,7 +2866,7 @@ function SceneAccordion({
   onUndo: () => void;
   onRedo: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const open = true;
   const [bulkBackgroundId, setBulkBackgroundId] = useState("");
   const [bulkBgmId, setBulkBgmId] = useState("");
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
@@ -2890,7 +2890,7 @@ function SceneAccordion({
   return (
     <section className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
       <Card padded={false}>
-        <button type="button" onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between px-6 py-5">
+        <div className="w-full flex items-center justify-between px-6 py-5">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-purple-50 flex items-center justify-center">
               <Layers className="h-4 w-4 text-purple-600" />
@@ -2900,8 +2900,8 @@ function SceneAccordion({
               <p className="text-xs text-slate-400">카드를 열어 화자, 대사, 배경, 에셋을 수정</p>
             </div>
           </div>
-          <ChevronDown className={`h-5 w-5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
-        </button>
+          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-extrabold text-indigo-600">메인 편집 영역</span>
+        </div>
 
         {open && (
           <div className="px-6 pb-6 pt-1 border-t border-slate-100">
@@ -3811,6 +3811,16 @@ export default function App() {
               onUndo={undoToolApply}
               onRedo={redoChange}
             />
+            <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onError={setError} />
+            <details className="rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)] [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
+                <div>
+                  <h3 className="text-[15px] font-extrabold text-slate-900">VN 미리보기</h3>
+                  <p className="mt-1 text-xs font-semibold text-slate-400">편집 결과를 게임 화면으로 확인합니다.</p>
+                </div>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-500">열기</span>
+              </summary>
+              <div className="border-t border-slate-100 px-6 pb-6 pt-4">
             <LargeVNPreviewSection
               scene={activeScene}
               scenes={scenes}
@@ -3843,8 +3853,18 @@ export default function App() {
               <span className="mx-2 text-slate-300">·</span>
               재생 상태: <span className={bgmStatus === "차단됨" ? "text-rose-500" : bgmStatus === "재생 중" ? "text-emerald-600" : "text-slate-600"}>{bgmStatus}</span>
             </div>
-            <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onError={setError} />
+              </div>
+            </details>
             <JsonEditor open={jsonOpen} jsonText={jsonText} error={jsonError} onChange={applyJsonText} />
+            <details className="rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)] [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
+                <div>
+                  <h3 className="text-[15px] font-extrabold text-slate-900">내보내기</h3>
+                  <p className="mt-1 text-xs font-semibold text-slate-400">완성본 HTML은 마지막에 여기에서 만들 수 있습니다.</p>
+                </div>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-500">열기</span>
+              </summary>
+              <div className="border-t border-slate-100 px-6 pb-6 pt-4">
             <ExportCard
               scenes={scenes}
               assets={assets}
@@ -3866,6 +3886,8 @@ export default function App() {
               )}
               onResetProgress={resetProgress}
             />
+              </div>
+            </details>
           </div>
         </div>
       </section>
