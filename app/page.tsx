@@ -2315,6 +2315,11 @@ function SceneCard({
                 <span className="text-[11px] font-bold text-slate-500">캐릭터</span>
                 <button type="button" onClick={() => onAddCharacter(index)} disabled={scene.characters.length >= 3} className="text-[11px] font-bold text-indigo-600 disabled:text-slate-300">추가</button>
               </div>
+              {scene.characters.length === 0 ? (
+                <p className="rounded-lg border border-dashed border-indigo-100 bg-white px-3 py-2 text-[11px] font-semibold text-slate-400">
+                  스탠딩 이미지를 넣으려면 캐릭터를 추가하세요. 추가하면 위치와 크기 조절이 바로 표시됩니다.
+                </p>
+              ) : null}
               <div className="space-y-2">
                 {scene.characters.map((character, characterIndex) => {
                   const characterTransform = normalizeCharacterTransform(character.characterTransform);
@@ -2342,14 +2347,14 @@ function SceneCard({
                     </label>
                     <button type="button" onClick={() => onRemoveCharacter(index, characterIndex)} className="rounded-lg text-rose-400 hover:bg-rose-50">×</button>
                     <input value={character.name} onChange={(event) => onUpdateCharacter(index, characterIndex, { name: event.target.value })} className="col-span-4 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600" />
-                    <div className="col-span-4 mt-1 rounded-lg bg-slate-50 p-2">
-                      <p className="mb-2 text-[10px] font-extrabold text-slate-500">스탠딩 구도</p>
+                    <div className="col-span-4 mt-2 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
+                      <p className="mb-2 text-[11px] font-extrabold text-indigo-700">스탠딩 위치/크기 조절</p>
                       {[
                         ["scale", "확대/축소", 0.5, 2, 0.05, `${Math.round(characterTransform.scale * 100)}%`],
                         ["x", "가로 위치", -100, 100, 1, `${characterTransform.x}`],
                         ["y", "세로 위치", -100, 100, 1, `${characterTransform.y}`]
                       ].map(([field, label, min, max, step, valueLabel]) => (
-                        <label key={field} className="mb-1.5 block text-[10px] font-bold text-slate-500">
+                        <label key={field} className="mb-2 block text-[11px] font-bold text-slate-600">
                           <span className="mb-1 flex items-center justify-between"><span>{label}</span><span>{valueLabel}</span></span>
                           <input
                             type="range"
@@ -2363,7 +2368,7 @@ function SceneCard({
                         </label>
                       ))}
                       <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <label className="flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-100">
+                        <label className="flex items-center gap-1 rounded-lg bg-white px-2 py-1.5 text-[11px] font-bold text-slate-600 ring-1 ring-indigo-100">
                           <input
                             type="checkbox"
                             checked={characterTransform.flipX}
@@ -2372,7 +2377,7 @@ function SceneCard({
                           />
                           좌우 반전
                         </label>
-                        <button type="button" onClick={() => onUpdateCharacter(index, characterIndex, { characterTransform: DEFAULT_CHARACTER_TRANSFORM })} className="rounded-lg bg-white px-2 py-1 text-[10px] font-extrabold text-slate-500 ring-1 ring-slate-100 hover:bg-slate-100">
+                        <button type="button" onClick={() => onUpdateCharacter(index, characterIndex, { characterTransform: DEFAULT_CHARACTER_TRANSFORM })} className="rounded-lg bg-white px-2 py-1.5 text-[11px] font-extrabold text-slate-500 ring-1 ring-indigo-100 hover:bg-slate-100">
                           위치 초기화
                         </button>
                       </div>
@@ -2480,8 +2485,11 @@ function SceneCard({
                 대사창 표시
               </label>
             </div>
-            <div className="mt-3 rounded-xl border border-pink-100 bg-white/80 p-3">
-              <p className="mb-2 text-[11px] font-extrabold text-pink-600">이미지 구도</p>
+            <div className="mt-3 rounded-xl border border-pink-200 bg-pink-50/80 p-3">
+              <div className="mb-2">
+                <p className="text-[12px] font-extrabold text-pink-700">CG 위치/크기 조절</p>
+                <p className="mt-0.5 text-[10px] font-semibold text-pink-400">이미지를 자르지 않고 보거나, 화면에 꽉 차게 맞출 수 있습니다.</p>
+              </div>
               <div className="mb-3 grid grid-cols-2 gap-2">
                 {[
                   ["contain", "전체 보기"],
@@ -2491,7 +2499,7 @@ function SceneCard({
                     key={fit}
                     type="button"
                     onClick={() => onUpdateScene(index, { cgTransform: { ...cgTransform, fit: fit as "contain" | "cover" } })}
-                    className={`rounded-lg border px-2 py-1.5 text-xs font-extrabold ${cgTransform.fit === fit ? "border-pink-300 bg-pink-50 text-pink-600" : "border-slate-200 bg-white text-slate-500"}`}
+                    className={`rounded-lg border px-2 py-2 text-xs font-extrabold ${cgTransform.fit === fit ? "border-pink-400 bg-white text-pink-700 shadow-sm" : "border-pink-100 bg-white text-slate-500"}`}
                   >
                     {label}
                   </button>
@@ -2502,7 +2510,7 @@ function SceneCard({
                 ["x", "가로 위치", -100, 100, 1, `${cgTransform.x}`],
                 ["y", "세로 위치", -100, 100, 1, `${cgTransform.y}`]
               ].map(([field, label, min, max, step, valueLabel]) => (
-                <label key={field} className="mb-2 block text-[11px] font-bold text-slate-500">
+                <label key={field} className="mb-2 block text-[11px] font-bold text-slate-600">
                   <span className="mb-1 flex items-center justify-between"><span>{label}</span><span>{valueLabel}</span></span>
                   <input
                     type="range"
@@ -2515,7 +2523,7 @@ function SceneCard({
                   />
                 </label>
               ))}
-              <button type="button" onClick={() => onUpdateScene(index, { cgTransform: DEFAULT_CG_TRANSFORM })} className="mt-1 rounded-lg bg-slate-100 px-3 py-1.5 text-[11px] font-extrabold text-slate-600 hover:bg-slate-200">
+              <button type="button" onClick={() => onUpdateScene(index, { cgTransform: DEFAULT_CG_TRANSFORM })} className="mt-1 rounded-lg bg-white px-3 py-1.5 text-[11px] font-extrabold text-slate-600 ring-1 ring-pink-100 hover:bg-pink-50">
                 위치 초기화
               </button>
             </div>
