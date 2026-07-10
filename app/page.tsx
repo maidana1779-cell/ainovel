@@ -430,15 +430,15 @@ function createEnhanceEffectCandidate(scenes: VisualNovelScene[], selection: Sel
     const text = scene?.text ?? "";
     const isShort = Array.from(text).length < 80;
     const effects: VnEffect[] = [];
-    if (suggestionIndex % 4 === 0) effects.push({ id: uid("effect"), type: "fadeIn", durationMs: 500, directorNote: "장면 시작이 부드럽게 느껴지도록 추천합니다." });
-    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 420 : 650, position: "beforeText", directorNote: "대사가 나오기 전 짧은 호흡을 만들어 긴장감을 줍니다." });
+    if (suggestionIndex % 4 === 0) effects.push({ id: uid("effect"), type: "fadeIn", durationMs: 600, directorNote: "장면 시작이 부드럽게 느껴지도록 추천합니다." });
+    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 350 : 600, position: "beforeText", directorNote: "대사가 나오기 전 짧은 호흡을 만들어 긴장감을 줍니다." });
     if (/!|！|충격|흔들|무너|폭발|뛰/.test(text)) effects.push({ id: uid("effect"), type: "screenShake", intensity: "soft", directorNote: "놀람이나 충격을 화면 움직임으로 전달합니다." });
     if (/\?|？|침묵|정적|멈/.test(text)) effects.push({ id: uid("effect"), type: "textSpeed", value: "slow", directorNote: "망설임이나 긴장감을 천천히 읽히게 합니다." });
     if ((scene?.text ?? "").length > TEXT_PAGE_LIMIT) effects.push({ id: uid("effect"), type: "splitTextPage", directorNote: "긴 문장을 여러 클릭으로 나누어 읽기 쉽게 만듭니다." });
     if (suggestionIndex % 3 === 1) effects.push({ id: uid("effect"), type: "soundEffect", placeholder: "sfx_placeholder", directorNote: "나중에 효과음을 넣을 위치를 표시합니다." });
     if (suggestionIndex % 3 === 2) effects.push({ id: uid("effect"), type: "flash", durationMs: 180, directorNote: "순간적인 감정 반응을 강조합니다." });
-    if (suggestionIndex % 5 === 3) effects.push({ id: uid("effect"), type: "fadeOut", durationMs: 520, directorNote: "장면 끝의 여운을 분명하게 만듭니다." });
-    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 500 : 850, position: "afterText", directorNote: "다음 장면으로 넘어가기 전 감정을 남깁니다." });
+    if (suggestionIndex % 5 === 3) effects.push({ id: uid("effect"), type: "fadeOut", durationMs: 600, directorNote: "장면 끝의 여운을 분명하게 만듭니다." });
+    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 600 : 900, position: "afterText", directorNote: "다음 장면으로 넘어가기 전 감정을 남깁니다." });
     return { sceneIndex, sceneId: scene.id, effects };
   });
   return {
@@ -2700,6 +2700,10 @@ function createEffectByType(type: VnEffect["type"]): VnEffect {
   return { id: uid("effect"), type: "soundEffect", placeholder: "sfx_placeholder", directorNote: "효과음을 넣을 위치를 표시합니다." };
 }
 
+function durationPreset(value: number, options: number[]) {
+  return String(options.reduce((closest, option) => Math.abs(option - value) < Math.abs(closest - value) ? option : closest, options[0]));
+}
+
 function EffectEditor({
   effect,
   checked,
@@ -2744,19 +2748,36 @@ function EffectEditor({
         <button type="button" onClick={onDelete} className="ml-auto rounded-lg bg-rose-50 px-2 py-1.5 text-[11px] font-bold text-rose-500">삭제</button>
       </div>
       <p className="mt-2 text-xs font-extrabold text-slate-800">{effectLabel(effect)}</p>
-      <input value={effect.directorNote ?? ""} onChange={(event) => onChange({ ...effect, directorNote: event.target.value })} placeholder="왜 이 연출을 추천하는지" className="mt-2 w-full rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+      <p className="mt-2 rounded-lg border border-purple-100 bg-white/80 px-3 py-2 text-xs leading-5 text-slate-500">
+        {effectNote(effect)}
+      </p>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {effect.type === "pause" ? (
           <>
-            <input type="number" min={0} step={50} value={effect.durationMs} onChange={(event) => onChange({ ...effect, durationMs: Number(event.target.value) })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+            <select value={durationPreset(effect.durationMs, [350, 600, 900])} onChange={(event) => onChange({ ...effect, durationMs: Number(event.target.value) })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+              <option value="350">짧게</option>
+              <option value="600">보통</option>
+              <option value="900">길게</option>
+            </select>
             <select value={effect.position} onChange={(event) => onChange({ ...effect, position: event.target.value as "beforeText" | "afterText" })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
               <option value="beforeText">대사 전</option>
               <option value="afterText">대사 후</option>
             </select>
           </>
         ) : null}
-        {effect.type === "fadeIn" || effect.type === "fadeOut" || effect.type === "flash" ? (
-          <input type="number" min={0} step={50} value={effect.durationMs} onChange={(event) => onChange({ ...effect, durationMs: Number(event.target.value) })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+        {effect.type === "fadeIn" || effect.type === "fadeOut" ? (
+          <select value={durationPreset(effect.durationMs, [300, 600, 1000])} onChange={(event) => onChange({ ...effect, durationMs: Number(event.target.value) })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+            <option value="300">빠르게</option>
+            <option value="600">보통</option>
+            <option value="1000">천천히</option>
+          </select>
+        ) : null}
+        {effect.type === "flash" ? (
+          <select value={durationPreset(effect.durationMs, [120, 180, 260])} onChange={(event) => onChange({ ...effect, durationMs: Number(event.target.value) })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+            <option value="120">짧게</option>
+            <option value="180">보통</option>
+            <option value="260">길게</option>
+          </select>
         ) : null}
         {effect.type === "textSpeed" ? (
           <select value={effect.value} onChange={(event) => onChange({ ...effect, value: event.target.value as "slow" | "normal" | "fast" })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
