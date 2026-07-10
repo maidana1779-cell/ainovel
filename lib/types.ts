@@ -27,6 +27,12 @@ export type SceneCharacter = {
   name: string;
   position: "left" | "center" | "right";
   isSpeaking: boolean;
+  characterTransform?: {
+    scale: number;
+    x: number;
+    y: number;
+    flipX: boolean;
+  };
 };
 
 export type SceneDisplayMode = "dialogue" | "narration" | "system" | "code" | "choice" | "cg";
@@ -55,6 +61,12 @@ export type Scene = {
   imageAsset?: string;
   imageFileName?: string;
   cgTransition?: "fade" | "instant";
+  cgTransform?: {
+    scale: number;
+    x: number;
+    y: number;
+    fit: "contain" | "cover";
+  };
   showDialogue?: boolean;
   choices?: ChoiceOption[];
   effects?: VnEffect[];

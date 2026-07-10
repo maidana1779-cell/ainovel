@@ -126,6 +126,31 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
+const DEFAULT_CG_TRANSFORM = { scale: 1, x: 0, y: 0, fit: "contain" as const };
+const DEFAULT_CHARACTER_TRANSFORM = { scale: 1, x: 0, y: 0, flipX: false };
+
+function normalizeCgTransform(transform?: VisualNovelScene["cgTransform"]): NonNullable<VisualNovelScene["cgTransform"]> {
+  return {
+    ...DEFAULT_CG_TRANSFORM,
+    ...(transform ?? {}),
+    scale: Math.min(2, Math.max(0.5, Number(transform?.scale ?? DEFAULT_CG_TRANSFORM.scale))),
+    x: Math.min(100, Math.max(-100, Number(transform?.x ?? DEFAULT_CG_TRANSFORM.x))),
+    y: Math.min(100, Math.max(-100, Number(transform?.y ?? DEFAULT_CG_TRANSFORM.y))),
+    fit: transform?.fit === "cover" ? "cover" : "contain"
+  };
+}
+
+function normalizeCharacterTransform(transform?: SceneCharacter["characterTransform"]): NonNullable<SceneCharacter["characterTransform"]> {
+  return {
+    ...DEFAULT_CHARACTER_TRANSFORM,
+    ...(transform ?? {}),
+    scale: Math.min(2, Math.max(0.5, Number(transform?.scale ?? DEFAULT_CHARACTER_TRANSFORM.scale))),
+    x: Math.min(100, Math.max(-100, Number(transform?.x ?? DEFAULT_CHARACTER_TRANSFORM.x))),
+    y: Math.min(100, Math.max(-100, Number(transform?.y ?? DEFAULT_CHARACTER_TRANSFORM.y))),
+    flipX: Boolean(transform?.flipX)
+  };
+}
+
 function stringifyScenes(scenes: VisualNovelScene[]) {
   return JSON.stringify(scenes, null, 2);
 }
@@ -149,7 +174,11 @@ function normalizeScenes(scenes: VisualNovelScene[]) {
     backgroundAsset: scene.backgroundAsset ?? scene.background ?? BACKGROUND_ASSETS[index % BACKGROUND_ASSETS.length].id,
     emotion: scene.emotion ?? "neutral",
     emotionIcon: scene.emotionIcon ?? EMOTION_ASSETS.find((asset) => asset.id === scene.emotion)?.icon ?? "•",
-    characters: Array.isArray(scene.characters) ? scene.characters : []
+    cgTransform: scene.displayMode === "cg" ? normalizeCgTransform(scene.cgTransform) : scene.cgTransform,
+    characters: (Array.isArray(scene.characters) ? scene.characters : []).map((character) => ({
+      ...character,
+      characterTransform: normalizeCharacterTransform(character.characterTransform)
+    }))
   }));
 }
 
@@ -175,6 +204,9 @@ function mergeSceneAssetLinks(nextScenes: VisualNovelScene[], previousScenes: Vi
       backgroundAssetId: previous.backgroundAssetId ?? scene.backgroundAssetId,
       bgmAssetId: previous.bgmAssetId ?? scene.bgmAssetId,
       characters: previous.characters?.length ? previous.characters : scene.characters,
+      cgTransform: previous.cgTransform ?? scene.cgTransform,
+      imageAsset: previous.imageAsset ?? scene.imageAsset,
+      imageFileName: previous.imageFileName ?? scene.imageFileName,
       effects: previous.effects?.length ? previous.effects : scene.effects,
       directorNotes: previous.directorNotes?.length ? previous.directorNotes : scene.directorNotes
     };
@@ -867,6 +899,7 @@ function DialoguePanel({
   compact?: boolean;
 }) {
   const displayMode = sceneDisplayMode(scene);
+  const cgTransform = normalizeCgTransform(scene.cgTransform);
   const visibleText = pageText ?? scene.text;
   const effectiveTypingSpeed = sceneTypingSpeed(scene, typingSpeed);
   const beforeTextDelay = scenePause(scene, "beforeText");
@@ -878,7 +911,7 @@ function DialoguePanel({
   if (displayMode === "choice") return null;
   if (isCg && scene.showDialogue === false) return null;
   return (
-    <div className="pointer-events-none absolute bottom-8 left-1/2 h-[156px] w-[88%] max-w-[1320px] -translate-x-1/2 text-white">
+    <div className="pointer-events-none absolute bottom-4 left-1/2 h-[168px] w-[92%] max-w-[1320px] -translate-x-1/2 text-white sm:bottom-8 sm:h-[156px] sm:w-[88%]">
       {!isNarration && !isCode && !isCg ? (
         <div
           className={cn(
@@ -891,7 +924,7 @@ function DialoguePanel({
       ) : null}
       <div
         className={cn(
-          "relative flex h-[156px] w-full items-center border-t border-white/[0.06] bg-[rgba(10,13,18,0.84)] px-14 py-6 text-[#f4f0e6]",
+          "relative flex h-[168px] w-full items-center border-t border-white/[0.06] bg-[rgba(10,13,18,0.84)] px-5 py-5 text-[#f4f0e6] sm:h-[156px] sm:px-14 sm:py-6",
           "text-left"
         )}
       >
@@ -921,7 +954,7 @@ function DialoguePanel({
             onComplete={onTypingComplete}
             style={{ fontFamily }}
             className={cn(
-              "max-w-[1160px] min-h-0 flex-1 overflow-hidden whitespace-pre-wrap break-keep px-12 text-[17px] leading-[1.85] text-[#f4f0e6]",
+              "max-w-[1160px] min-h-0 flex-1 overflow-hidden whitespace-pre-wrap break-keep px-2 text-[16px] leading-[1.75] text-[#f4f0e6] sm:px-12 sm:text-[17px] sm:leading-[1.85]",
               isNarration
                 ? "italic text-left"
                 : "text-left"
@@ -956,6 +989,9 @@ function CharacterFigure({
   const tones = { indigo: "from-indigo-300/40 to-indigo-500/10", purple: "from-purple-300/40 to-purple-500/10", rose: "from-rose-300/40 to-rose-500/10" };
   const tone = character.position === "left" ? "purple" : character.position === "right" ? "rose" : "indigo";
   const characterWidth = variant === "inline" ? "var(--character-width, 36%)" : "var(--character-width, 36%)";
+  const transform = normalizeCharacterTransform(character.characterTransform);
+  const baseScale = character.isSpeaking ? 1.02 : 0.94;
+  const flipScale = transform.flipX ? -1 : 1;
   return (
     <motion.div
       className="absolute bottom-0 origin-bottom"
@@ -967,8 +1003,10 @@ function CharacterFigure({
         zIndex: character.isSpeaking ? 3 : 2
       }}
       animate={{
-        x: "-50%",
-        scale: character.isSpeaking ? 1.02 : 1,
+        x: `calc(-50% + ${transform.x}%)`,
+        y: `${transform.y}%`,
+        scaleX: baseScale * transform.scale * flipScale,
+        scaleY: baseScale * transform.scale,
         opacity: character.isSpeaking ? 1 : 0.7,
         filter: character.isSpeaking ? "brightness(1)" : "brightness(0.6) blur(1px)"
       }}
@@ -997,10 +1035,10 @@ function ChoiceOverlay({
   const options = scene.choices ?? [];
   if (sceneDisplayMode(scene) !== "choice" || options.length === 0) return null;
   return (
-    <div className="absolute inset-x-0 bottom-[18%] z-40 flex justify-center px-10">
-      <div className="w-[72%] max-w-[920px]" style={{ fontFamily }}>
-        {scene.text ? <p className="mb-4 text-center text-[18px] font-semibold tracking-[0.04em] text-[#f4f0e6] drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">{scene.text}</p> : null}
-        <div className="space-y-3 border-y border-white/20 bg-black/20 py-5 backdrop-blur-[2px]">
+    <div className="absolute inset-x-0 bottom-[16%] z-40 flex justify-center px-5 sm:bottom-[18%] sm:px-10">
+      <div className="w-full max-w-[920px] sm:w-[72%]" style={{ fontFamily }}>
+        {scene.text ? <p className="mb-4 text-center text-[16px] font-semibold tracking-[0.04em] text-[#f4f0e6] drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-[18px]">{scene.text}</p> : null}
+        <div className="space-y-3 border-y border-white/20 bg-black/25 py-5 backdrop-blur-[2px]">
           {options.map((option, index) => (
             <button
               key={option.id}
@@ -1009,7 +1047,7 @@ function ChoiceOverlay({
                 event.stopPropagation();
                 onChoose(option.targetSceneId);
               }}
-              className="block w-full rounded-none bg-transparent px-8 py-3 text-left text-[18px] font-medium tracking-[0.02em] text-[#f4f0e6] shadow-none transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+              className="block w-full rounded-none bg-transparent px-5 py-4 text-left text-[16px] font-medium tracking-[0.02em] text-[#f4f0e6] shadow-none transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 sm:px-8 sm:py-3 sm:text-[18px]"
             >
               <span className="mr-4 text-white/55">{index + 1}.</span>
               {option.text}
@@ -1073,6 +1111,7 @@ function VNStage({
   const bg = sceneBackground(scene);
   const backgroundAsset = scene.backgroundAssetId ? assets.backgroundAssets.find((asset) => asset.id === scene.backgroundAssetId) : undefined;
   const displayMode = sceneDisplayMode(scene);
+  const cgTransform = normalizeCgTransform(scene.cgTransform);
   const effects = sceneEffects(scene);
   const hasShake = effects.some((effect) => effect.type === "screenShake");
   const hasFlash = effects.some((effect) => effect.type === "flash");
@@ -1094,7 +1133,7 @@ function VNStage({
   return (
     <div
       className={cn(
-        "relative mx-auto aspect-video w-full max-w-[1440px] cursor-pointer overflow-hidden rounded-2xl border border-slate-200 shadow-xl shadow-indigo-100/50",
+        "relative mx-auto aspect-[9/16] max-h-[78vh] w-full max-w-[1440px] cursor-pointer overflow-hidden rounded-2xl border border-slate-200 shadow-xl shadow-indigo-100/50 sm:aspect-video sm:max-h-none",
         hasShake && "animate-[vnshake_.42s_ease-in-out_1]"
       )}
       role="button"
@@ -1146,9 +1185,10 @@ function VNStage({
               src={scene.imageAsset}
               alt={scene.imageFileName ?? "CG Scene"}
               initial={{ opacity: scene.cgTransition === "instant" ? 1 : 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: 1, x: `${cgTransform.x}%`, y: `${cgTransform.y}%`, scale: cgTransform.scale }}
               transition={{ duration: scene.cgTransition === "instant" ? 0 : 0.45 }}
-              className="pointer-events-none absolute inset-0 z-20 h-full w-full object-cover"
+              className="pointer-events-none absolute inset-0 z-20 h-full w-full bg-black"
+              style={{ objectFit: cgTransform.fit, objectPosition: "center" } as React.CSSProperties}
             />
           ) : null}
         </motion.div>
@@ -1171,7 +1211,7 @@ function VNStage({
       {hasFlash ? <div key={`${scene.id}-flash`} className="pointer-events-none absolute inset-0 z-[65] bg-white animate-[vnflash_.24s_ease-out_1]" /> : null}
       {hasFadeIn ? <div key={`${scene.id}-fade-in`} className="pointer-events-none absolute inset-0 z-[64] bg-black animate-[vnfadein_.7s_ease-out_1] opacity-0" /> : null}
       {hasFadeOut ? <div key={`${scene.id}-fade-out`} className="pointer-events-none absolute inset-0 z-[64] bg-black animate-[vnfadeout_.7s_ease-out_1] opacity-0" /> : null}
-      <div className="absolute right-4 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-2">
+      <div className="absolute right-2 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-3 sm:right-4 sm:gap-2">
         {[
           ["Log", "☰"],
           ["Skip", "»"],
@@ -1189,9 +1229,9 @@ function VNStage({
               if (label === "Auto") onToggleAuto();
             }}
             disabled={label === "Skip" || label === "Menu" || (label === "BGM" && !scene.bgmAssetId)}
-            className={`flex flex-col items-center gap-0.5 bg-transparent p-0 text-[9px] font-semibold text-[#e8e4d8cc] shadow-none transition disabled:pointer-events-none disabled:opacity-55 ${(label === "Auto" && autoPlay) || (label === "Log" && logOpen) || (label === "BGM" && bgmEnabled) ? "text-white" : ""}`}
+            className={`flex min-h-10 min-w-10 flex-col items-center gap-0.5 bg-transparent p-0 text-[10px] font-semibold text-[#e8e4d8cc] shadow-none transition disabled:pointer-events-none disabled:opacity-55 sm:min-h-0 sm:min-w-0 sm:text-[9px] ${(label === "Auto" && autoPlay) || (label === "Log" && logOpen) || (label === "BGM" && bgmEnabled) ? "text-white" : ""}`}
           >
-            <span className="text-[17px] leading-none">{icon}</span>
+            <span className="text-[19px] leading-none sm:text-[17px]">{icon}</span>
             {label}
           </button>
         ))}
@@ -1569,6 +1609,7 @@ function VNStageInline({
   const bg = sceneBackground(scene);
   const backgroundAsset = scene.backgroundAssetId ? assets.backgroundAssets.find((asset) => asset.id === scene.backgroundAssetId) : undefined;
   const displayMode = sceneDisplayMode(scene);
+  const cgTransform = normalizeCgTransform(scene.cgTransform);
   return (
     <div
       className="relative mx-auto aspect-video w-full cursor-pointer overflow-hidden rounded-xl border border-slate-200"
@@ -1613,9 +1654,10 @@ function VNStageInline({
               src={scene.imageAsset}
               alt={scene.imageFileName ?? "CG Scene"}
               initial={{ opacity: scene.cgTransition === "instant" ? 1 : 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: 1, x: `${cgTransform.x}%`, y: `${cgTransform.y}%`, scale: cgTransform.scale }}
               transition={{ duration: scene.cgTransition === "instant" ? 0 : 0.45 }}
-              className="pointer-events-none absolute inset-0 z-20 h-full w-full object-cover"
+              className="pointer-events-none absolute inset-0 z-20 h-full w-full bg-black"
+              style={{ objectFit: cgTransform.fit, objectPosition: "center" } as React.CSSProperties}
             />
           ) : null}
         </motion.div>
@@ -2136,6 +2178,7 @@ function SceneCard({
   const previewImage = isCgScene && scene.imageAsset ? scene.imageAsset : uploadedBg?.dataUrl;
   const previewStyle = previewImage ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined;
   const [cgError, setCgError] = useState<string | null>(null);
+  const cgTransform = normalizeCgTransform(scene.cgTransform);
   async function handleCgUpload(file?: File) {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -2149,7 +2192,7 @@ function SceneCard({
     try {
       const dataUrl = await fileToDataUrl(file);
       setCgError(null);
-      onUpdateScene(index, { imageAsset: dataUrl, imageFileName: file.name });
+      onUpdateScene(index, { imageAsset: dataUrl, imageFileName: file.name, cgTransform });
     } catch (error) {
       setCgError(error instanceof Error ? error.message : "이미지를 불러오지 못했습니다.");
     }
@@ -2230,6 +2273,7 @@ function SceneCard({
                 displayMode: nextMode,
                 role: nextMode === "narration" ? "narration" : nextMode === "dialogue" ? "assistant" : scene.role,
                 imageAsset: nextMode === "cg" ? scene.imageAsset : scene.imageAsset,
+                cgTransform: nextMode === "cg" ? normalizeCgTransform(scene.cgTransform) : scene.cgTransform,
                 choices: nextMode === "choice" ? (scene.choices?.length ? scene.choices : [{ id: uid("choice"), text: "선택지", targetSceneId: undefined }]) : undefined
               });
             }}
@@ -2272,8 +2316,10 @@ function SceneCard({
                 <button type="button" onClick={() => onAddCharacter(index)} disabled={scene.characters.length >= 3} className="text-[11px] font-bold text-indigo-600 disabled:text-slate-300">추가</button>
               </div>
               <div className="space-y-2">
-                {scene.characters.map((character, characterIndex) => (
-                  <div key={`${character.position}-${characterIndex}`} className="grid grid-cols-[1fr_76px_70px_24px] gap-1">
+                {scene.characters.map((character, characterIndex) => {
+                  const characterTransform = normalizeCharacterTransform(character.characterTransform);
+                  return (
+                  <div key={`${character.position}-${characterIndex}`} className="grid grid-cols-[1fr_76px_70px_24px] gap-1 rounded-xl border border-slate-100 bg-white p-2">
                     <select
                       value={character.assetId}
                       onChange={(event) => {
@@ -2296,8 +2342,44 @@ function SceneCard({
                     </label>
                     <button type="button" onClick={() => onRemoveCharacter(index, characterIndex)} className="rounded-lg text-rose-400 hover:bg-rose-50">×</button>
                     <input value={character.name} onChange={(event) => onUpdateCharacter(index, characterIndex, { name: event.target.value })} className="col-span-4 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600" />
+                    <div className="col-span-4 mt-1 rounded-lg bg-slate-50 p-2">
+                      <p className="mb-2 text-[10px] font-extrabold text-slate-500">스탠딩 구도</p>
+                      {[
+                        ["scale", "확대/축소", 0.5, 2, 0.05, `${Math.round(characterTransform.scale * 100)}%`],
+                        ["x", "가로 위치", -100, 100, 1, `${characterTransform.x}`],
+                        ["y", "세로 위치", -100, 100, 1, `${characterTransform.y}`]
+                      ].map(([field, label, min, max, step, valueLabel]) => (
+                        <label key={field} className="mb-1.5 block text-[10px] font-bold text-slate-500">
+                          <span className="mb-1 flex items-center justify-between"><span>{label}</span><span>{valueLabel}</span></span>
+                          <input
+                            type="range"
+                            min={min as number}
+                            max={max as number}
+                            step={step as number}
+                            value={characterTransform[field as "scale" | "x" | "y"]}
+                            onChange={(event) => onUpdateCharacter(index, characterIndex, { characterTransform: { ...characterTransform, [field]: Number(event.target.value) } })}
+                            className="w-full accent-indigo-600"
+                          />
+                        </label>
+                      ))}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <label className="flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-100">
+                          <input
+                            type="checkbox"
+                            checked={characterTransform.flipX}
+                            onChange={(event) => onUpdateCharacter(index, characterIndex, { characterTransform: { ...characterTransform, flipX: event.target.checked } })}
+                            className="accent-indigo-600"
+                          />
+                          좌우 반전
+                        </label>
+                        <button type="button" onClick={() => onUpdateCharacter(index, characterIndex, { characterTransform: DEFAULT_CHARACTER_TRANSFORM })} className="rounded-lg bg-white px-2 py-1 text-[10px] font-extrabold text-slate-500 ring-1 ring-slate-100 hover:bg-slate-100">
+                          위치 초기화
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </>
@@ -2356,7 +2438,18 @@ function SceneCard({
           <div className="rounded-xl border border-pink-100 bg-pink-50/50 p-3">
             <p className="mb-2 text-[11px] font-extrabold text-pink-600">CG 이미지</p>
             {scene.imageAsset ? (
-              <img src={scene.imageAsset} alt={scene.imageFileName ?? "CG Scene"} className="mb-2 aspect-video w-full rounded-xl object-cover ring-1 ring-pink-100" />
+              <div className="mb-2 aspect-video w-full overflow-hidden rounded-xl bg-black ring-1 ring-pink-100">
+                <img
+                  src={scene.imageAsset}
+                  alt={scene.imageFileName ?? "CG Scene"}
+                  className="h-full w-full"
+                  style={{
+                    objectFit: cgTransform.fit,
+                    objectPosition: "center",
+                    transform: `translate(${cgTransform.x}%, ${cgTransform.y}%) scale(${cgTransform.scale})`
+                  }}
+                />
+              </div>
             ) : (
               <div className="mb-2 flex aspect-video w-full items-center justify-center rounded-xl border border-dashed border-pink-200 bg-white/70 text-xs font-bold text-pink-300">
                 CG 이미지를 업로드하세요
@@ -2365,7 +2458,16 @@ function SceneCard({
             <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-pink-100 bg-white px-3 py-2 text-xs font-extrabold text-pink-600 transition-colors hover:bg-pink-50">
               <Upload className="h-3.5 w-3.5" />
               이미지 업로드
-              <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => void handleCgUpload(event.target.files?.[0])} />
+              <input
+                key={`${scene.id}-${scene.imageFileName ?? "empty"}`}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(event) => {
+                  void handleCgUpload(event.target.files?.[0]);
+                  event.currentTarget.value = "";
+                }}
+              />
             </label>
             {cgError ? <p className="mt-2 rounded-lg bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-500">{cgError}</p> : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -2377,6 +2479,45 @@ function SceneCard({
                 <input type="checkbox" checked={scene.showDialogue !== false} onChange={(event) => onUpdateScene(index, { showDialogue: event.target.checked })} className="accent-pink-500" />
                 대사창 표시
               </label>
+            </div>
+            <div className="mt-3 rounded-xl border border-pink-100 bg-white/80 p-3">
+              <p className="mb-2 text-[11px] font-extrabold text-pink-600">이미지 구도</p>
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                {[
+                  ["contain", "전체 보기"],
+                  ["cover", "화면 채우기"]
+                ].map(([fit, label]) => (
+                  <button
+                    key={fit}
+                    type="button"
+                    onClick={() => onUpdateScene(index, { cgTransform: { ...cgTransform, fit: fit as "contain" | "cover" } })}
+                    className={`rounded-lg border px-2 py-1.5 text-xs font-extrabold ${cgTransform.fit === fit ? "border-pink-300 bg-pink-50 text-pink-600" : "border-slate-200 bg-white text-slate-500"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {[
+                ["scale", "확대/축소", 0.5, 2, 0.05, `${Math.round(cgTransform.scale * 100)}%`],
+                ["x", "가로 위치", -100, 100, 1, `${cgTransform.x}`],
+                ["y", "세로 위치", -100, 100, 1, `${cgTransform.y}`]
+              ].map(([field, label, min, max, step, valueLabel]) => (
+                <label key={field} className="mb-2 block text-[11px] font-bold text-slate-500">
+                  <span className="mb-1 flex items-center justify-between"><span>{label}</span><span>{valueLabel}</span></span>
+                  <input
+                    type="range"
+                    min={min as number}
+                    max={max as number}
+                    step={step as number}
+                    value={cgTransform[field as "scale" | "x" | "y"]}
+                    onChange={(event) => onUpdateScene(index, { cgTransform: { ...cgTransform, [field]: Number(event.target.value) } })}
+                    className="w-full accent-pink-500"
+                  />
+                </label>
+              ))}
+              <button type="button" onClick={() => onUpdateScene(index, { cgTransform: DEFAULT_CG_TRANSFORM })} className="mt-1 rounded-lg bg-slate-100 px-3 py-1.5 text-[11px] font-extrabold text-slate-600 hover:bg-slate-200">
+                위치 초기화
+              </button>
             </div>
             {scene.showDialogue !== false ? (
               <textarea value={scene.text} onChange={(event) => onUpdateScene(index, { text: event.target.value })} placeholder="이미지 위에 함께 보여줄 문장" className="als-scrollbar mt-2 h-[72px] w-full resize-none rounded-xl border border-pink-100 bg-white/80 p-2 text-[13px] leading-relaxed text-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-100" />
@@ -3354,7 +3495,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [jsonOpen, setJsonOpen] = useState(false);
-  const [workspaceTab, setWorkspaceTab] = useState<"scenes" | "assets" | "export">("scenes");
+  const [workspaceTab, setWorkspaceTab] = useState<"log" | "scenes" | "assets" | "export">("scenes");
   const [autoPlay, setAutoPlay] = useState(false);
   const [typingEnabled, setTypingEnabled] = useState(true);
   const [typingSpeedMode, setTypingSpeedMode] = useState<TypingSpeedMode>("normal");
@@ -3711,7 +3852,7 @@ export default function App() {
         const position = positions.find((item) => !used.has(item)) ?? "center";
         return {
           ...scene,
-          characters: [...scene.characters, { assetId: "", name: "Character", position, isSpeaking: scene.characters.length === 0 }]
+          characters: [...scene.characters, { assetId: "", name: "Character", position, isSpeaking: scene.characters.length === 0, characterTransform: DEFAULT_CHARACTER_TRANSFORM }]
         };
       })
     );
@@ -3940,11 +4081,14 @@ export default function App() {
       </section>
       <section id="workspace" className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[420px_1fr] lg:items-start">
-          <LogInputCard log={log} onLogChange={setLog} onConvert={convertLog} error={error} />
+          <div className="hidden lg:block">
+            <LogInputCard log={log} onLogChange={setLog} onConvert={convertLog} error={error} />
+          </div>
           <div className="space-y-6 [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
             <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)]">
-              <div className="grid gap-2 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-3">
                 {[
+                  ["log", "로그"],
                   ["scenes", "장면 편집"],
                   ["assets", "에셋 관리"],
                   ["export", "내보내기"]
@@ -3952,14 +4096,19 @@ export default function App() {
                   <button
                     key={id}
                     type="button"
-                    onClick={() => setWorkspaceTab(id as "scenes" | "assets" | "export")}
-                    className={`rounded-xl px-4 py-3 text-sm font-extrabold transition ${workspaceTab === id ? "bg-indigo-600 text-white shadow-sm shadow-indigo-200" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}
+                    onClick={() => setWorkspaceTab(id as "log" | "scenes" | "assets" | "export")}
+                    className={`rounded-xl px-4 py-3 text-sm font-extrabold transition ${id === "log" ? "lg:hidden" : ""} ${workspaceTab === id ? "bg-indigo-600 text-white shadow-sm shadow-indigo-200" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}
                   >
                     {label}
                   </button>
                 ))}
               </div>
             </div>
+            {workspaceTab === "log" && (
+              <div className="lg:hidden">
+                <LogInputCard log={log} onLogChange={setLog} onConvert={convertLog} error={error} />
+              </div>
+            )}
             {workspaceTab === "scenes" && (
             <SceneAccordion
               scenes={scenes}

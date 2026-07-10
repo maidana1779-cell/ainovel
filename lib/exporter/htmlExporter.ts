@@ -67,9 +67,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .cg-layer { position: absolute; inset: 0; z-index: 4; display: none; pointer-events: none; background: rgba(0,0,0,.2); }
     .cg-layer.open { display: block; }
     .cg-layer.fade { animation: cgfade .45s ease-out 1; }
-    .cg-layer img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-    .character { position: absolute; bottom: 0; height: 80%; width: var(--character-width, 36%); object-fit: contain; object-position: bottom center; transition: filter .3s ease, opacity .3s ease, transform .3s ease; transform: translateX(-50%) scale(1.02); filter: brightness(1); opacity: 1; z-index: 3; }
-    .character[data-speaking="false"] { opacity: .7; filter: brightness(.6) blur(1px); transform: translateX(-50%) scale(1); z-index: 2; }
+    .cg-layer img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; background: #000; }
+    .character { position: absolute; bottom: 0; height: 80%; width: var(--character-width, 36%); object-fit: contain; object-position: bottom center; transition: filter .3s ease, opacity .3s ease, transform .3s ease; transform: translate(calc(-50% + var(--char-x, 0%)), var(--char-y, 0%)) scaleX(calc(var(--char-scale, 1.02) * var(--char-flip, 1))) scaleY(var(--char-scale, 1.02)); filter: brightness(1); opacity: 1; z-index: 3; }
+    .character[data-speaking="false"] { opacity: .7; filter: brightness(.6) blur(1px); z-index: 2; }
     .fallback-character { width: min(28vw, 260px); aspect-ratio: .72; border-radius: 999px 999px 18px 18px; background: linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.16)); border: 1px solid rgba(255,255,255,.34); display: grid; place-items: start center; padding-top: 42px; box-shadow: 0 24px 80px rgba(0,0,0,.28); }
     .face { width: 54px; height: 54px; border-radius: 999px; background: #fed7aa; box-shadow: inset 0 -8px 18px rgba(15,23,42,.12); }
     .panel { position: absolute; left: 50%; bottom: 32px; z-index: 5; display: flex; align-items: center; width: 88%; max-width: 1320px; height: 156px; padding: 24px 56px; transform: translateX(-50%); box-sizing: border-box; color: #f4f0e6; background: rgba(10,13,18,.84); border-top: 1px solid rgba(255,255,255,.06); box-shadow: 0 -18px 60px rgba(0,0,0,.22); }
@@ -455,9 +455,12 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       cgLayer.innerHTML = "";
       cgLayer.className = "cg-layer";
       if (mode !== "cg" || !scene.imageAsset) return;
+      const transform = Object.assign({ scale: 1, x: 0, y: 0, fit: "contain" }, scene.cgTransform || {});
       const image = document.createElement("img");
       image.src = scene.imageAsset;
       image.alt = scene.imageFileName || "CG Scene";
+      image.style.objectFit = transform.fit === "cover" ? "cover" : "contain";
+      image.style.transform = "translate(" + Number(transform.x || 0) + "%, " + Number(transform.y || 0) + "%) scale(" + Number(transform.scale || 1) + ")";
       cgLayer.appendChild(image);
       cgLayer.classList.add("open");
       if (scene.cgTransition !== "instant") cgLayer.classList.add("fade");
@@ -521,6 +524,12 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
         el.className = asset ? "character" : "character fallback-character";
         el.style.left = characterLeftPercent(character.position) + "%";
         el.style.setProperty("--character-width", characterWidthPercent(visibleCharacters.length));
+        const transform = Object.assign({ scale: 1, x: 0, y: 0, flipX: false }, character.characterTransform || {});
+        const baseScale = character.isSpeaking ? 1.02 : 0.94;
+        el.style.setProperty("--char-x", Number(transform.x || 0) + "%");
+        el.style.setProperty("--char-y", Number(transform.y || 0) + "%");
+        el.style.setProperty("--char-scale", String(baseScale * Number(transform.scale || 1)));
+        el.style.setProperty("--char-flip", transform.flipX ? "-1" : "1");
         el.dataset.speaking = String(Boolean(character.isSpeaking));
         if (asset) {
           el.src = asset.dataUrl;
