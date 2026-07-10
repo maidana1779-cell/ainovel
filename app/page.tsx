@@ -2963,7 +2963,7 @@ function SceneAccordion({
               <Button variant="secondary" size="sm" icon={Plus} iconPosition="left" onClick={onAddScene}>새 장면 추가</Button>
               <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={(event) => onImportJson(event.target.files?.[0])} />
             </div>
-            <div className="als-scrollbar grid max-h-[72vh] gap-4 overflow-y-auto rounded-2xl border border-slate-100 bg-slate-50/60 p-3 pr-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="als-scrollbar grid max-h-[82vh] gap-4 overflow-y-auto rounded-2xl border border-slate-100 bg-slate-50/60 p-3 pr-4 sm:grid-cols-2 lg:grid-cols-3">
               {scenes.map((scene, index) => (
                 <SceneCard
                   key={scene.id}
@@ -3783,6 +3783,40 @@ export default function App() {
         onSample={loadSample}
         onExport={() => downloadStandaloneHtml(scenes, assets, { fontId: playerFont.id })}
       />
+      <LargeVNPreviewSection
+        scene={activeScene}
+        scenes={scenes}
+        assets={assets}
+        current={current}
+        total={scenes.length}
+        autoPlay={autoPlay}
+        typingEnabled={typingEnabled}
+        typingSpeed={TYPING_SPEEDS[typingSpeedMode]}
+        typingComplete={typingComplete}
+        revealToken={revealToken}
+        typingResetToken={typingResetToken}
+        pageText={activePageText}
+        textPageIndex={textPageIndex}
+        textPageTotal={activeTextPages.length}
+        playerFontFamily={playerFont.cssFamily}
+        onNext={handleAdvance}
+        onJumpScene={jumpToScene}
+        onChoose={chooseBranch}
+        onToggleAuto={() => setAutoPlay((value) => !value)}
+        bgmEnabled={bgmEnabled}
+        onToggleBgm={toggleBgm}
+        onToggleTyping={toggleTyping}
+        typingSpeedMode={typingSpeedMode}
+        onTypingSpeedChange={updateTypingSpeed}
+        onTypingComplete={handleTypingComplete}
+      />
+      <section className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="-mt-5 rounded-2xl border border-slate-100 bg-white px-4 py-2 text-xs font-semibold text-slate-500">
+          현재 Scene BGM: <span className="text-slate-800">{activeBgmAsset?.fileName ?? activeBgmAsset?.name ?? "없음"}</span>
+          <span className="mx-2 text-slate-300">·</span>
+          재생 상태: <span className={bgmStatus === "차단됨" ? "text-rose-500" : bgmStatus === "재생 중" ? "text-emerald-600" : "text-slate-600"}>{bgmStatus}</span>
+        </div>
+      </section>
       <section id="workspace" className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[420px_1fr] lg:items-start">
           <LogInputCard log={log} onLogChange={setLog} onConvert={convertLog} error={error} />
@@ -3812,6 +3846,7 @@ export default function App() {
               onRedo={redoChange}
             />
             <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onError={setError} />
+            {false && (
             <details className="rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)] [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
                 <div>
@@ -3855,6 +3890,7 @@ export default function App() {
             </div>
               </div>
             </details>
+            )}
             <JsonEditor open={jsonOpen} jsonText={jsonText} error={jsonError} onChange={applyJsonText} />
             <details className="rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)] [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
