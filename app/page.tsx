@@ -2289,8 +2289,6 @@ function SceneCard({
   }
   return (
     <div
-      draggable
-      onDragStart={() => onDragStart(index)}
       onDragOver={(event) => event.preventDefault()}
       onDrop={() => onDropScene(index)}
       className={`group rounded-2xl border overflow-hidden bg-white hover:border-slate-300 hover:shadow-md transition-all ${isChoiceScene ? "border-amber-200 bg-amber-50/25" : ""} ${selected ? "border-purple-300 ring-2 ring-purple-100" : current === index ? "border-indigo-300 ring-2 ring-indigo-100" : "border-slate-200"}`}
@@ -2314,7 +2312,17 @@ function SceneCard({
         >
           {selected ? "Selected" : "Select"}
         </span>
-        <span className="absolute top-2 right-2 h-6 w-6 rounded-md bg-black/30 text-white/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
+        <span
+          draggable
+          onClick={(event) => event.stopPropagation()}
+          onDragStart={(event) => {
+            event.stopPropagation();
+            event.dataTransfer.effectAllowed = "move";
+            onDragStart(index);
+          }}
+          className="absolute top-2 right-2 h-6 w-6 rounded-md bg-black/30 text-white/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          title="Scene 순서 이동"
+        >
           <GripVertical className="h-3.5 w-3.5" />
         </span>
         <span className="absolute bottom-2 left-2 text-[11px] font-semibold text-white/90 bg-black/30 rounded-full px-2 py-0.5">
