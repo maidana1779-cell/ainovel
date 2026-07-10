@@ -89,9 +89,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .choice-box { width: 72%; max-width: 920px; }
     .choice-prompt { margin: 0 0 16px; text-align: center; color: #f4f0e6; font-size: 18px; font-weight: 600; letter-spacing: .04em; text-shadow: 0 2px 10px rgba(0,0,0,.65); }
     .choice-list { display: grid; gap: 12px; border-top: 1px solid rgba(255,255,255,.2); border-bottom: 1px solid rgba(255,255,255,.2); padding: 20px 0; background: rgba(0,0,0,.2); backdrop-filter: blur(2px); }
-    .choice-option { display: block; width: 100%; min-height: auto; border: 0; border-radius: 0; padding: 12px 32px; background: transparent; box-shadow: none; color: #f4f0e6; text-align: left; font-size: 18px; font-weight: 500; letter-spacing: .02em; transition: background .18s ease, color .18s ease; }
-    .choice-option:hover { background: rgba(255,255,255,.1); color: white; }
-    .choice-number { margin-right: 16px; color: rgba(255,255,255,.55); }
+    .choice-option { display: block; width: 100%; min-height: auto; border: 1px solid rgba(255,255,255,.2); border-radius: 0; padding: 13px 32px; background: rgba(8,10,16,.54); box-shadow: 0 18px 50px rgba(0,0,0,.22); color: #f4f0e6; text-align: left; font-family: var(--vn-font-family); font-size: 18px; font-weight: 500; letter-spacing: .02em; transition: transform .2s ease, border-color .2s ease, background .2s ease, color .2s ease; }
+    .choice-option:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.12); color: white; }
+    .choice-number { margin-right: 16px; color: rgba(255,255,255,.45); }
     .stage.shake { animation: vnshake .42s ease-in-out 1; }
     .fx-layer { position:absolute; inset:0; z-index:19; pointer-events:none; opacity:0; }
     .fx-layer.flash { background:white; animation: vnflash .24s ease-out 1; }
@@ -266,7 +266,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
 
     function sceneCharacters(scene) {
       const mode = modeOf(scene);
-      if (mode !== "dialogue" && mode !== "choice") return [];
+      if (mode !== "dialogue") return [];
       const rank = { left: 0, center: 1, right: 2 };
       const list = Array.isArray(scene.characters) ? [...scene.characters] : [];
       if (modeOf(scene) === "dialogue" && scene.speaker && list.length === 0) {
@@ -440,7 +440,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
         button.className = "choice-option";
         const number = document.createElement("span");
         number.className = "choice-number";
-        number.textContent = (optionIndex + 1) + ".";
+        number.textContent = String(optionIndex + 1).padStart(2, "0");
         button.appendChild(number);
         button.appendChild(document.createTextNode(option.text || ""));
         button.addEventListener("click", (event) => {

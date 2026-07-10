@@ -49,6 +49,7 @@ type TypingSpeedMode = keyof typeof TYPING_SPEEDS;
 type SelectionKind = "scene" | "multi-scene" | "text-block";
 type EditToolId = "choices" | "enhance" | "search-ai" | "batch-edit";
 type AiToolId = "choices" | "enhance" | "search-ai";
+type ChoiceFlavor = "auto" | "dialogue" | "emotion" | "action";
 type SelectionState = {
   kind: SelectionKind;
   sceneIndexes: number[];
@@ -68,6 +69,8 @@ type ToolCandidate = {
   effectSuggestions?: Array<{ sceneIndex: number; sceneId: string; effects: VnEffect[] }>;
   selectedEffectIds?: string[];
   selectedSceneIds?: string[];
+  prompt?: string;
+  choiceFlavor?: ChoiceFlavor;
 };
 type HistorySnapshot = {
   scenes: VisualNovelScene[];
@@ -273,7 +276,19 @@ function buildSelection(sceneIndexes: number[], scenes: VisualNovelScene[]): Sel
   };
 }
 
+function buildChoiceApplyScenes(scenes: VisualNovelScene[], candidate: ToolCandidate) {
+  if (!candidate.choiceScene) return candidate.applyScenes ?? scenes;
+  const insertAfter = candidate.selection.sceneIndexes[candidate.selection.sceneIndexes.length - 1] ?? 0;
+  return [
+    ...scenes.slice(0, insertAfter + 1),
+    candidate.choiceScene,
+    ...(candidate.branchScenes ?? []),
+    ...scenes.slice(insertAfter + 1)
+  ];
+}
+
 function replaceSelectedScenes(scenes: VisualNovelScene[], candidate: ToolCandidate) {
+  if (candidate.toolId === "choices" && candidate.choiceScene) return buildChoiceApplyScenes(scenes, candidate);
   if (candidate.applyScenes) return candidate.applyScenes;
   if (candidate.toolId === "enhance" && candidate.effectSuggestions) {
     const selectedSceneIds = new Set(candidate.selectedSceneIds ?? candidate.originalScenes.map((scene) => scene.id));
@@ -300,13 +315,30 @@ function replaceSelectedScenes(scenes: VisualNovelScene[], candidate: ToolCandid
   return next;
 }
 
-function createChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionState): ToolCandidate {
+function choiceDrafts(flavor: ChoiceFlavor, sourceText: string, prompt: string) {
+  const hint = prompt.trim();
+  if (flavor === "dialogue") return ["조심스럽게 되묻는다.", "핵심을 바로 말한다."];
+  if (flavor === "emotion") return ["솔직한 감정을 드러낸다.", "감정을 숨기고 미소 짓는다."];
+  if (flavor === "action") return ["한 걸음 다가선다.", "잠시 물러나 상황을 살핀다."];
+  if (/침묵|정적|망설/.test(sourceText)) return ["침묵을 지킨다.", "먼저 말을 꺼낸다."];
+  if (/\?|？/.test(sourceText)) return ["질문에 솔직하게 답한다.", "대답 대신 다른 질문을 던진다."];
+  return hint ? [`${hint} 쪽으로 움직인다.`, "다른 가능성을 택한다."] : ["더 솔직하게 말한다.", "잠시 침묵하며 상대를 살핀다."];
+}
+
+function branchDraftText(choiceText: string, sourceScene?: VisualNovelScene, prompt = "") {
+  const speaker = sourceScene?.speaker ? `${sourceScene.speaker}의 선택은` : "그 선택은";
+  const promptTail = prompt.trim() ? ` ${prompt.trim()}의 방향으로` : "";
+  return `${speaker}${promptTail} "${choiceText.replace(/[.。]$/, "")}"라는 결심으로 이어진다.`;
+}
+
+function createChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionState, flavor: ChoiceFlavor = "auto", prompt = ""): ToolCandidate {
   const originalScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
   const insertAfter = selection.sceneIndexes[selection.sceneIndexes.length - 1] ?? 0;
   const sourceScene = scenes[insertAfter] ?? scenes[0];
   const choiceId = uid("choice");
   const branchOneId = uid("branch");
   const branchTwoId = uid("branch");
+  const [choiceOneText, choiceTwoText] = choiceDrafts(flavor, sourceScene?.text ?? "", prompt);
   const sharedSceneFields = {
     background: sourceScene?.background ?? "observatory",
     backgroundAsset: sourceScene?.backgroundAsset ?? sourceScene?.background ?? "observatory",
@@ -323,10 +355,10 @@ function createChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionS
     role: "system",
     displayMode: "choice",
     speaker: undefined,
-    text: "어떻게 답할까?",
+    text: prompt.trim() || "어떻게 답할까?",
     choices: [
-      { id: uid("option"), text: "더 솔직하게 답한다.", targetSceneId: branchOneId },
-      { id: uid("option"), text: "잠시 침묵하며 상대를 살핀다.", targetSceneId: branchTwoId }
+      { id: uid("option"), text: choiceOneText, targetSceneId: branchOneId },
+      { id: uid("option"), text: choiceTwoText, targetSceneId: branchTwoId }
     ]
   };
   const branchOneScene: VisualNovelScene = {
@@ -336,7 +368,7 @@ function createChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionS
     role: "narration",
     displayMode: "narration",
     speaker: undefined,
-    text: "솔직한 대답이 공기 위로 조심스럽게 놓인다.",
+    text: branchDraftText(choiceOneText, sourceScene, prompt),
     choices: undefined
   };
   const branchTwoScene: VisualNovelScene = {
@@ -346,7 +378,7 @@ function createChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionS
     role: "narration",
     displayMode: "narration",
     speaker: undefined,
-    text: "잠깐의 침묵 사이로 상대의 표정이 천천히 읽힌다.",
+    text: branchDraftText(choiceTwoText, sourceScene, prompt),
     choices: undefined
   };
   const applyScenes = [
@@ -366,7 +398,9 @@ function createChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionS
     candidateScenes: [choiceScene, branchOneScene, branchTwoScene],
     applyScenes,
     choiceScene,
-    branchScenes: [branchOneScene, branchTwoScene]
+    branchScenes: [branchOneScene, branchTwoScene],
+    prompt,
+    choiceFlavor: flavor
   };
 }
 
@@ -396,15 +430,15 @@ function createEnhanceEffectCandidate(scenes: VisualNovelScene[], selection: Sel
     const text = scene?.text ?? "";
     const isShort = Array.from(text).length < 80;
     const effects: VnEffect[] = [];
-    if (suggestionIndex % 4 === 0) effects.push({ id: uid("effect"), type: "fadeIn", durationMs: 500 });
-    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 420 : 650, position: "beforeText" });
-    if (/!|！|충격|흔들|무너|폭발|뛰/.test(text)) effects.push({ id: uid("effect"), type: "screenShake", intensity: "soft" });
-    if (/\?|？|침묵|정적|멈/.test(text)) effects.push({ id: uid("effect"), type: "textSpeed", value: "slow" });
-    if ((scene?.text ?? "").length > TEXT_PAGE_LIMIT) effects.push({ id: uid("effect"), type: "splitTextPage" });
-    if (suggestionIndex % 3 === 1) effects.push({ id: uid("effect"), type: "soundEffect", placeholder: "sfx_placeholder" });
-    if (suggestionIndex % 3 === 2) effects.push({ id: uid("effect"), type: "flash", durationMs: 180 });
-    if (suggestionIndex % 5 === 3) effects.push({ id: uid("effect"), type: "fadeOut", durationMs: 520 });
-    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 500 : 850, position: "afterText" });
+    if (suggestionIndex % 4 === 0) effects.push({ id: uid("effect"), type: "fadeIn", durationMs: 500, directorNote: "장면 시작이 부드럽게 느껴지도록 추천합니다." });
+    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 420 : 650, position: "beforeText", directorNote: "대사가 나오기 전 짧은 호흡을 만들어 긴장감을 줍니다." });
+    if (/!|！|충격|흔들|무너|폭발|뛰/.test(text)) effects.push({ id: uid("effect"), type: "screenShake", intensity: "soft", directorNote: "놀람이나 충격을 화면 움직임으로 전달합니다." });
+    if (/\?|？|침묵|정적|멈/.test(text)) effects.push({ id: uid("effect"), type: "textSpeed", value: "slow", directorNote: "망설임이나 긴장감을 천천히 읽히게 합니다." });
+    if ((scene?.text ?? "").length > TEXT_PAGE_LIMIT) effects.push({ id: uid("effect"), type: "splitTextPage", directorNote: "긴 문장을 여러 클릭으로 나누어 읽기 쉽게 만듭니다." });
+    if (suggestionIndex % 3 === 1) effects.push({ id: uid("effect"), type: "soundEffect", placeholder: "sfx_placeholder", directorNote: "나중에 효과음을 넣을 위치를 표시합니다." });
+    if (suggestionIndex % 3 === 2) effects.push({ id: uid("effect"), type: "flash", durationMs: 180, directorNote: "순간적인 감정 반응을 강조합니다." });
+    if (suggestionIndex % 5 === 3) effects.push({ id: uid("effect"), type: "fadeOut", durationMs: 520, directorNote: "장면 끝의 여운을 분명하게 만듭니다." });
+    effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 500 : 850, position: "afterText", directorNote: "다음 장면으로 넘어가기 전 감정을 남깁니다." });
     return { sceneIndex, sceneId: scene.id, effects };
   });
   return {
@@ -490,6 +524,7 @@ function effectLabel(effect: VnEffect) {
 }
 
 function effectNote(effect: VnEffect) {
+  if (effect.directorNote) return effect.directorNote;
   if (effect.type === "pause" && effect.position === "beforeText") return "대사가 나오기 전에 호흡을 만들어 긴장감을 줍니다.";
   if (effect.type === "pause") return "다음 장면으로 넘어가기 전에 감정이 남도록 합니다.";
   if (effect.type === "textSpeed") return "중요하거나 조심스러운 말을 더 천천히 읽히게 합니다.";
@@ -1047,10 +1082,10 @@ function ChoiceOverlay({
   const options = scene.choices ?? [];
   if (sceneDisplayMode(scene) !== "choice" || options.length === 0) return null;
   return (
-    <div className="absolute inset-x-0 bottom-[16%] z-40 flex justify-center px-5 sm:bottom-[18%] sm:px-10">
+    <div className="absolute inset-x-0 bottom-[15%] z-40 flex justify-center px-5 sm:bottom-[18%] sm:px-10">
       <div className="w-full max-w-[920px] sm:w-[72%]" style={{ fontFamily }}>
         {scene.text ? <p className="mb-4 text-center text-[16px] font-semibold tracking-[0.04em] text-[#f4f0e6] drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-[18px]">{scene.text}</p> : null}
-        <div className="space-y-3 border-y border-white/20 bg-black/25 py-5 backdrop-blur-[2px]">
+        <div className="grid gap-3 border-y border-white/20 bg-black/20 py-5 backdrop-blur-[2px]">
           {options.map((option, index) => (
             <button
               key={option.id}
@@ -1059,10 +1094,10 @@ function ChoiceOverlay({
                 event.stopPropagation();
                 onChoose(option.targetSceneId);
               }}
-              className="block w-full rounded-none bg-transparent px-5 py-4 text-left text-[16px] font-medium tracking-[0.02em] text-[#f4f0e6] shadow-none transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 sm:px-8 sm:py-3 sm:text-[18px]"
+              className="group block w-full border border-white/20 bg-[rgba(8,10,16,0.54)] px-5 py-4 text-left text-[16px] font-medium tracking-[0.02em] text-[#f4f0e6] shadow-[0_18px_50px_rgba(0,0,0,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-white/45 hover:bg-white/12 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 sm:px-8 sm:py-3 sm:text-[18px]"
             >
-              <span className="mr-4 text-white/55">{index + 1}.</span>
-              {option.text}
+              <span className="mr-4 text-white/45 transition group-hover:text-white/75">{String(index + 1).padStart(2, "0")}</span>
+              <span>{option.text}</span>
             </button>
           ))}
         </div>
@@ -1179,7 +1214,7 @@ function VNStage({
           <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_25%_15%,white,transparent_35%),radial-gradient(circle_at_80%_65%,white,transparent_30%)]" />
           <div className="absolute inset-0 als-vignette" />
 
-          {(displayMode === "dialogue" || displayMode === "choice") ? <div className="absolute inset-0 z-10 pointer-events-none">
+          {displayMode === "dialogue" ? <div className="absolute inset-0 z-10 pointer-events-none">
             {orderedCharacters(scene).map((character, index, allCharacters) => (
               <CharacterFigure
                 key={`${character.assetId}-${character.position}-${index}`}
@@ -2653,6 +2688,100 @@ function SelectionStatusBar({
   );
 }
 
+function createEffectByType(type: VnEffect["type"]): VnEffect {
+  if (type === "pause") return { id: uid("effect"), type: "pause", durationMs: 600, position: "beforeText", directorNote: "긴장감을 위해 잠깐 멈춥니다." };
+  if (type === "textSpeed") return { id: uid("effect"), type: "textSpeed", value: "slow", directorNote: "천천히 읽히도록 속도를 낮춥니다." };
+  if (type === "screenShake") return { id: uid("effect"), type: "screenShake", intensity: "soft", directorNote: "충격을 화면 움직임으로 표현합니다." };
+  if (type === "fadeIn") return { id: uid("effect"), type: "fadeIn", durationMs: 500, directorNote: "장면을 부드럽게 시작합니다." };
+  if (type === "fadeOut") return { id: uid("effect"), type: "fadeOut", durationMs: 500, directorNote: "장면을 부드럽게 마무리합니다." };
+  if (type === "flash") return { id: uid("effect"), type: "flash", durationMs: 180, directorNote: "순간적인 반응을 강조합니다." };
+  if (type === "splitTextPage") return { id: uid("effect"), type: "splitTextPage", directorNote: "긴 문장을 나누어 보여줍니다." };
+  if (type === "emphasis") return { id: uid("effect"), type: "emphasis", value: "강조", directorNote: "중요한 표현을 돋보이게 합니다." };
+  return { id: uid("effect"), type: "soundEffect", placeholder: "sfx_placeholder", directorNote: "효과음을 넣을 위치를 표시합니다." };
+}
+
+function EffectEditor({
+  effect,
+  checked,
+  onToggle,
+  onChange,
+  onDelete,
+  onMoveUp,
+  onMoveDown
+}: {
+  effect: VnEffect;
+  checked: boolean;
+  onToggle: () => void;
+  onChange: (effect: VnEffect) => void;
+  onDelete: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+}) {
+  function changeType(type: VnEffect["type"]) {
+    const next = createEffectByType(type);
+    onChange({ ...next, id: effect.id, directorNote: effect.directorNote ?? next.directorNote });
+  }
+  return (
+    <div className="rounded-xl border border-purple-100 bg-purple-50/60 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 text-xs font-extrabold text-slate-700">
+          <input type="checkbox" checked={checked} onChange={onToggle} className="accent-purple-600" />
+          적용
+        </label>
+        <select value={effect.type} onChange={(event) => changeType(event.target.value as VnEffect["type"])} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs font-bold text-slate-600">
+          <option value="pause">잠깐 멈춤</option>
+          <option value="textSpeed">글자 속도</option>
+          <option value="screenShake">화면 흔들림</option>
+          <option value="fadeIn">서서히 등장</option>
+          <option value="fadeOut">서서히 어두워짐</option>
+          <option value="flash">번쩍임</option>
+          <option value="splitTextPage">긴 대사 나누기</option>
+          <option value="emphasis">강조</option>
+          <option value="soundEffect">효과음 자리</option>
+        </select>
+        <button type="button" onClick={onMoveUp} className="rounded-lg bg-white px-2 py-1.5 text-[11px] font-bold text-slate-500 ring-1 ring-purple-100">위로</button>
+        <button type="button" onClick={onMoveDown} className="rounded-lg bg-white px-2 py-1.5 text-[11px] font-bold text-slate-500 ring-1 ring-purple-100">아래로</button>
+        <button type="button" onClick={onDelete} className="ml-auto rounded-lg bg-rose-50 px-2 py-1.5 text-[11px] font-bold text-rose-500">삭제</button>
+      </div>
+      <p className="mt-2 text-xs font-extrabold text-slate-800">{effectLabel(effect)}</p>
+      <input value={effect.directorNote ?? ""} onChange={(event) => onChange({ ...effect, directorNote: event.target.value })} placeholder="왜 이 연출을 추천하는지" className="mt-2 w-full rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        {effect.type === "pause" ? (
+          <>
+            <input type="number" min={0} step={50} value={effect.durationMs} onChange={(event) => onChange({ ...effect, durationMs: Number(event.target.value) })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+            <select value={effect.position} onChange={(event) => onChange({ ...effect, position: event.target.value as "beforeText" | "afterText" })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+              <option value="beforeText">대사 전</option>
+              <option value="afterText">대사 후</option>
+            </select>
+          </>
+        ) : null}
+        {effect.type === "fadeIn" || effect.type === "fadeOut" || effect.type === "flash" ? (
+          <input type="number" min={0} step={50} value={effect.durationMs} onChange={(event) => onChange({ ...effect, durationMs: Number(event.target.value) })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+        ) : null}
+        {effect.type === "textSpeed" ? (
+          <select value={effect.value} onChange={(event) => onChange({ ...effect, value: event.target.value as "slow" | "normal" | "fast" })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+            <option value="slow">천천히</option>
+            <option value="normal">보통</option>
+            <option value="fast">빠르게</option>
+          </select>
+        ) : null}
+        {effect.type === "screenShake" ? (
+          <select value={effect.intensity} onChange={(event) => onChange({ ...effect, intensity: event.target.value as "soft" | "medium" })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+            <option value="soft">약하게</option>
+            <option value="medium">조금 강하게</option>
+          </select>
+        ) : null}
+        {effect.type === "soundEffect" ? (
+          <input value={effect.placeholder} onChange={(event) => onChange({ ...effect, placeholder: event.target.value })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+        ) : null}
+        {effect.type === "emphasis" ? (
+          <input value={effect.value} onChange={(event) => onChange({ ...effect, value: event.target.value })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function WorkflowCandidateDiff({
   candidate,
   onCandidateChange,
@@ -2682,6 +2811,80 @@ function WorkflowCandidateDiff({
     else selected.add(sceneId);
     onCandidateChange({ ...candidate, selectedSceneIds: Array.from(selected) });
   }
+  function updateChoiceText(choiceIndex: number, text: string) {
+    if (!candidate?.choiceScene) return;
+    const choices = (candidate.choiceScene.choices ?? []).map((choice, index) => (index === choiceIndex ? { ...choice, text } : choice));
+    const choiceScene = { ...candidate.choiceScene, choices };
+    onCandidateChange({ ...candidate, choiceScene, candidateScenes: [choiceScene, ...(candidate.branchScenes ?? [])] });
+  }
+  function updateChoicePrompt(text: string) {
+    if (!candidate?.choiceScene) return;
+    const choiceScene = { ...candidate.choiceScene, text };
+    onCandidateChange({ ...candidate, choiceScene, candidateScenes: [choiceScene, ...(candidate.branchScenes ?? [])] });
+  }
+  function updateBranchScene(branchIndex: number, patch: Partial<VisualNovelScene>) {
+    if (!candidate) return;
+    const branchScenes = (candidate.branchScenes ?? []).map((scene, index) => (index === branchIndex ? { ...scene, ...patch } : scene));
+    onCandidateChange({ ...candidate, branchScenes, candidateScenes: candidate.choiceScene ? [candidate.choiceScene, ...branchScenes] : branchScenes });
+  }
+  function regenerateChoice(choiceIndex: number) {
+    if (!candidate) return;
+    const source = candidate.originalScenes[candidate.originalScenes.length - 1];
+    const drafts = choiceDrafts(candidate.choiceFlavor ?? "auto", source?.text ?? "", `${candidate.prompt ?? ""} ${Date.now().toString().slice(-2)}`);
+    updateChoiceText(choiceIndex, drafts[choiceIndex % drafts.length]);
+  }
+  function regenerateBranch(branchIndex: number) {
+    if (!candidate) return;
+    const choice = candidate.choiceScene?.choices?.[branchIndex];
+    updateBranchScene(branchIndex, { text: branchDraftText(choice?.text ?? "선택", candidate.originalScenes[candidate.originalScenes.length - 1], candidate.prompt) });
+  }
+  function updateEffect(sceneId: string, effectId: string, nextEffect: VnEffect) {
+    if (!candidate?.effectSuggestions) return;
+    onCandidateChange({
+      ...candidate,
+      effectSuggestions: candidate.effectSuggestions.map((suggestion) => suggestion.sceneId === sceneId
+        ? { ...suggestion, effects: suggestion.effects.map((effect) => effect.id === effectId ? nextEffect : effect) }
+        : suggestion)
+    });
+  }
+  function deleteEffect(sceneId: string, effectId: string) {
+    if (!candidate?.effectSuggestions) return;
+    onCandidateChange({
+      ...candidate,
+      selectedEffectIds: (candidate.selectedEffectIds ?? []).filter((id) => id !== effectId),
+      effectSuggestions: candidate.effectSuggestions.map((suggestion) => suggestion.sceneId === sceneId
+        ? { ...suggestion, effects: suggestion.effects.filter((effect) => effect.id !== effectId) }
+        : suggestion)
+    });
+  }
+  function addEffect(sceneId: string) {
+    if (!candidate?.effectSuggestions) return;
+    const effect = createEffectByType("pause");
+    onCandidateChange({
+      ...candidate,
+      selectedEffectIds: [...(candidate.selectedEffectIds ?? []), effect.id],
+      effectSuggestions: candidate.effectSuggestions.map((suggestion) => suggestion.sceneId === sceneId ? { ...suggestion, effects: [...suggestion.effects, effect] } : suggestion)
+    });
+  }
+  function moveEffect(sceneId: string, effectIndex: number, direction: -1 | 1) {
+    if (!candidate?.effectSuggestions) return;
+    onCandidateChange({
+      ...candidate,
+      effectSuggestions: candidate.effectSuggestions.map((suggestion) => {
+        if (suggestion.sceneId !== sceneId) return suggestion;
+        const next = [...suggestion.effects];
+        const target = effectIndex + direction;
+        if (target < 0 || target >= next.length) return suggestion;
+        [next[effectIndex], next[target]] = [next[target], next[effectIndex]];
+        return { ...suggestion, effects: next };
+      })
+    });
+  }
+  function updateCandidateScene(index: number, patch: Partial<VisualNovelScene>) {
+    if (!candidate) return;
+    const candidateScenes = candidate.candidateScenes.map((scene, sceneIndex) => (sceneIndex === index ? { ...scene, ...patch } : scene));
+    onCandidateChange({ ...candidate, candidateScenes });
+  }
   return (
     <div className="mt-4 rounded-2xl border border-purple-100 bg-purple-50/40 p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -2699,14 +2902,29 @@ function WorkflowCandidateDiff({
       {candidate.toolId === "choices" && candidate.choiceScene ? (
         <div className="rounded-xl border border-purple-100 bg-white p-3">
           <p className="text-sm font-extrabold text-slate-800">선택지 노드 1개 + 분기 장면 {candidate.branchScenes?.length ?? 0}개가 생성됩니다.</p>
+          <label className="mt-3 block text-[11px] font-extrabold text-purple-500">
+            선택지 위에 보여줄 문장
+            <input value={candidate.choiceScene.text} onChange={(event) => updateChoicePrompt(event.target.value)} className="mt-1 w-full rounded-xl border border-purple-100 bg-purple-50/40 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+          </label>
           <div className="mt-3 grid gap-2">
             {candidate.choiceScene.choices?.map((choice, index) => {
               const branch = candidate.branchScenes?.find((scene) => scene.id === choice.targetSceneId);
+              const branchIndex = candidate.branchScenes?.findIndex((scene) => scene.id === choice.targetSceneId) ?? -1;
               return (
                 <div key={choice.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                  <p className="text-xs font-extrabold text-purple-600">선택지 {index + 1}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-800">{choice.text}</p>
-                  <p className="mt-2 text-xs leading-5 text-slate-500">이어질 장면: {branch?.text ?? "다음 장면"}</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-extrabold text-purple-600">선택지 {index + 1}</p>
+                    <button type="button" onClick={() => regenerateChoice(index)} className="rounded-lg bg-white px-2 py-1 text-[11px] font-extrabold text-purple-500 ring-1 ring-purple-100">다시 생성</button>
+                  </div>
+                  <input value={choice.text} onChange={(event) => updateChoiceText(index, event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+                  <div className="mt-3 rounded-xl border border-purple-100 bg-white p-3">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <p className="text-[11px] font-extrabold text-purple-500">이어질 Branch Scene 초안</p>
+                      <button type="button" onClick={() => regenerateBranch(index)} className="rounded-lg bg-purple-50 px-2 py-1 text-[11px] font-extrabold text-purple-500">Branch 다시 생성</button>
+                    </div>
+                    <input value={branch?.speaker ?? ""} onChange={(event) => branchIndex >= 0 && updateBranchScene(branchIndex, { speaker: event.target.value })} placeholder="화자 이름" className="mb-2 w-full rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+                    <textarea value={branch?.text ?? ""} onChange={(event) => branchIndex >= 0 && updateBranchScene(branchIndex, { text: event.target.value })} className="als-scrollbar h-24 w-full resize-none rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs leading-5 text-slate-600" />
+                  </div>
                 </div>
               );
             })}
@@ -2724,16 +2942,22 @@ function WorkflowCandidateDiff({
                   Scene {suggestion.sceneIndex + 1}에 적용
                 </label>
                 <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-600">{original?.text ?? ""}</p>
-                <p className="mt-3 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">제안된 연출</p>
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <p className="text-[11px] font-extrabold uppercase tracking-wide text-purple-400">제안된 연출</p>
+                  <button type="button" onClick={() => addEffect(suggestion.sceneId)} className="rounded-lg bg-purple-50 px-2 py-1.5 text-[11px] font-extrabold text-purple-600">연출 추가</button>
+                </div>
                 <div className="mt-2 grid gap-2">
-                  {suggestion.effects.map((effect) => (
-                    <label key={effect.id} className="flex items-start gap-2 rounded-lg border border-purple-100 bg-purple-50/60 px-3 py-2 text-xs font-semibold text-slate-700">
-                      <input type="checkbox" checked={selected.has(effect.id)} onChange={() => toggleEffect(effect.id)} className="accent-purple-600" />
-                      <span>
-                        <span className="block text-slate-800">{effectLabel(effect)}</span>
-                        <span className="mt-0.5 block font-medium text-slate-400">{effectNote(effect)}</span>
-                      </span>
-                    </label>
+                  {suggestion.effects.map((effect, effectIndex) => (
+                    <EffectEditor
+                      key={effect.id}
+                      effect={effect}
+                      checked={selected.has(effect.id)}
+                      onToggle={() => toggleEffect(effect.id)}
+                      onChange={(nextEffect) => updateEffect(suggestion.sceneId, effect.id, nextEffect)}
+                      onDelete={() => deleteEffect(suggestion.sceneId, effect.id)}
+                      onMoveUp={() => moveEffect(suggestion.sceneId, effectIndex, -1)}
+                      onMoveDown={() => moveEffect(suggestion.sceneId, effectIndex, 1)}
+                    />
                   ))}
                 </div>
                 <p className="mt-3 text-xs font-semibold text-slate-400">대사 변경: 없음</p>
@@ -2758,7 +2982,7 @@ function WorkflowCandidateDiff({
               </div>
               <div className="rounded-xl border border-purple-100 bg-purple-50/40 p-3 shadow-sm">
                 <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-purple-400">AI 제안</p>
-                <p className="whitespace-pre-wrap break-keep text-xs leading-6 text-slate-700">{next?.text ?? ""}</p>
+                <textarea value={next?.text ?? ""} onChange={(event) => updateCandidateScene(index, { text: event.target.value })} className="als-scrollbar h-32 w-full resize-none rounded-xl border border-purple-100 bg-white/80 p-3 text-xs leading-6 text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100" />
               </div>
               </div>
             </div>
@@ -2791,6 +3015,8 @@ function WorkflowToolsPanel({
   const [aiTool, setAiTool] = useState<AiToolId>("enhance");
   const [query, setQuery] = useState("");
   const [replacement, setReplacement] = useState("");
+  const [choiceFlavor, setChoiceFlavor] = useState<ChoiceFlavor>("auto");
+  const [choicePrompt, setChoicePrompt] = useState("");
   const [batchOpen, setBatchOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<"speaker" | "background" | "bgm">("speaker");
   const [speakerFrom, setSpeakerFrom] = useState("__any__");
@@ -2801,7 +3027,6 @@ function WorkflowToolsPanel({
   const [bgmTo, setBgmTo] = useState("__unset__");
   const selectedScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
   const disabled = selectedScenes.length === 0;
-  const currentStep = candidate ? "③ 확인 후 적용" : disabled ? "① 장면 선택" : "② AI 기능 선택";
   const selectedSpeakers = Array.from(new Set(selectedScenes.map((scene) => scene.speaker?.trim()).filter(Boolean) as string[]));
 
   function matchesAssetFilter(currentId: string | undefined, filter: string) {
@@ -2818,7 +3043,7 @@ function WorkflowToolsPanel({
 
   function generateCandidate() {
     if (disabled) return;
-    if (aiTool === "choices") onCandidate(createChoiceCandidate(scenes, selection));
+    if (aiTool === "choices") onCandidate(createChoiceCandidate(scenes, selection, choiceFlavor, choicePrompt));
     if (aiTool === "enhance") onCandidate(createEnhanceEffectCandidate(scenes, selection));
     if (aiTool === "search-ai") onCandidate(createSearchAiCandidate(scenes, selection, query, replacement));
   }
@@ -2868,20 +3093,9 @@ function WorkflowToolsPanel({
             <Sparkles className="h-4 w-4 text-indigo-500" />
             <h4 className="text-sm font-extrabold text-slate-900">AI 작업</h4>
           </div>
-          <p className="mt-1 text-xs leading-5 text-slate-400">장면을 선택하고, AI가 만든 제안을 확인한 뒤 적용합니다.</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">선택한 장면을 바탕으로 초안을 만들고, 직접 고친 뒤 적용합니다.</p>
         </div>
-        <Badge tone={candidate ? "purple" : disabled ? "slate" : "indigo"}>{currentStep}</Badge>
-      </div>
-
-      <div className="mt-4 grid gap-2 sm:grid-cols-3">
-        {["① 장면 선택", "② AI 기능 선택", "③ 확인 후 적용"].map((label, index) => {
-          const active = index === 0 ? disabled : index === 1 ? !disabled && !candidate : Boolean(candidate);
-          return (
-            <div key={label} className={`rounded-xl border px-3 py-2 text-xs font-bold ${active ? "border-indigo-200 bg-indigo-50 text-indigo-700" : "border-slate-100 bg-slate-50 text-slate-400"}`}>
-              {label}
-            </div>
-          );
-        })}
+        <Badge tone={candidate ? "purple" : disabled ? "slate" : "indigo"}>{disabled ? "장면을 선택하세요" : "바로 제안 만들기"}</Badge>
       </div>
 
       {disabled ? (
@@ -2896,10 +3110,7 @@ function WorkflowToolsPanel({
               <label className="text-[11px] font-extrabold uppercase tracking-wide text-slate-400">AI 기능</label>
               <select
                 value={aiTool}
-                onChange={(event) => {
-                  setAiTool(event.target.value as AiToolId);
-                  onCancel();
-                }}
+                onChange={(event) => setAiTool(event.target.value as AiToolId)}
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               >
                 <option value="enhance">연출 강화</option>
@@ -2908,7 +3119,17 @@ function WorkflowToolsPanel({
               </select>
             </div>
 
-            {aiTool === "search-ai" ? (
+            {aiTool === "choices" ? (
+              <div className="grid gap-2 sm:grid-cols-[160px_1fr]">
+                <select value={choiceFlavor} onChange={(event) => setChoiceFlavor(event.target.value as ChoiceFlavor)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                  <option value="auto">AI 자동</option>
+                  <option value="dialogue">대화형</option>
+                  <option value="emotion">감정형</option>
+                  <option value="action">행동형</option>
+                </select>
+                <input value={choicePrompt} onChange={(event) => setChoicePrompt(event.target.value)} placeholder="선택지 분위기나 방향을 적어 주세요" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+              </div>
+            ) : aiTool === "search-ai" ? (
               <div className="grid gap-2 sm:grid-cols-2">
                 <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="찾을 문장" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
                 <input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="어떻게 바꿀지 입력" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
@@ -2916,7 +3137,7 @@ function WorkflowToolsPanel({
             ) : (
               <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
                 <p className="text-xs font-semibold text-slate-500">
-                  {aiTool === "choices" ? "선택한 장면 뒤에 이어질 선택지를 만들어 줍니다." : "선택한 장면에 어울리는 연출을 AI가 제안합니다."}
+                  선택한 장면에 어울리는 연출을 AI가 제안합니다.
                 </p>
               </div>
             )}

@@ -49,7 +49,7 @@ export type ChoiceOption = {
   targetSceneId?: string;
 };
 
-export type VnEffect =
+export type VnEffect = (
   | { id: string; type: "pause"; durationMs: number; position: "beforeText" | "afterText" }
   | { id: string; type: "textSpeed"; value: "slow" | "normal" | "fast" }
   | { id: string; type: "screenShake"; intensity: "soft" | "medium" }
@@ -57,7 +57,10 @@ export type VnEffect =
   | { id: string; type: "flash"; durationMs: number }
   | { id: string; type: "splitTextPage" }
   | { id: string; type: "emphasis"; value: string }
-  | { id: string; type: "soundEffect"; placeholder: string };
+  | { id: string; type: "soundEffect"; placeholder: string }
+) & {
+  directorNote?: string;
+};
 
 export type Scene = {
   id: string;
