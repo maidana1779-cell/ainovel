@@ -3202,6 +3202,126 @@ function ExportCard({
   );
 }
 
+function SimpleExportPanel({
+  playerFontId,
+  onPlayerFontChange,
+  onExportJson,
+  onExportHtml,
+  onResetProgress
+}: {
+  scenes: VisualNovelScene[];
+  assets: AssetLibrary;
+  playerFontId: string;
+  onPlayerFontChange: (fontId: string) => void;
+  onExportJson: () => void;
+  onExportHtml: (preferences: ExportPreferences) => void;
+  onResetProgress: () => void;
+}) {
+  const [exportTarget, setExportTarget] = useState<"pc" | "mobile">("pc");
+  const [exportOptions, setExportOptions] = useState({
+    typing: true,
+    bgm: true,
+    fonts: true,
+    assets: true,
+    fullscreen: false
+  });
+
+  return (
+    <section className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
+      <Card>
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600">
+            <Download className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-extrabold text-slate-900">내보내기</h3>
+            <p className="mt-0.5 text-[13px] text-slate-500">완성한 비주얼노벨을 하나의 HTML 파일로 저장합니다.</p>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <div>
+            <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">플레이어 폰트</label>
+            <select
+              value={playerFontId}
+              onChange={(event) => onPlayerFontChange(event.target.value)}
+              className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            >
+              {PLAYER_FONT_OPTIONS.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+            </select>
+          </div>
+
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="text-xs font-extrabold text-slate-600">화면 비율</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {[
+                ["pc", "PC 16:9"],
+                ["mobile", "Mobile 9:16"]
+              ].map(([id, label]) => (
+                <label key={id} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold ${exportTarget === id ? "border-indigo-200 bg-white text-indigo-600" : "border-slate-200 bg-white text-slate-500"}`}>
+                  <input type="radio" checked={exportTarget === id} onChange={() => setExportTarget(id as "pc" | "mobile")} className="accent-indigo-600" />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="text-xs font-extrabold text-slate-600">내보내기 옵션</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {[
+                ["typing", "타이핑 효과"],
+                ["bgm", "BGM 포함"],
+                ["fonts", "폰트 포함"],
+                ["assets", "이미지/Assets 포함"],
+                ["fullscreen", "전체 화면 시작"]
+              ].map(([id, label]) => (
+                <label key={id} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-600 ring-1 ring-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={exportOptions[id as keyof typeof exportOptions]}
+                    onChange={(event) => setExportOptions((value) => ({ ...value, [id]: event.target.checked }))}
+                    className="accent-indigo-600"
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-1">
+            <Button variant="secondary" size="lg" icon={Eye} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>미리보기</Button>
+            <Button
+              variant="accent"
+              size="lg"
+              icon={Download}
+              className="flex-1"
+              onClick={() => onExportHtml({
+                aspectRatio: exportTarget,
+                typingEnabled: exportOptions.typing,
+                bgmEnabled: exportOptions.bgm,
+                includeFonts: exportOptions.fonts,
+                includeAssets: exportOptions.assets,
+                fullscreen: exportOptions.fullscreen
+              })}
+            >
+              HTML 내보내기
+            </Button>
+          </div>
+
+          <details className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+            <summary className="cursor-pointer text-xs font-extrabold text-slate-500">고급 기능</summary>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button variant="secondary" size="sm" icon={FileJson} onClick={onExportJson}>JSON 내보내기</Button>
+              <Button variant="secondary" size="sm" icon={ImageIcon} onClick={onResetProgress}>이어보기 초기화</Button>
+            </div>
+          </details>
+        </div>
+      </Card>
+    </section>
+  );
+}
+
 function Footer() {
   return (
     <footer className="border-t border-slate-200 mt-10">
@@ -3234,6 +3354,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [jsonOpen, setJsonOpen] = useState(false);
+  const [workspaceTab, setWorkspaceTab] = useState<"scenes" | "assets" | "export">("scenes");
   const [autoPlay, setAutoPlay] = useState(false);
   const [typingEnabled, setTypingEnabled] = useState(true);
   const [typingSpeedMode, setTypingSpeedMode] = useState<TypingSpeedMode>("normal");
@@ -3821,6 +3942,25 @@ export default function App() {
         <div className="grid gap-6 lg:grid-cols-[420px_1fr] lg:items-start">
           <LogInputCard log={log} onLogChange={setLog} onConvert={convertLog} error={error} />
           <div className="space-y-6 [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
+            <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)]">
+              <div className="grid gap-2 sm:grid-cols-3">
+                {[
+                  ["scenes", "장면 편집"],
+                  ["assets", "에셋 관리"],
+                  ["export", "내보내기"]
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setWorkspaceTab(id as "scenes" | "assets" | "export")}
+                    className={`rounded-xl px-4 py-3 text-sm font-extrabold transition ${workspaceTab === id ? "bg-indigo-600 text-white shadow-sm shadow-indigo-200" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {workspaceTab === "scenes" && (
             <SceneAccordion
               scenes={scenes}
               assets={assets}
@@ -3845,85 +3985,32 @@ export default function App() {
               onUndo={undoToolApply}
               onRedo={redoChange}
             />
-            <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onError={setError} />
-            {false && (
-            <details className="rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)] [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
-                <div>
-                  <h3 className="text-[15px] font-extrabold text-slate-900">VN 미리보기</h3>
-                  <p className="mt-1 text-xs font-semibold text-slate-400">편집 결과를 게임 화면으로 확인합니다.</p>
-                </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-500">열기</span>
-              </summary>
-              <div className="border-t border-slate-100 px-6 pb-6 pt-4">
-            <LargeVNPreviewSection
-              scene={activeScene}
-              scenes={scenes}
-              assets={assets}
-              current={current}
-              total={scenes.length}
-              autoPlay={autoPlay}
-              typingEnabled={typingEnabled}
-              typingSpeed={TYPING_SPEEDS[typingSpeedMode]}
-              typingComplete={typingComplete}
-              revealToken={revealToken}
-              typingResetToken={typingResetToken}
-              pageText={activePageText}
-              textPageIndex={textPageIndex}
-              textPageTotal={activeTextPages.length}
-              playerFontFamily={playerFont.cssFamily}
-              onNext={handleAdvance}
-              onJumpScene={jumpToScene}
-              onChoose={chooseBranch}
-              onToggleAuto={() => setAutoPlay((value) => !value)}
-              bgmEnabled={bgmEnabled}
-              onToggleBgm={toggleBgm}
-              onToggleTyping={toggleTyping}
-              typingSpeedMode={typingSpeedMode}
-              onTypingSpeedChange={updateTypingSpeed}
-              onTypingComplete={handleTypingComplete}
-            />
-            <div className="-mt-5 rounded-2xl border border-slate-100 bg-white px-4 py-2 text-xs font-semibold text-slate-500">
-              현재 Scene BGM: <span className="text-slate-800">{activeBgmAsset?.fileName ?? activeBgmAsset?.name ?? "없음"}</span>
-              <span className="mx-2 text-slate-300">·</span>
-              재생 상태: <span className={bgmStatus === "차단됨" ? "text-rose-500" : bgmStatus === "재생 중" ? "text-emerald-600" : "text-slate-600"}>{bgmStatus}</span>
-            </div>
-              </div>
-            </details>
             )}
+            {workspaceTab === "assets" && <AssetManager assets={assets} onAssetsChange={setAssetsWithHistory} onError={setError} />}
             <JsonEditor open={jsonOpen} jsonText={jsonText} error={jsonError} onChange={applyJsonText} />
-            <details className="rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-10px_rgba(99,102,241,0.12)] [&>section]:mx-0 [&>section]:max-w-none [&>section]:px-0 [&>section]:py-0">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
-                <div>
-                  <h3 className="text-[15px] font-extrabold text-slate-900">내보내기</h3>
-                  <p className="mt-1 text-xs font-semibold text-slate-400">완성본 HTML은 마지막에 여기에서 만들 수 있습니다.</p>
-                </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-500">열기</span>
-              </summary>
-              <div className="border-t border-slate-100 px-6 pb-6 pt-4">
-            <ExportCard
-              scenes={scenes}
-              assets={assets}
-              playerFontId={playerFont.id}
-              onPlayerFontChange={setPlayerFontId}
-              onExportJson={exportJson}
-              onExportHtml={(preferences) => downloadStandaloneHtml(
-                scenes,
-                preferences.includeAssets ? assets : EMPTY_ASSETS,
-                {
-                  fontId: playerFont.id,
-                  typingEnabled: preferences.typingEnabled,
-                  bgmEnabled: preferences.bgmEnabled,
-                  includeFonts: preferences.includeFonts,
-                  includeAssets: preferences.includeAssets,
-                  aspectRatio: preferences.aspectRatio,
-                  fullscreen: preferences.fullscreen
-                }
-              )}
-              onResetProgress={resetProgress}
-            />
-              </div>
-            </details>
+            {workspaceTab === "export" && (
+              <SimpleExportPanel
+                scenes={scenes}
+                assets={assets}
+                playerFontId={playerFont.id}
+                onPlayerFontChange={setPlayerFontId}
+                onExportJson={exportJson}
+                onExportHtml={(preferences) => downloadStandaloneHtml(
+                  scenes,
+                  preferences.includeAssets ? assets : EMPTY_ASSETS,
+                  {
+                    fontId: playerFont.id,
+                    typingEnabled: preferences.typingEnabled,
+                    bgmEnabled: preferences.bgmEnabled,
+                    includeFonts: preferences.includeFonts,
+                    includeAssets: preferences.includeAssets,
+                    aspectRatio: preferences.aspectRatio,
+                    fullscreen: preferences.fullscreen
+                  }
+                )}
+                onResetProgress={resetProgress}
+              />
+            )}
           </div>
         </div>
       </section>
