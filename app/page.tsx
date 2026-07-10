@@ -126,6 +126,10 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
+function stopSceneCardDrag(event: React.SyntheticEvent) {
+  event.stopPropagation();
+}
+
 const DEFAULT_CG_TRANSFORM = { scale: 1, x: 0, y: 0, fit: "contain" as const };
 const DEFAULT_CHARACTER_TRANSFORM = { scale: 1, x: 0, y: 0, flipX: false };
 
@@ -2473,7 +2477,13 @@ function SceneCard({
         ) : null}
 
         {isCgScene ? (
-          <div className="rounded-xl border border-pink-100 bg-pink-50/50 p-3">
+          <div
+            className="rounded-xl border border-pink-100 bg-pink-50/50 p-3"
+            onPointerDown={stopSceneCardDrag}
+            onMouseDown={stopSceneCardDrag}
+            onTouchStart={stopSceneCardDrag}
+            onDragStart={stopSceneCardDrag}
+          >
             <p className="mb-2 text-[11px] font-extrabold text-pink-600">CG 이미지</p>
             {scene.imageAsset ? (
               <div className="mb-2 aspect-video w-full overflow-hidden rounded-xl bg-black ring-1 ring-pink-100">
@@ -2551,6 +2561,11 @@ function SceneCard({
                     max={max as number}
                     step={step as number}
                     value={cgTransform[field as "scale" | "x" | "y"]}
+                    draggable={false}
+                    onPointerDown={stopSceneCardDrag}
+                    onMouseDown={stopSceneCardDrag}
+                    onTouchStart={stopSceneCardDrag}
+                    onDragStart={stopSceneCardDrag}
                     onChange={(event) => onUpdateScene(index, { cgTransform: { ...cgTransform, [field]: Number(event.target.value) } })}
                     className="w-full accent-pink-500"
                   />
