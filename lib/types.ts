@@ -53,6 +53,7 @@ export type VnEffect = (
   | { id: string; type: "pause"; durationMs: number; position: "beforeText" | "afterText" }
   | { id: string; type: "textSpeed"; value: "slow" | "normal" | "fast" }
   | { id: string; type: "screenShake"; intensity: "soft" | "medium" }
+  | { id: string; type: "dialogueShake"; intensity: "soft" | "medium" | "strong" }
   | { id: string; type: "fadeIn" | "fadeOut"; durationMs: number }
   | { id: string; type: "flash"; durationMs: number }
   | { id: string; type: "splitTextPage" }

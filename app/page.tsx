@@ -432,6 +432,7 @@ function createEnhanceEffectCandidate(scenes: VisualNovelScene[], selection: Sel
     if (suggestionIndex % 4 === 0) effects.push({ id: uid("effect"), type: "fadeIn", durationMs: 600, directorNote: "장면 시작이 부드럽게 느껴지도록 추천합니다." });
     effects.push({ id: uid("effect"), type: "pause", durationMs: isShort ? 350 : 600, position: "beforeText", directorNote: "대사가 나오기 전 짧은 호흡을 만들어 긴장감을 줍니다." });
     if (/!|！|충격|흔들|무너|폭발|뛰/.test(text)) effects.push({ id: uid("effect"), type: "screenShake", intensity: "soft", directorNote: "놀람이나 충격을 화면 움직임으로 전달합니다." });
+    if (/!|！|충격|놀람|불안|망설|떨림|숨|헉/.test(text) || suggestionIndex % 4 === 2) effects.push({ id: uid("effect"), type: "dialogueShake", intensity: isShort ? "soft" : "medium", directorNote: "감정이 흔들리는 순간을 대사창 움직임으로 가볍게 강조합니다." });
     if (/\?|？|침묵|정적|멈/.test(text)) effects.push({ id: uid("effect"), type: "textSpeed", value: "slow", directorNote: "망설임이나 긴장감을 천천히 읽히게 합니다." });
     if ((scene?.text ?? "").length > TEXT_PAGE_LIMIT) effects.push({ id: uid("effect"), type: "splitTextPage", directorNote: "긴 문장을 여러 클릭으로 나누어 읽기 쉽게 만듭니다." });
     if (suggestionIndex % 3 === 1) effects.push({ id: uid("effect"), type: "soundEffect", placeholder: "sfx_placeholder", directorNote: "나중에 효과음을 넣을 위치를 표시합니다." });
@@ -513,6 +514,7 @@ function effectLabel(effect: VnEffect) {
   if (effect.type === "pause") return effect.position === "beforeText" ? "⏳ 대사 전에 잠시 멈춥니다" : "🌙 대사 뒤에 여운을 둡니다";
   if (effect.type === "textSpeed") return effect.value === "slow" ? "🐢 글자를 천천히 보여줍니다" : "✍️ 글자 속도를 조절합니다";
   if (effect.type === "screenShake") return "📳 화면을 살짝 흔듭니다";
+  if (effect.type === "dialogueShake") return "💬 대사창을 흔듭니다";
   if (effect.type === "fadeIn") return "✨ 화면이 천천히 나타납니다";
   if (effect.type === "fadeOut") return "🌑 화면이 서서히 어두워집니다";
   if (effect.type === "flash") return "⚡ 순간적으로 번쩍입니다";
@@ -528,6 +530,7 @@ function effectNote(effect: VnEffect) {
   if (effect.type === "pause") return "다음 장면으로 넘어가기 전에 감정이 남도록 합니다.";
   if (effect.type === "textSpeed") return "중요하거나 조심스러운 말을 더 천천히 읽히게 합니다.";
   if (effect.type === "screenShake") return "놀람이나 충격이 있는 순간을 더 생생하게 만듭니다.";
+  if (effect.type === "dialogueShake") return "놀람, 불안, 망설임처럼 말의 감정이 흔들리는 순간을 대사창 움직임으로 보여줍니다.";
   if (effect.type === "fadeIn") return "장면이 시작되는 느낌을 부드럽게 만듭니다.";
   if (effect.type === "fadeOut") return "장면이 끝나는 느낌을 또렷하게 줍니다.";
   if (effect.type === "flash") return "짧고 강한 반응을 보여줄 때 어울립니다.";
@@ -732,8 +735,14 @@ const FontStyles = () => (
     .als-scrollbar::-webkit-scrollbar-track { background:transparent; }
     .als-tail { position:absolute; left:28px; bottom:-7px; width:14px; height:14px; background:inherit; transform:rotate(45deg); border-radius:3px; }
     .als-vignette { background:radial-gradient(120% 90% at 50% 110%, rgba(0,0,0,0.55), transparent 60%); }
+    .als-dialogue-shake-soft { animation: vndialogueshake-soft .34s ease-in-out 1; }
+    .als-dialogue-shake-medium { animation: vndialogueshake-medium .42s ease-in-out 1; }
+    .als-dialogue-shake-strong { animation: vndialogueshake-strong .5s ease-in-out 1; }
     @keyframes vnbounce { 0%,100% { opacity:.35; transform:translateY(0); } 50% { opacity:.9; transform:translateY(3px); } }
     @keyframes vnshake { 0%,100% { transform:translate(0,0); } 20% { transform:translate(-6px,3px); } 40% { transform:translate(5px,-2px); } 60% { transform:translate(-3px,-3px); } 80% { transform:translate(4px,2px); } }
+    @keyframes vndialogueshake-soft { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-4px); } 50% { transform:translateX(3px); } 75% { transform:translateX(-2px); } }
+    @keyframes vndialogueshake-medium { 0%,100% { transform:translateX(0); } 18% { transform:translateX(-7px); } 36% { transform:translateX(6px); } 54% { transform:translateX(-5px); } 72% { transform:translateX(4px); } }
+    @keyframes vndialogueshake-strong { 0%,100% { transform:translateX(0); } 14% { transform:translateX(-10px); } 28% { transform:translateX(9px); } 42% { transform:translateX(-8px); } 56% { transform:translateX(7px); } 70% { transform:translateX(-5px); } }
     @keyframes vnflash { 0% { opacity:0; } 14% { opacity:.86; } 100% { opacity:0; } }
     @keyframes vnfadein { from { opacity:.55; } to { opacity:0; } }
     @keyframes vnfadeout { from { opacity:0; } to { opacity:.55; } }
@@ -950,6 +959,7 @@ function DialoguePanel({
   const effectiveTypingSpeed = sceneTypingSpeed(scene, typingSpeed);
   const beforeTextDelay = scenePause(scene, "beforeText");
   const afterTextDelay = scenePause(scene, "afterText");
+  const dialogueShake = sceneEffects(scene).find((effect): effect is Extract<VnEffect, { type: "dialogueShake" }> => effect.type === "dialogueShake");
   const isNarration = displayMode === "narration";
   const isCode = displayMode === "code" || scene.type === "code";
   const isCg = displayMode === "cg";
@@ -971,7 +981,10 @@ function DialoguePanel({
       <div
         className={cn(
           "relative flex h-[168px] w-full items-center border-t border-white/[0.06] bg-[rgba(10,13,18,0.84)] px-5 py-5 text-[#f4f0e6] sm:h-[156px] sm:px-14 sm:py-6",
-          "text-left"
+          "text-left",
+          dialogueShake?.intensity === "soft" && "als-dialogue-shake-soft",
+          dialogueShake?.intensity === "medium" && "als-dialogue-shake-medium",
+          dialogueShake?.intensity === "strong" && "als-dialogue-shake-strong"
         )}
       >
         {isCode ? (
@@ -2691,6 +2704,7 @@ function createEffectByType(type: VnEffect["type"]): VnEffect {
   if (type === "pause") return { id: uid("effect"), type: "pause", durationMs: 600, position: "beforeText", directorNote: "긴장감을 위해 잠깐 멈춥니다." };
   if (type === "textSpeed") return { id: uid("effect"), type: "textSpeed", value: "slow", directorNote: "천천히 읽히도록 속도를 낮춥니다." };
   if (type === "screenShake") return { id: uid("effect"), type: "screenShake", intensity: "soft", directorNote: "충격을 화면 움직임으로 표현합니다." };
+  if (type === "dialogueShake") return { id: uid("effect"), type: "dialogueShake", intensity: "soft", directorNote: "대사창만 흔들어 말의 감정 변화를 강조합니다." };
   if (type === "fadeIn") return { id: uid("effect"), type: "fadeIn", durationMs: 500, directorNote: "장면을 부드럽게 시작합니다." };
   if (type === "fadeOut") return { id: uid("effect"), type: "fadeOut", durationMs: 500, directorNote: "장면을 부드럽게 마무리합니다." };
   if (type === "flash") return { id: uid("effect"), type: "flash", durationMs: 180, directorNote: "순간적인 반응을 강조합니다." };
@@ -2735,6 +2749,7 @@ function EffectEditor({
           <option value="pause">잠깐 멈춤</option>
           <option value="textSpeed">글자 속도</option>
           <option value="screenShake">화면 흔들림</option>
+          <option value="dialogueShake">대사창 흔들림</option>
           <option value="fadeIn">서서히 등장</option>
           <option value="fadeOut">서서히 어두워짐</option>
           <option value="flash">번쩍임</option>
@@ -2789,6 +2804,13 @@ function EffectEditor({
           <select value={effect.intensity} onChange={(event) => onChange({ ...effect, intensity: event.target.value as "soft" | "medium" })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
             <option value="soft">약하게</option>
             <option value="medium">조금 강하게</option>
+          </select>
+        ) : null}
+        {effect.type === "dialogueShake" ? (
+          <select value={effect.intensity} onChange={(event) => onChange({ ...effect, intensity: event.target.value as "soft" | "medium" | "strong" })} className="rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+            <option value="soft">살짝</option>
+            <option value="medium">또렷하게</option>
+            <option value="strong">강하게</option>
           </select>
         ) : null}
         {effect.type === "soundEffect" ? (

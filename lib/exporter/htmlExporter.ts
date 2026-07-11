@@ -74,6 +74,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .fallback-character { width: min(24%, 260px); height: 62%; aspect-ratio: .72; border-radius: 999px 999px 18px 18px; background: linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.16)); border: 1px solid rgba(255,255,255,.34); display: grid; place-items: start center; padding-top: 42px; box-shadow: 0 24px 80px rgba(0,0,0,.28); }
     .face { width: 54px; height: 54px; border-radius: 999px; background: #fed7aa; box-shadow: inset 0 -8px 18px rgba(15,23,42,.12); }
     .panel { position: absolute; left: 50%; bottom: 32px; z-index: 5; display: flex; align-items: center; width: 88%; max-width: 1320px; height: 156px; padding: 24px 56px; transform: translateX(-50%); box-sizing: border-box; color: #f4f0e6; background: rgba(10,13,18,.84); border-top: 1px solid rgba(255,255,255,.06); box-shadow: 0 -18px 60px rgba(0,0,0,.22); }
+    .panel.dialogue-shake-soft { animation: vndialogueshake-soft .34s ease-in-out 1; }
+    .panel.dialogue-shake-medium { animation: vndialogueshake-medium .42s ease-in-out 1; }
+    .panel.dialogue-shake-strong { animation: vndialogueshake-strong .5s ease-in-out 1; }
     .panel.choice, .panel.hidden { display: none; }
     .panel.dialogue, .panel.system, .panel.code, .panel.narration, .panel.cg { text-align: left; }
     .meta { position: absolute; left: 0; top: -24px; }
@@ -141,6 +144,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     @media (orientation: portrait) and (max-width: 900px) { .orientation-hint { display: block; } }
     @keyframes vnbounce { 0%,100% { opacity:.35; transform:translateY(0); } 50% { opacity:.9; transform:translateY(3px); } }
     @keyframes vnshake { 0%,100% { transform:translate(0,0); } 20% { transform:translate(-6px,3px); } 40% { transform:translate(5px,-2px); } 60% { transform:translate(-3px,-3px); } 80% { transform:translate(4px,2px); } }
+    @keyframes vndialogueshake-soft { 0%,100% { transform:translateX(-50%) translateX(0); } 25% { transform:translateX(-50%) translateX(-4px); } 50% { transform:translateX(-50%) translateX(3px); } 75% { transform:translateX(-50%) translateX(-2px); } }
+    @keyframes vndialogueshake-medium { 0%,100% { transform:translateX(-50%) translateX(0); } 18% { transform:translateX(-50%) translateX(-7px); } 36% { transform:translateX(-50%) translateX(6px); } 54% { transform:translateX(-50%) translateX(-5px); } 72% { transform:translateX(-50%) translateX(4px); } }
+    @keyframes vndialogueshake-strong { 0%,100% { transform:translateX(-50%) translateX(0); } 14% { transform:translateX(-50%) translateX(-10px); } 28% { transform:translateX(-50%) translateX(9px); } 42% { transform:translateX(-50%) translateX(-8px); } 56% { transform:translateX(-50%) translateX(7px); } 70% { transform:translateX(-50%) translateX(-5px); } }
     @keyframes vnflash { 0% { opacity:0; } 14% { opacity:.86; } 100% { opacity:0; } }
     @keyframes vnfadein { from { opacity:.55; } to { opacity:0; } }
     @keyframes vnfadeout { from { opacity:0; } to { opacity:.55; } }
@@ -561,6 +567,10 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       });
       const showDialoguePanel = sceneShowsDialogue(scene);
       panel.className = "panel " + (showDialoguePanel ? mode : "hidden");
+      const dialogueShake = sceneEffects(scene).find((effect) => effect.type === "dialogueShake");
+      if (showDialoguePanel && dialogueShake) {
+        panel.classList.add("dialogue-shake-" + (dialogueShake.intensity || "soft"));
+      }
       const showMeta = showDialoguePanel && mode !== "narration" && mode !== "choice" && Boolean(scene.speaker);
       meta.hidden = !showMeta;
       narrationDot.hidden = true;
