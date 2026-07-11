@@ -71,6 +71,7 @@ type ToolCandidate = {
   selectedSceneIds?: string[];
   prompt?: string;
   choiceFlavor?: ChoiceFlavor;
+  manualDraft?: boolean;
 };
 type HistorySnapshot = {
   scenes: VisualNovelScene[];
@@ -427,7 +428,8 @@ function createManualChoiceCandidate(scenes: VisualNovelScene[], selection: Sele
     summary: "선택지 문구와 이어질 장면을 직접 작성합니다.",
     choiceScene,
     branchScenes,
-    candidateScenes: [choiceScene, ...branchScenes]
+    candidateScenes: [choiceScene, ...branchScenes],
+    manualDraft: true
   };
 }
 
@@ -498,7 +500,8 @@ function createManualEnhanceCandidate(scenes: VisualNovelScene[], selection: Sel
       return { sceneIndex, sceneId: scene.id, effects: [] };
     }),
     selectedEffectIds: [],
-    selectedSceneIds: originalScenes.map((scene) => scene.id)
+    selectedSceneIds: originalScenes.map((scene) => scene.id),
+    manualDraft: true
   };
 }
 
@@ -3210,6 +3213,11 @@ function WorkflowToolsPanel({
   }
 
   function regenerateCandidate() {
+    if (candidate?.manualDraft && (aiTool === "enhance" || aiTool === "choices")) {
+      if (aiTool === "enhance") onCandidate(createManualEnhanceCandidate(scenes, selection));
+      if (aiTool === "choices") onCandidate(createManualChoiceCandidate(scenes, selection));
+      return;
+    }
     runAiTool(aiTool, true);
   }
 
@@ -3275,16 +3283,16 @@ function WorkflowToolsPanel({
             </div>
           ) : null}
           <div className="grid gap-3 lg:grid-cols-3">
-            <button type="button" onClick={() => runAiTool("enhance")} className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 text-left transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50">
-              <p className="text-sm font-extrabold text-indigo-700">✨ 연출 강화</p>
-              <p className="mt-1 text-xs leading-5 text-indigo-500">선택한 장면에 화면 효과와 텍스트 연출을 추가합니다.</p>
+            <button type="button" onClick={() => runManualTool("enhance")} className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 text-left transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50">
+              <p className="text-sm font-extrabold text-indigo-700">연출 강화</p>
+              <p className="mt-1 text-xs leading-5 text-indigo-500">화면 효과와 대사 연출을 직접 골라 추가합니다.</p>
             </button>
-            <button type="button" onClick={() => runAiTool("choices")} className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50">
-              <p className="text-sm font-extrabold text-emerald-700">🌿 선택지 생성</p>
-              <p className="mt-1 text-xs leading-5 text-emerald-500">선택지와 이어질 분기 장면을 만듭니다.</p>
+            <button type="button" onClick={() => runManualTool("choices")} className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50">
+              <p className="text-sm font-extrabold text-emerald-700">선택지 생성</p>
+              <p className="mt-1 text-xs leading-5 text-emerald-500">선택지와 이어질 분기 장면을 직접 작성합니다.</p>
             </button>
             <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <p className="text-sm font-extrabold text-slate-800">✏ AI 수정</p>
+              <p className="text-sm font-extrabold text-slate-800">AI 수정</p>
               <p className="mt-1 text-xs leading-5 text-slate-500">찾을 문장과 바꿀 방향을 입력합니다.</p>
               <div className="mt-3 grid gap-2">
                 <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="찾을 문장" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
@@ -3293,30 +3301,6 @@ function WorkflowToolsPanel({
               </div>
             </div>
           </div>
-
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <button type="button" onClick={() => runManualTool("enhance")} className="rounded-2xl border border-purple-100 bg-white px-4 py-3 text-left transition hover:border-purple-200 hover:bg-purple-50/50">
-              <p className="text-sm font-extrabold text-slate-800">연출을 직접 고르기</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">AI 추천 없이 원하는 연출을 직접 추가합니다.</p>
-            </button>
-            <button type="button" onClick={() => runManualTool("choices")} className="rounded-2xl border border-emerald-100 bg-white px-4 py-3 text-left transition hover:border-emerald-200 hover:bg-emerald-50/50">
-              <p className="text-sm font-extrabold text-slate-800">선택지를 직접 작성하기</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">선택지와 이어질 장면을 빈 초안에서 작성합니다.</p>
-            </button>
-          </div>
-
-          <details className="mt-3 rounded-2xl border border-slate-100 bg-white p-3">
-            <summary className="cursor-pointer text-xs font-extrabold text-slate-500">선택지 생성 설정</summary>
-            <div className="mt-3 grid gap-2 sm:grid-cols-[160px_1fr]">
-              <select value={choiceFlavor} onChange={(event) => setChoiceFlavor(event.target.value as ChoiceFlavor)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-                <option value="auto">AI 자동</option>
-                <option value="dialogue">대화형</option>
-                <option value="emotion">감정형</option>
-                <option value="action">행동형</option>
-              </select>
-              <input value={choicePrompt} onChange={(event) => setChoicePrompt(event.target.value)} placeholder="선택지 분위기나 방향을 적어 주세요" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-            </div>
-          </details>
 
           <WorkflowCandidateDiff candidate={candidate} onCandidateChange={onCandidate} onApply={onApply} onCancel={onCancel} onRegenerate={regenerateCandidate} />
         </div>
