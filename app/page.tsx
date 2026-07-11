@@ -78,7 +78,6 @@ type HistorySnapshot = {
   current: number;
 };
 type ExportPreferences = {
-  aspectRatio: "pc" | "mobile";
   typingEnabled: boolean;
   bgmEnabled: boolean;
   includeFonts: boolean;
@@ -1180,7 +1179,7 @@ function VNStage({
   return (
     <div
       className={cn(
-        "relative mx-auto aspect-[9/16] max-h-[78vh] w-full max-w-[1440px] cursor-pointer overflow-hidden rounded-2xl border border-slate-200 shadow-xl shadow-indigo-100/50 sm:aspect-video sm:max-h-none",
+        "relative mx-auto aspect-video w-full max-w-[1440px] cursor-pointer overflow-hidden rounded-2xl border border-slate-200 shadow-xl shadow-indigo-100/50",
         hasShake && "animate-[vnshake_.42s_ease-in-out_1]"
       )}
       role="button"
@@ -3490,7 +3489,6 @@ function ExportCard({
   onResetProgress: () => void;
 }) {
   const assetCount = assets.standingAssets.length + assets.backgroundAssets.length + assets.bgmAssets.length;
-  const [exportTarget, setExportTarget] = useState<"pc" | "mobile">("pc");
   const [exportOptions, setExportOptions] = useState({
     typing: true,
     bgm: true,
@@ -3562,17 +3560,10 @@ function ExportCard({
             </div>
 
             <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <p className="text-xs font-extrabold text-slate-600">화면 비율</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {[
-                  ["pc", "PC · 16:9"],
-                  ["mobile", "Mobile · 9:16"]
-                ].map(([id, label]) => (
-                  <label key={id} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold ${exportTarget === id ? "border-indigo-200 bg-white text-indigo-600" : "border-slate-200 bg-white text-slate-500"}`}>
-                    <input type="radio" checked={exportTarget === id} onChange={() => setExportTarget(id as "pc" | "mobile")} className="accent-indigo-600" />
-                    {label}
-                  </label>
-                ))}
+              <p className="text-xs font-extrabold text-slate-600">작품 화면</p>
+              <div className="mt-2 rounded-xl border border-indigo-100 bg-white px-3 py-2">
+                <p className="text-sm font-extrabold text-indigo-600">16:9 · 기준 해상도 1600×900</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">모바일에서도 16:9 플레이어가 화면 너비 안에 맞게 축소됩니다. 가로 화면에서 더 편하게 볼 수 있습니다.</p>
               </div>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {[
@@ -3627,7 +3618,6 @@ function ExportCard({
                 icon={Download}
                 className="flex-1"
                 onClick={() => onExportHtml({
-                  aspectRatio: exportTarget,
                   typingEnabled: exportOptions.typing,
                   bgmEnabled: exportOptions.bgm,
                   includeFonts: exportOptions.fonts,
@@ -3664,7 +3654,6 @@ function SimpleExportPanel({
   onExportHtml: (preferences: ExportPreferences) => void;
   onResetProgress: () => void;
 }) {
-  const [exportTarget, setExportTarget] = useState<"pc" | "mobile">("pc");
   const [exportOptions, setExportOptions] = useState({
     typing: true,
     bgm: true,
@@ -3699,17 +3688,10 @@ function SimpleExportPanel({
           </div>
 
           <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-            <p className="text-xs font-extrabold text-slate-600">화면 비율</p>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {[
-                ["pc", "PC 16:9"],
-                ["mobile", "Mobile 9:16"]
-              ].map(([id, label]) => (
-                <label key={id} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold ${exportTarget === id ? "border-indigo-200 bg-white text-indigo-600" : "border-slate-200 bg-white text-slate-500"}`}>
-                  <input type="radio" checked={exportTarget === id} onChange={() => setExportTarget(id as "pc" | "mobile")} className="accent-indigo-600" />
-                  {label}
-                </label>
-              ))}
+            <p className="text-xs font-extrabold text-slate-600">작품 화면</p>
+            <div className="mt-2 rounded-xl border border-indigo-100 bg-white px-3 py-2">
+              <p className="text-sm font-extrabold text-indigo-600">16:9 · 기준 해상도 1600×900</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">모바일에서도 16:9 플레이어가 화면 너비에 맞게 표시됩니다. 가로 화면에서 더 편하게 볼 수 있습니다.</p>
             </div>
           </div>
 
@@ -3744,7 +3726,6 @@ function SimpleExportPanel({
               icon={Download}
               className="flex-1"
               onClick={() => onExportHtml({
-                aspectRatio: exportTarget,
                 typingEnabled: exportOptions.typing,
                 bgmEnabled: exportOptions.bgm,
                 includeFonts: exportOptions.fonts,
@@ -4474,7 +4455,6 @@ export default function App() {
                     bgmEnabled: preferences.bgmEnabled,
                     includeFonts: preferences.includeFonts,
                     includeAssets: preferences.includeAssets,
-                    aspectRatio: preferences.aspectRatio,
                     fullscreen: preferences.fullscreen
                   }
                 )}
