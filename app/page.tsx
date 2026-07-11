@@ -403,6 +403,34 @@ function createChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionS
   };
 }
 
+function createManualChoiceCandidate(scenes: VisualNovelScene[], selection: SelectionState): ToolCandidate {
+  const candidate = createChoiceCandidate(scenes, selection, "auto", "선택지를 직접 작성하세요");
+  if (!candidate.choiceScene) return candidate;
+  const branchScenes = (candidate.branchScenes ?? []).map((scene, index) => ({
+    ...scene,
+    speaker: undefined,
+    displayMode: "narration" as const,
+    role: "narration" as const,
+    text: index === 0 ? "첫 번째 선택 후 이어질 장면을 작성하세요." : "두 번째 선택 후 이어질 장면을 작성하세요."
+  }));
+  const choiceScene = {
+    ...candidate.choiceScene,
+    text: "어떻게 할까요?",
+    choices: (candidate.choiceScene.choices ?? []).map((choice, index) => ({
+      ...choice,
+      text: index === 0 ? "선택지 1" : "선택지 2"
+    }))
+  };
+  return {
+    ...candidate,
+    title: "선택지 직접 만들기",
+    summary: "선택지 문구와 이어질 장면을 직접 작성합니다.",
+    choiceScene,
+    branchScenes,
+    candidateScenes: [choiceScene, ...branchScenes]
+  };
+}
+
 function createEnhanceCandidate(scenes: VisualNovelScene[], selection: SelectionState): ToolCandidate {
   const originalScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
   const candidateScenes = originalScenes.map((scene) => ({
@@ -451,6 +479,25 @@ function createEnhanceEffectCandidate(scenes: VisualNovelScene[], selection: Sel
     candidateScenes: originalScenes,
     effectSuggestions,
     selectedEffectIds: effectSuggestions.flatMap((item) => item.effects.map((effect) => effect.id)),
+    selectedSceneIds: originalScenes.map((scene) => scene.id)
+  };
+}
+
+function createManualEnhanceCandidate(scenes: VisualNovelScene[], selection: SelectionState): ToolCandidate {
+  const originalScenes = selection.sceneIndexes.map((index) => scenes[index]).filter(Boolean);
+  return {
+    id: uid("candidate"),
+    toolId: "enhance",
+    title: "연출 직접 고르기",
+    summary: "원하는 장면에 적용할 VN 연출을 직접 추가하고 고릅니다.",
+    selection,
+    originalScenes,
+    candidateScenes: originalScenes,
+    effectSuggestions: selection.sceneIndexes.map((sceneIndex) => {
+      const scene = scenes[sceneIndex];
+      return { sceneIndex, sceneId: scene.id, effects: [] };
+    }),
+    selectedEffectIds: [],
     selectedSceneIds: originalScenes.map((scene) => scene.id)
   };
 }
@@ -1176,6 +1223,8 @@ function VNStage({
   const hasFlash = effects.some((effect) => effect.type === "flash");
   const hasFadeIn = effects.some((effect) => effect.type === "fadeIn");
   const hasFadeOut = effects.some((effect) => effect.type === "fadeOut");
+  const dialogueShake = effects.find((effect): effect is Extract<VnEffect, { type: "dialogueShake" }> => effect.type === "dialogueShake");
+  const dialogueEffectKey = dialogueShake ? `${dialogueShake.id}-${dialogueShake.intensity}` : "steady";
   const visibleLogScenes = scenes.slice(0, current + 1);
   useEffect(() => {
     if (!logOpen) return;
@@ -1256,7 +1305,7 @@ function VNStage({
       <div className="pointer-events-none absolute inset-0 z-30">
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${scene.id}-dialogue`}
+            key={`${scene.id}-dialogue-${resetToken ?? 0}-${dialogueEffectKey}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
@@ -1323,22 +1372,24 @@ function VNStage({
               </button>
             </div>
             <div className="space-y-[46px]">
-              {visibleLogScenes.map((item, index) => {
+              {visibleLogScenes.map((item) => {
                 const mode = sceneDisplayMode(item);
                 const isCode = mode === "code" || item.type === "code";
                 const showSpeaker = mode !== "narration" && Boolean(item.speaker);
+                const sceneIndex = scenes.findIndex((sceneItem) => sceneItem.id === item.id);
+                const targetIndex = sceneIndex >= 0 ? sceneIndex : 0;
                 return (
                   <button
-                    key={`${item.id}-${index}`}
+                    key={`${item.id}-${targetIndex}`}
                     type="button"
                     onClick={(event) => {
                       event.stopPropagation();
-                      onJumpScene(index);
+                      onJumpScene(targetIndex);
                       setLogOpen(false);
                     }}
                     className="relative block w-full cursor-pointer bg-transparent p-0 pl-[22px] text-left shadow-none transition-opacity hover:opacity-90 focus:outline-none focus:ring-0"
                   >
-                    {index === current ? <span className="absolute left-0 top-1 h-[3px] w-[3px] rounded-full bg-[#ab9bf2] shadow-[0_0_5px_1px_rgba(171,155,242,0.7)]" aria-hidden="true" /> : null}
+                    {targetIndex === current ? <span className="absolute left-0 top-1 h-[3px] w-[3px] rounded-full bg-[#ab9bf2] shadow-[0_0_5px_1px_rgba(171,155,242,0.7)]" aria-hidden="true" /> : null}
                     {showSpeaker ? <span className="mb-3 block text-[11px] font-normal tracking-[0.2em] text-[rgba(180,174,206,0.42)]">{item.speaker}</span> : null}
                     {isCode ? (
                       <code className="block whitespace-pre-wrap break-words font-mono text-[14.5px] leading-[2] text-[rgba(200,194,224,0.55)]">{item.text}</code>
@@ -1901,6 +1952,7 @@ function LargeVNPreviewSection({
       </div>
       <VNStage
         scene={scene}
+        scenes={scenes}
         assets={assets}
         current={current}
         total={total}
@@ -3145,6 +3197,18 @@ function WorkflowToolsPanel({
     if (tool === "search-ai") onCandidate(createSearchAiCandidate(scenes, selection, query, replacement));
   }
 
+  function runManualTool(tool: "enhance" | "choices") {
+    setMessage(null);
+    if (disabled) {
+      setMessage("먼저 적용할 장면을 선택해 주세요.");
+      return;
+    }
+    if (!confirmOverwrite()) return;
+    setAiTool(tool);
+    if (tool === "enhance") onCandidate(createManualEnhanceCandidate(scenes, selection));
+    if (tool === "choices") onCandidate(createManualChoiceCandidate(scenes, selection));
+  }
+
   function regenerateCandidate() {
     runAiTool(aiTool, true);
   }
@@ -3228,6 +3292,17 @@ function WorkflowToolsPanel({
                 <Button variant="secondary" size="sm" icon={Wand2} iconPosition="left" onClick={() => runAiTool("search-ai")}>수정안 만들기</Button>
               </div>
             </div>
+          </div>
+
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <button type="button" onClick={() => runManualTool("enhance")} className="rounded-2xl border border-purple-100 bg-white px-4 py-3 text-left transition hover:border-purple-200 hover:bg-purple-50/50">
+              <p className="text-sm font-extrabold text-slate-800">연출을 직접 고르기</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">AI 추천 없이 원하는 연출을 직접 추가합니다.</p>
+            </button>
+            <button type="button" onClick={() => runManualTool("choices")} className="rounded-2xl border border-emerald-100 bg-white px-4 py-3 text-left transition hover:border-emerald-200 hover:bg-emerald-50/50">
+              <p className="text-sm font-extrabold text-slate-800">선택지를 직접 작성하기</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">선택지와 이어질 장면을 빈 초안에서 작성합니다.</p>
+            </button>
           </div>
 
           <details className="mt-3 rounded-2xl border border-slate-100 bg-white p-3">

@@ -1,2 +1,2 @@
-:HL["/ainovel/next-assets/static/chunks/2o1g36nb150sx.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}},"staleTime":300,"buildId":"Pd2eAQ7blAYp5Tyvfojxy"}
+:HL["/ainovel/next-assets/static/chunks/1_6vpt2h958u0.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}},"staleTime":300,"buildId":"bz4Z8WK1YQJfyaq4QJEyY"}
