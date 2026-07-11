@@ -42,7 +42,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
   const safeFallbacks = JSON.stringify(FALLBACK_BACKGROUNDS).replace(/</g, "\\u003c");
   const playerFont = getPlayerFontOption(options.includeFonts === false ? "system-sans" : options.fontId);
   const googleFontHref = options.includeFonts === false ? "" : playerFont.googleFont ? `https://fonts.googleapis.com/css2?family=${playerFont.googleFont}&display=swap` : "";
-  const stageSize = "width: min(1600px, 100vw, calc(var(--app-height, 100dvh) * 16 / 9)); aspect-ratio: 16 / 9;";
+  const stageSize = "width: 1600px; height: 900px;";
   const initialTyping = options.typingEnabled === false ? "false" : "true";
   const allowBgm = options.bgmEnabled === false ? "false" : "true";
   const startFullscreen = options.fullscreen ? "true" : "false";
@@ -58,10 +58,10 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
   <link href="${googleFontHref}" rel="stylesheet" />` : ""}
   <style>
     * { box-sizing: border-box; }
-    :root { --app-height: 100dvh; }
-    html, body { width: 100%; min-height: 100%; }
-    body { margin: 0; min-height: 100vh; min-height: var(--app-height, 100dvh); display: flex; align-items: center; justify-content: center; overflow: hidden; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f8fafc; background: #0f172a; touch-action: manipulation; }
-    .stage { --vn-font-family: ${playerFont.cssFamily}; ${stageSize} position: relative; max-width: 100vw; max-height: var(--app-height, 100dvh); overflow: hidden; isolation: isolate; cursor: pointer; flex: 0 0 auto; }
+    :root { --app-width: 100vw; --app-height: 100dvh; --stage-scale: 1; }
+    html, body { width: 100%; height: 100%; min-height: 100%; }
+    body { position: relative; margin: 0; width: var(--app-width, 100vw); height: var(--app-height, 100dvh); min-height: var(--app-height, 100dvh); overflow: hidden; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f8fafc; background: #0f172a; touch-action: manipulation; }
+    .stage { --vn-font-family: ${playerFont.cssFamily}; ${stageSize} position: absolute; left: 50%; top: 50%; overflow: hidden; isolation: isolate; cursor: pointer; transform: translate(-50%, -50%) scale(var(--stage-scale, 1)); transform-origin: center center; }
     .orientation-hint { position: fixed; left: 50%; bottom: 14px; z-index: 40; display: none; transform: translateX(-50%); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(15,23,42,.72); padding: 8px 12px; color: rgba(248,250,252,.78); font-size: 12px; font-weight: 700; backdrop-filter: blur(10px); pointer-events: none; }
     .portrait-gate { display: none; width: min(420px, calc(100vw - 48px)); margin: 0 auto; border: 1px solid rgba(255,255,255,.12); border-radius: 24px; background: rgba(15,23,42,.78); padding: 24px 22px; color: rgba(248,250,252,.9); text-align: center; box-shadow: 0 22px 80px rgba(0,0,0,.28); backdrop-filter: blur(14px); }
     .portrait-gate strong { display: block; margin-bottom: 8px; color: white; font-size: 18px; line-height: 1.35; }
@@ -126,29 +126,10 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .log-text { margin: 0; white-space: pre-wrap; word-break: keep-all; font-family: var(--vn-font-family); font-size: 19px; font-weight: 400; line-height: 2; letter-spacing: .01em; color: rgba(235,233,244,.94); text-shadow: 0 1px 6px rgba(0,0,0,.35); }
     .log-text.narration { font-size: 16.5px; font-style: italic; color: rgba(196,190,216,.48); }
     .log-text.code { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14.5px; color: rgba(200,194,224,.55); word-break: break-word; }
-    @media (max-width: 900px) { .log-panel { margin: 0 auto; max-width: 640px; } }
-    @media (max-width: 640px), (max-height: 520px) {
-      .panel { bottom: 22px; width: 88%; height: 128px; padding: 18px 22px; }
-      .speaker { margin-left: 18px; font-size: 12px; padding: 4px 14px; }
-      .text { padding-left: 12px; padding-right: 20px; font-size: 14px; line-height: 1.75; }
-      .continue { font-size: 15px; }
-      .choice-overlay { bottom: 16%; padding: 0 24px; }
-      .choice-box { width: 100%; }
-      .choice-prompt { font-size: 15px; }
-      .choice-option { padding: 11px 16px; font-size: 15px; }
-      .side-menu { right: 10px; top: 14px; gap: 10px; }
-      .side-menu .icon { font-size: 14px; }
-      .side-menu button { font-size: 8px; }
-      .fallback-character { width: 30%; height: 58%; padding-top: 28px; }
-      .face { width: 42px; height: 42px; }
-      .log-overlay { padding: 7vh 7vw; }
-      .log-text { font-size: 17px; }
-      .log-text.narration { font-size: 15px; }
-    }
     @media (orientation: portrait) and (max-width: 900px) {
-      body { align-items: center; justify-content: center; overflow: hidden; padding: 24px; }
+      body { overflow: hidden; padding: 24px; }
       .stage { display: none; }
-      .portrait-gate { display: block; }
+      .portrait-gate { position: absolute; left: 50%; top: 50%; display: block; transform: translate(-50%, -50%); }
       .orientation-hint { display: none; }
     }
     @keyframes vnbounce { 0%,100% { opacity:.35; transform:translateY(0); } 50% { opacity:.9; transform:translateY(3px); } }
@@ -258,8 +239,14 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     const bgmById = ${allowBgm} ? Object.fromEntries(assets.bgmAssets.map((asset) => [asset.id, asset])) : {};
 
     function syncViewportHeight() {
+      const width = window.visualViewport ? window.visualViewport.width : window.innerWidth;
       const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      document.documentElement.style.setProperty("--app-height", Math.max(1, Math.floor(height)) + "px");
+      const safeWidth = Math.max(1, Math.floor(width));
+      const safeHeight = Math.max(1, Math.floor(height));
+      const stageScale = Math.min(safeWidth / 1600, safeHeight / 900);
+      document.documentElement.style.setProperty("--app-width", safeWidth + "px");
+      document.documentElement.style.setProperty("--app-height", safeHeight + "px");
+      document.documentElement.style.setProperty("--stage-scale", String(Math.max(0.01, stageScale)));
     }
     syncViewportHeight();
     window.addEventListener("resize", syncViewportHeight);
