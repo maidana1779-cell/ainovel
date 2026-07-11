@@ -907,6 +907,18 @@ function scenePause(scene: VisualNovelScene, position: "beforeText" | "afterText
     .reduce((total, effect) => total + effect.durationMs, 0);
 }
 
+function dialogueShakeMotion(effect?: Extract<VnEffect, { type: "dialogueShake" }>) {
+  if (!effect) return { x: 0, transition: { duration: 0.3, delay: 0.1 } };
+  const ease: [number, number, number, number] = [0.42, 0, 0.58, 1];
+  if (effect.intensity === "strong") {
+    return { x: [0, -12, 10, -9, 7, -5, 0], transition: { duration: 0.5, ease } };
+  }
+  if (effect.intensity === "medium") {
+    return { x: [0, -8, 7, -5, 4, 0], transition: { duration: 0.42, ease } };
+  }
+  return { x: [0, -5, 4, -3, 0], transition: { duration: 0.34, ease } };
+}
+
 function TypingText({
   text,
   speed = TYPING_SPEEDS.normal,
@@ -1224,10 +1236,12 @@ function VNStage({
   const effects = sceneEffects(scene);
   const hasShake = effects.some((effect) => effect.type === "screenShake");
   const hasFlash = effects.some((effect) => effect.type === "flash");
+  const flashEffect = effects.find((effect): effect is Extract<VnEffect, { type: "flash" }> => effect.type === "flash");
   const hasFadeIn = effects.some((effect) => effect.type === "fadeIn");
   const hasFadeOut = effects.some((effect) => effect.type === "fadeOut");
   const dialogueShake = effects.find((effect): effect is Extract<VnEffect, { type: "dialogueShake" }> => effect.type === "dialogueShake");
   const dialogueEffectKey = dialogueShake ? `${dialogueShake.id}-${dialogueShake.intensity}` : "steady";
+  const dialogueMotion = dialogueShakeMotion(dialogueShake);
   const visibleLogScenes = scenes.slice(0, current + 1);
   useEffect(() => {
     if (!logOpen) return;
@@ -1310,16 +1324,24 @@ function VNStage({
           <motion.div
             key={`${scene.id}-dialogue-${resetToken ?? 0}-${dialogueEffectKey}`}
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0, x: dialogueMotion.x }}
             exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            transition={dialogueMotion.transition}
           >
             <DialoguePanel scene={scene} pageText={pageText} sceneIndex={current} totalScenes={total} typingEnabled={typingEnabled} typingSpeed={typingSpeed} typingComplete={typingComplete} revealToken={revealToken} resetToken={resetToken} fontFamily={playerFontFamily} onTypingComplete={onTypingComplete} variant="hero" compact />
           </motion.div>
         </AnimatePresence>
       </div>
       <ChoiceOverlay scene={scene} onChoose={onChoose} fontFamily={playerFontFamily} />
-      {hasFlash ? <div key={`${scene.id}-flash`} className="pointer-events-none absolute inset-0 z-[65] bg-white animate-[vnflash_.24s_ease-out_1]" /> : null}
+      {hasFlash ? (
+        <motion.div
+          key={`${scene.id}-${resetToken ?? 0}-${flashEffect?.id ?? "flash"}-${flashEffect?.durationMs ?? 180}`}
+          className="pointer-events-none absolute inset-0 z-[65] bg-white"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.86, 0] }}
+          transition={{ duration: Math.max((flashEffect?.durationMs ?? 180) / 1000, 0.12), times: [0, 0.18, 1], ease: [0.42, 0, 0.58, 1] }}
+        />
+      ) : null}
       {hasFadeIn ? <div key={`${scene.id}-fade-in`} className="pointer-events-none absolute inset-0 z-[64] bg-black animate-[vnfadein_.7s_ease-out_1] opacity-0" /> : null}
       {hasFadeOut ? <div key={`${scene.id}-fade-out`} className="pointer-events-none absolute inset-0 z-[64] bg-black animate-[vnfadeout_.7s_ease-out_1] opacity-0" /> : null}
       <div className="absolute right-2 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-3 sm:right-4 sm:gap-2">
@@ -1723,6 +1745,9 @@ function VNStageInline({
   const backgroundAsset = scene.backgroundAssetId ? assets.backgroundAssets.find((asset) => asset.id === scene.backgroundAssetId) : undefined;
   const displayMode = sceneDisplayMode(scene);
   const cgTransform = normalizeCgTransform(scene.cgTransform);
+  const dialogueShake = sceneEffects(scene).find((effect): effect is Extract<VnEffect, { type: "dialogueShake" }> => effect.type === "dialogueShake");
+  const dialogueMotion = dialogueShakeMotion(dialogueShake);
+  const dialogueEffectKey = dialogueShake ? `${dialogueShake.id}-${dialogueShake.intensity}` : "steady";
   return (
     <div
       className="relative mx-auto aspect-video w-full cursor-pointer overflow-hidden rounded-xl border border-slate-200"
@@ -1779,10 +1804,10 @@ function VNStageInline({
       <div
         className={cn(
           "pointer-events-none absolute inset-0 z-30"
-        )}
+        )} 
       >
         <AnimatePresence mode="wait">
-          <motion.div key={`${scene.id}-d`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3, delay: 0.1 }}>
+          <motion.div key={`${scene.id}-d-${dialogueEffectKey}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, x: dialogueMotion.x }} exit={{ opacity: 0, y: -6 }} transition={dialogueMotion.transition}>
             <DialoguePanel scene={scene} sceneIndex={current} totalScenes={total} typingEnabled={typingEnabled} typingSpeed={typingSpeed} typingComplete={typingComplete} revealToken={revealToken} fontFamily={getPlayerFontOption().cssFamily} onTypingComplete={onTypingComplete} variant="inline" compact />
           </motion.div>
         </AnimatePresence>
@@ -2696,8 +2721,20 @@ function SceneCard({
             <p className="mb-2 text-[11px] font-extrabold text-indigo-600">VN Effects</p>
             <div className="flex flex-wrap gap-1.5">
               {scene.effects.map((effect) => (
-                <span key={effect.id} className="rounded-full bg-white px-2 py-1 text-[10px] font-bold text-indigo-600 ring-1 ring-indigo-100">
+                <span key={effect.id} className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold text-indigo-600 ring-1 ring-indigo-100">
                   {effectLabel(effect)}
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onUpdateScene(index, { effects: scene.effects?.filter((item) => item.id !== effect.id) ?? [] });
+                    }}
+                    className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-indigo-300 transition hover:bg-rose-50 hover:text-rose-500"
+                    aria-label={`${effectLabel(effect)} 삭제`}
+                    title="연출 삭제"
+                  >
+                    ×
+                  </button>
                 </span>
               ))}
             </div>
