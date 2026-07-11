@@ -268,7 +268,7 @@ function splitTextPages(text: string, limit = TEXT_PAGE_LIMIT) {
 
 function buildSelection(sceneIndexes: number[], scenes: VisualNovelScene[]): SelectionState {
   const unique = Array.from(new Set(sceneIndexes)).filter((index) => index >= 0 && index < scenes.length).sort((a, b) => a - b);
-  const safeIndexes = unique.length ? unique : [0].filter((index) => scenes[index]);
+  const safeIndexes = unique;
   return {
     kind: safeIndexes.length > 1 ? "multi-scene" : "scene",
     sceneIndexes: safeIndexes
@@ -2858,6 +2858,37 @@ function WorkflowCandidateDiff({
     const choice = candidate.choiceScene?.choices?.[branchIndex];
     updateBranchScene(branchIndex, { text: branchDraftText(choice?.text ?? "선택", candidate.originalScenes[candidate.originalScenes.length - 1], candidate.prompt) });
   }
+  function addCandidateChoice() {
+    if (!candidate?.choiceScene) return;
+    const source = candidate.originalScenes[candidate.originalScenes.length - 1];
+    const branchId = uid("branch");
+    const choiceText = "새 선택지";
+    const branchScene: VisualNovelScene = {
+      ...(candidate.branchScenes?.[0] ?? candidate.choiceScene),
+      id: branchId,
+      displayMode: "narration",
+      role: "narration",
+      speaker: undefined,
+      text: branchDraftText(choiceText, source, candidate.prompt),
+      choices: undefined
+    };
+    const choiceScene = {
+      ...candidate.choiceScene,
+      choices: [...(candidate.choiceScene.choices ?? []), { id: uid("option"), text: choiceText, targetSceneId: branchId }]
+    };
+    const branchScenes = [...(candidate.branchScenes ?? []), branchScene];
+    onCandidateChange({ ...candidate, choiceScene, branchScenes, candidateScenes: [choiceScene, ...branchScenes] });
+  }
+  function deleteCandidateChoice(choiceIndex: number) {
+    if (!candidate?.choiceScene) return;
+    const targetId = candidate.choiceScene.choices?.[choiceIndex]?.targetSceneId;
+    const choiceScene = {
+      ...candidate.choiceScene,
+      choices: (candidate.choiceScene.choices ?? []).filter((_, index) => index !== choiceIndex)
+    };
+    const branchScenes = (candidate.branchScenes ?? []).filter((scene) => scene.id !== targetId);
+    onCandidateChange({ ...candidate, choiceScene, branchScenes, candidateScenes: [choiceScene, ...branchScenes] });
+  }
   function updateEffect(sceneId: string, effectId: string, nextEffect: VnEffect) {
     if (!candidate?.effectSuggestions) return;
     onCandidateChange({
@@ -2921,7 +2952,10 @@ function WorkflowCandidateDiff({
       <div className="als-scrollbar max-h-[520px] overflow-y-auto pr-2">
       {candidate.toolId === "choices" && candidate.choiceScene ? (
         <div className="rounded-xl border border-purple-100 bg-white p-3">
-          <p className="text-sm font-extrabold text-slate-800">선택지 노드 1개 + 분기 장면 {candidate.branchScenes?.length ?? 0}개가 생성됩니다.</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-extrabold text-slate-800">선택지 노드 1개 + 분기 장면 {candidate.branchScenes?.length ?? 0}개가 생성됩니다.</p>
+            <button type="button" onClick={addCandidateChoice} className="rounded-lg bg-purple-50 px-3 py-1.5 text-xs font-extrabold text-purple-600 ring-1 ring-purple-100">선택지 추가</button>
+          </div>
           <label className="mt-3 block text-[11px] font-extrabold text-purple-500">
             선택지 위에 보여줄 문장
             <input value={candidate.choiceScene.text} onChange={(event) => updateChoicePrompt(event.target.value)} className="mt-1 w-full rounded-xl border border-purple-100 bg-purple-50/40 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100" />
@@ -2934,7 +2968,10 @@ function WorkflowCandidateDiff({
                 <div key={choice.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-xs font-extrabold text-purple-600">선택지 {index + 1}</p>
-                    <button type="button" onClick={() => regenerateChoice(index)} className="rounded-lg bg-white px-2 py-1 text-[11px] font-extrabold text-purple-500 ring-1 ring-purple-100">다시 생성</button>
+                    <div className="flex items-center gap-2">
+                      <button type="button" onClick={() => regenerateChoice(index)} className="rounded-lg bg-white px-2 py-1 text-[11px] font-extrabold text-purple-500 ring-1 ring-purple-100">이 항목만 다시 만들기</button>
+                      <button type="button" onClick={() => deleteCandidateChoice(index)} className="rounded-lg bg-rose-50 px-2 py-1 text-[11px] font-extrabold text-rose-500">삭제</button>
+                    </div>
                   </div>
                   <input value={choice.text} onChange={(event) => updateChoiceText(index, event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100" />
                   <div className="mt-3 rounded-xl border border-purple-100 bg-white p-3">
@@ -2943,6 +2980,10 @@ function WorkflowCandidateDiff({
                       <button type="button" onClick={() => regenerateBranch(index)} className="rounded-lg bg-purple-50 px-2 py-1 text-[11px] font-extrabold text-purple-500">Branch 다시 생성</button>
                     </div>
                     <input value={branch?.speaker ?? ""} onChange={(event) => branchIndex >= 0 && updateBranchScene(branchIndex, { speaker: event.target.value })} placeholder="화자 이름" className="mb-2 w-full rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600" />
+                    <select value={branch?.displayMode ?? "narration"} onChange={(event) => branchIndex >= 0 && updateBranchScene(branchIndex, { displayMode: event.target.value as VisualNovelScene["displayMode"], role: event.target.value === "narration" ? "narration" : "assistant" })} className="mb-2 w-full rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs text-slate-600">
+                      <option value="narration">나레이션</option>
+                      <option value="dialogue">대사</option>
+                    </select>
                     <textarea value={branch?.text ?? ""} onChange={(event) => branchIndex >= 0 && updateBranchScene(branchIndex, { text: event.target.value })} className="als-scrollbar h-24 w-full resize-none rounded-lg border border-purple-100 bg-white px-2 py-1.5 text-xs leading-5 text-slate-600" />
                   </div>
                 </div>
@@ -3022,7 +3063,8 @@ function WorkflowToolsPanel({
   candidate,
   onCandidate,
   onApply,
-  onCancel
+  onCancel,
+  onSelectAll
 }: {
   scenes: VisualNovelScene[];
   assets: AssetLibrary;
@@ -3031,8 +3073,11 @@ function WorkflowToolsPanel({
   onCandidate: (candidate: ToolCandidate) => void;
   onApply: () => void;
   onCancel: () => void;
+  onSelectAll: () => void;
 }) {
   const [aiTool, setAiTool] = useState<AiToolId>("enhance");
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [replacement, setReplacement] = useState("");
   const [choiceFlavor, setChoiceFlavor] = useState<ChoiceFlavor>("auto");
@@ -3061,11 +3106,25 @@ function WorkflowToolsPanel({
     return list.find((asset) => asset.id === id)?.name ?? "삭제된 에셋";
   }
 
-  function generateCandidate() {
-    if (disabled) return;
-    if (aiTool === "choices") onCandidate(createChoiceCandidate(scenes, selection, choiceFlavor, choicePrompt));
-    if (aiTool === "enhance") onCandidate(createEnhanceEffectCandidate(scenes, selection));
-    if (aiTool === "search-ai") onCandidate(createSearchAiCandidate(scenes, selection, query, replacement));
+  function confirmOverwrite() {
+    return !candidate || window.confirm("현재 작성 중인 AI 결과가 있습니다. 새 작업을 시작할까요?");
+  }
+
+  function runAiTool(tool: AiToolId, force = false) {
+    setMessage(null);
+    if (disabled) {
+      setMessage("먼저 적용할 장면을 선택해 주세요.");
+      return;
+    }
+    if (!force && !confirmOverwrite()) return;
+    setAiTool(tool);
+    if (tool === "choices") onCandidate(createChoiceCandidate(scenes, selection, choiceFlavor, choicePrompt));
+    if (tool === "enhance") onCandidate(createEnhanceEffectCandidate(scenes, selection));
+    if (tool === "search-ai") onCandidate(createSearchAiCandidate(scenes, selection, query, replacement));
+  }
+
+  function regenerateCandidate() {
+    runAiTool(aiTool, true);
   }
 
   function generateBatchCandidate() {
@@ -3107,69 +3166,64 @@ function WorkflowToolsPanel({
 
   return (
     <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <button type="button" onClick={() => setPanelOpen((value) => !value)} className="flex w-full items-start justify-between gap-3 text-left">
         <div>
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-indigo-500" />
             <h4 className="text-sm font-extrabold text-slate-900">AI 작업</h4>
           </div>
-          <p className="mt-1 text-xs leading-5 text-slate-400">선택한 장면을 바탕으로 초안을 만들고, 직접 고친 뒤 적용합니다.</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">선택한 장면에 AI 기능을 적용합니다.</p>
         </div>
-        <Badge tone={candidate ? "purple" : disabled ? "slate" : "indigo"}>{disabled ? "장면을 선택하세요" : "바로 제안 만들기"}</Badge>
-      </div>
+        <span className="flex items-center gap-2">
+          <Badge tone={candidate ? "purple" : disabled ? "slate" : "indigo"}>{panelOpen ? "접기" : "펼치기"}</Badge>
+          <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${panelOpen ? "rotate-180" : ""}`} />
+        </span>
+      </button>
 
-      {disabled ? (
-        <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4">
-          <p className="text-sm font-extrabold text-slate-700">먼저 장면을 선택하세요.</p>
-          <p className="mt-1 text-xs leading-5 text-slate-400">아래 장면 카드에서 Select를 누르면 AI 기능을 사용할 수 있습니다. 선택하지 않으면 현재 장면을 대상으로 사용합니다.</p>
-        </div>
-      ) : (
-        <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-          <div className="grid gap-3 md:grid-cols-[240px_1fr_auto] md:items-end">
-            <div>
-              <label className="text-[11px] font-extrabold uppercase tracking-wide text-slate-400">AI 기능</label>
-              <select
-                value={aiTool}
-                onChange={(event) => setAiTool(event.target.value as AiToolId)}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              >
-                <option value="enhance">연출 강화</option>
-                <option value="choices">선택지 생성</option>
-                <option value="search-ai">AI 수정</option>
-              </select>
+      {panelOpen ? (
+        <div className="mt-4 border-t border-slate-100 pt-4">
+          {message ? (
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3">
+              <p className="text-sm font-extrabold text-amber-700">{message}</p>
+              <Button variant="secondary" size="sm" onClick={onSelectAll}>전체 장면 선택</Button>
             </div>
-
-            {aiTool === "choices" ? (
-              <div className="grid gap-2 sm:grid-cols-[160px_1fr]">
-                <select value={choiceFlavor} onChange={(event) => setChoiceFlavor(event.target.value as ChoiceFlavor)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-                  <option value="auto">AI 자동</option>
-                  <option value="dialogue">대화형</option>
-                  <option value="emotion">감정형</option>
-                  <option value="action">행동형</option>
-                </select>
-                <input value={choicePrompt} onChange={(event) => setChoicePrompt(event.target.value)} placeholder="선택지 분위기나 방향을 적어 주세요" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+          ) : null}
+          <div className="grid gap-3 lg:grid-cols-3">
+            <button type="button" onClick={() => runAiTool("enhance")} className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 text-left transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50">
+              <p className="text-sm font-extrabold text-indigo-700">✨ 연출 강화</p>
+              <p className="mt-1 text-xs leading-5 text-indigo-500">선택한 장면에 화면 효과와 텍스트 연출을 추가합니다.</p>
+            </button>
+            <button type="button" onClick={() => runAiTool("choices")} className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50">
+              <p className="text-sm font-extrabold text-emerald-700">🌿 선택지 생성</p>
+              <p className="mt-1 text-xs leading-5 text-emerald-500">선택지와 이어질 분기 장면을 만듭니다.</p>
+            </button>
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+              <p className="text-sm font-extrabold text-slate-800">✏ AI 수정</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">찾을 문장과 바꿀 방향을 입력합니다.</p>
+              <div className="mt-3 grid gap-2">
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="찾을 문장" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                <input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="어떻게 바꿀까요?" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                <Button variant="secondary" size="sm" icon={Wand2} iconPosition="left" onClick={() => runAiTool("search-ai")}>수정안 만들기</Button>
               </div>
-            ) : aiTool === "search-ai" ? (
-              <div className="grid gap-2 sm:grid-cols-2">
-                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="찾을 문장" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-                <input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="어떻게 바꿀지 입력" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-              </div>
-            ) : (
-              <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
-                <p className="text-xs font-semibold text-slate-500">
-                  선택한 장면에 어울리는 연출을 AI가 제안합니다.
-                </p>
-              </div>
-            )}
-
-            <Button variant="primary" size="md" icon={Wand2} iconPosition="left" onClick={generateCandidate}>
-              AI 제안 만들기
-            </Button>
+            </div>
           </div>
 
-          <WorkflowCandidateDiff candidate={candidate} onCandidateChange={onCandidate} onApply={onApply} onCancel={onCancel} onRegenerate={generateCandidate} />
+          <details className="mt-3 rounded-2xl border border-slate-100 bg-white p-3">
+            <summary className="cursor-pointer text-xs font-extrabold text-slate-500">선택지 생성 설정</summary>
+            <div className="mt-3 grid gap-2 sm:grid-cols-[160px_1fr]">
+              <select value={choiceFlavor} onChange={(event) => setChoiceFlavor(event.target.value as ChoiceFlavor)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                <option value="auto">AI 자동</option>
+                <option value="dialogue">대화형</option>
+                <option value="emotion">감정형</option>
+                <option value="action">행동형</option>
+              </select>
+              <input value={choicePrompt} onChange={(event) => setChoicePrompt(event.target.value)} placeholder="선택지 분위기나 방향을 적어 주세요" className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+            </div>
+          </details>
+
+          <WorkflowCandidateDiff candidate={candidate} onCandidateChange={onCandidate} onApply={onApply} onCancel={onCancel} onRegenerate={regenerateCandidate} />
         </div>
-      )}
+      ) : null}
 
       <div className="mt-3 rounded-2xl border border-slate-100 bg-white">
         <button type="button" onClick={() => setBatchOpen((value) => !value)} className="flex w-full items-center justify-between px-4 py-3 text-left">
@@ -3317,14 +3371,13 @@ function SceneAccordion({
   const [bulkBgmId, setBulkBgmId] = useState("");
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
   const [candidate, setCandidate] = useState<ToolCandidate | null>(null);
-  const selection = buildSelection(selectedIndexes.length ? selectedIndexes : [current], scenes);
+  const selection = buildSelection(selectedIndexes, scenes);
 
   function toggleSelection(index: number) {
     setSelectedIndexes((value) => {
       const next = value.includes(index) ? value.filter((item) => item !== index) : [...value, index];
       return next.sort((a, b) => a - b);
     });
-    setCandidate(null);
   }
 
   function applyCandidate() {
@@ -3357,11 +3410,9 @@ function SceneAccordion({
               canRedo={canRedo}
               onSelectAll={() => {
                 setSelectedIndexes(scenes.map((_, index) => index));
-                setCandidate(null);
               }}
               onClear={() => {
                 setSelectedIndexes([]);
-                setCandidate(null);
               }}
               onUndo={onUndo}
               onRedo={onRedo}
@@ -3374,6 +3425,7 @@ function SceneAccordion({
               onCandidate={setCandidate}
               onApply={applyCandidate}
               onCancel={() => setCandidate(null)}
+              onSelectAll={() => setSelectedIndexes(scenes.map((_, index) => index))}
             />
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
