@@ -63,6 +63,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     body { margin: 0; min-height: 100vh; min-height: var(--app-height, 100dvh); display: flex; align-items: center; justify-content: center; overflow: hidden; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f8fafc; background: #0f172a; touch-action: manipulation; }
     .stage { --vn-font-family: ${playerFont.cssFamily}; ${stageSize} position: relative; max-width: 100vw; max-height: var(--app-height, 100dvh); overflow: hidden; isolation: isolate; cursor: pointer; flex: 0 0 auto; }
     .orientation-hint { position: fixed; left: 50%; bottom: 14px; z-index: 40; display: none; transform: translateX(-50%); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(15,23,42,.72); padding: 8px 12px; color: rgba(248,250,252,.78); font-size: 12px; font-weight: 700; backdrop-filter: blur(10px); pointer-events: none; }
+    .portrait-gate { display: none; width: min(420px, calc(100vw - 48px)); margin: 0 auto; border: 1px solid rgba(255,255,255,.12); border-radius: 24px; background: rgba(15,23,42,.78); padding: 24px 22px; color: rgba(248,250,252,.9); text-align: center; box-shadow: 0 22px 80px rgba(0,0,0,.28); backdrop-filter: blur(14px); }
+    .portrait-gate strong { display: block; margin-bottom: 8px; color: white; font-size: 18px; line-height: 1.35; }
+    .portrait-gate span { display: block; color: rgba(226,232,240,.76); font-size: 13px; font-weight: 700; line-height: 1.65; word-break: keep-all; }
     .bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: background 240ms ease; z-index: -3; }
     .shade { position: absolute; inset: 0; background: radial-gradient(circle at 26% 18%, rgba(255,255,255,.2), transparent 26%), linear-gradient(to top, rgba(2,6,23,.72), transparent 58%); z-index: -2; }
     .characters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -143,9 +146,10 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       .log-text.narration { font-size: 15px; }
     }
     @media (orientation: portrait) and (max-width: 900px) {
-      body { align-items: flex-start; overflow: auto; padding-top: max(8px, env(safe-area-inset-top)); }
-      .stage { margin-top: 0; }
-      .orientation-hint { display: block; }
+      body { align-items: center; justify-content: center; overflow: hidden; padding: 24px; }
+      .stage { display: none; }
+      .portrait-gate { display: block; }
+      .orientation-hint { display: none; }
     }
     @keyframes vnbounce { 0%,100% { opacity:.35; transform:translateY(0); } 50% { opacity:.9; transform:translateY(3px); } }
     @keyframes vnshake { 0%,100% { transform:translate(0,0); } 20% { transform:translate(-6px,3px); } 40% { transform:translate(5px,-2px); } 60% { transform:translate(-3px,-3px); } 80% { transform:translate(4px,2px); } }
@@ -200,6 +204,10 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
       </div>
     </div>
   </main>
+  <div class="portrait-gate">
+    <strong>가로 화면에서 재생해 주세요</strong>
+    <span>이 작품은 16:9 비주얼노벨 화면으로 만들어졌습니다. 휴대폰을 가로로 돌리면 잘리지 않고 볼 수 있습니다.</span>
+  </div>
   <div class="orientation-hint">가로 화면에서 더 편하게 볼 수 있습니다</div>
   <audio id="audio"></audio>
   <iframe id="youtubeBgm" title="YouTube BGM player" allow="autoplay; encrypted-media" style="display:none"></iframe>
