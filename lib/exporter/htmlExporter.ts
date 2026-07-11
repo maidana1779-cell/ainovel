@@ -43,7 +43,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
   const safeFallbacks = JSON.stringify(FALLBACK_BACKGROUNDS).replace(/</g, "\\u003c");
   const playerFont = getPlayerFontOption(options.includeFonts === false ? "system-sans" : options.fontId);
   const googleFontHref = options.includeFonts === false ? "" : playerFont.googleFont ? `https://fonts.googleapis.com/css2?family=${playerFont.googleFont}&display=swap` : "";
-  const stageSize = options.aspectRatio === "mobile" ? "width: 900px; height: 1600px;" : "width: 1600px; height: 900px;";
+  const stageSize = options.aspectRatio === "mobile"
+    ? "width: min(900px, 100vw, calc(100dvh * 9 / 16)); aspect-ratio: 9 / 16;"
+    : "width: min(1600px, 100vw, calc(100dvh * 16 / 9)); aspect-ratio: 16 / 9;";
   const initialTyping = options.typingEnabled === false ? "false" : "true";
   const allowBgm = options.bgmEnabled === false ? "false" : "true";
   const startFullscreen = options.fullscreen ? "true" : "false";
@@ -59,8 +61,9 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
   <link href="${googleFontHref}" rel="stylesheet" />` : ""}
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; overflow: auto; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f8fafc; background: #0f172a; }
-    .stage { --vn-font-family: ${playerFont.cssFamily}; ${stageSize} position: relative; overflow: hidden; isolation: isolate; cursor: pointer; }
+    html, body { width: 100%; min-height: 100%; }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; overflow: hidden; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f8fafc; background: #0f172a; touch-action: manipulation; }
+    .stage { --vn-font-family: ${playerFont.cssFamily}; ${stageSize} position: relative; max-width: 100vw; max-height: 100dvh; overflow: hidden; isolation: isolate; cursor: pointer; }
     .bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: background 240ms ease; z-index: -3; }
     .shade { position: absolute; inset: 0; background: radial-gradient(circle at 26% 18%, rgba(255,255,255,.2), transparent 26%), linear-gradient(to top, rgba(2,6,23,.72), transparent 58%); z-index: -2; }
     .characters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -70,7 +73,7 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .cg-layer img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; background: #000; }
     .character { position: absolute; bottom: 0; height: 80%; width: var(--character-width, 36%); object-fit: contain; object-position: bottom center; transition: filter .3s ease, opacity .3s ease, transform .3s ease; transform: translate(calc(-50% + var(--char-x, 0%)), var(--char-y, 0%)) scaleX(calc(var(--char-scale, 1.02) * var(--char-flip, 1))) scaleY(var(--char-scale, 1.02)); filter: brightness(1); opacity: 1; z-index: 3; }
     .character[data-speaking="false"] { opacity: .7; filter: brightness(.6) blur(1px); z-index: 2; }
-    .fallback-character { width: min(28vw, 260px); aspect-ratio: .72; border-radius: 999px 999px 18px 18px; background: linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.16)); border: 1px solid rgba(255,255,255,.34); display: grid; place-items: start center; padding-top: 42px; box-shadow: 0 24px 80px rgba(0,0,0,.28); }
+    .fallback-character { width: min(24%, 260px); height: 62%; aspect-ratio: .72; border-radius: 999px 999px 18px 18px; background: linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.16)); border: 1px solid rgba(255,255,255,.34); display: grid; place-items: start center; padding-top: 42px; box-shadow: 0 24px 80px rgba(0,0,0,.28); }
     .face { width: 54px; height: 54px; border-radius: 999px; background: #fed7aa; box-shadow: inset 0 -8px 18px rgba(15,23,42,.12); }
     .panel { position: absolute; left: 50%; bottom: 32px; z-index: 5; display: flex; align-items: center; width: 88%; max-width: 1320px; height: 156px; padding: 24px 56px; transform: translateX(-50%); box-sizing: border-box; color: #f4f0e6; background: rgba(10,13,18,.84); border-top: 1px solid rgba(255,255,255,.06); box-shadow: 0 -18px 60px rgba(0,0,0,.22); }
     .panel.choice, .panel.hidden { display: none; }
@@ -119,7 +122,24 @@ export function buildStandaloneHtml(scenes: VisualNovelScene[], assets: AssetLib
     .log-text.narration { font-size: 16.5px; font-style: italic; color: rgba(196,190,216,.48); }
     .log-text.code { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14.5px; color: rgba(200,194,224,.55); word-break: break-word; }
     @media (max-width: 900px) { .log-panel { margin: 0 auto; max-width: 640px; } }
-    @media (max-width: 640px) { .log-overlay { padding: 7vh 7vw; } .log-text { font-size: 17px; } .log-text.narration { font-size: 15px; } }
+    @media (max-width: 640px) {
+      .panel { bottom: 22px; width: 88%; height: 128px; padding: 18px 22px; }
+      .speaker { margin-left: 18px; font-size: 12px; padding: 4px 14px; }
+      .text { padding-left: 12px; padding-right: 20px; font-size: 14px; line-height: 1.75; }
+      .continue { font-size: 15px; }
+      .choice-overlay { bottom: 16%; padding: 0 24px; }
+      .choice-box { width: 100%; }
+      .choice-prompt { font-size: 15px; }
+      .choice-option { padding: 11px 16px; font-size: 15px; }
+      .side-menu { right: 10px; top: 14px; gap: 10px; }
+      .side-menu .icon { font-size: 14px; }
+      .side-menu button { font-size: 8px; }
+      .fallback-character { width: 30%; height: 58%; padding-top: 28px; }
+      .face { width: 42px; height: 42px; }
+      .log-overlay { padding: 7vh 7vw; }
+      .log-text { font-size: 17px; }
+      .log-text.narration { font-size: 15px; }
+    }
     @keyframes vnbounce { 0%,100% { opacity:.35; transform:translateY(0); } 50% { opacity:.9; transform:translateY(3px); } }
     @keyframes vnshake { 0%,100% { transform:translate(0,0); } 20% { transform:translate(-6px,3px); } 40% { transform:translate(5px,-2px); } 60% { transform:translate(-3px,-3px); } 80% { transform:translate(4px,2px); } }
     @keyframes vnflash { 0% { opacity:0; } 14% { opacity:.86; } 100% { opacity:0; } }
