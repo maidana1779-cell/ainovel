@@ -39,7 +39,7 @@ function show(items,isDemo){grid.replaceChildren();if(!items.length){grid.append
 items.forEach(p=>{const card=make("article","card"),pic=make("div","picture");if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){const img=document.createElement("img");img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.addEventListener("error",()=>imageFallback(pic));pic.append(img);img.src=p.photo}else imageFallback(pic,isDemo,p.icon||"🛍️");card.append(pic);
 const box=make("div","content");box.append(make("div","merchant",p.cp_name||"제휴 쇼핑몰"));box.append(make("div","product",p.title||"상품명 없음"));
 const rawPrice=(typeof p.price==="number"||typeof p.price==="string")?String(p.price):"";const parsedPrice=Number(rawPrice.replace(/[^0-9]/g,""));const price=Number.isFinite(parsedPrice)&&parsedPrice>0?parsedPrice:null;box.append(make("div","price",price?new Intl.NumberFormat("ko-KR").format(price)+"원":"가격 확인 필요"));
-const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false;try{const url=new URL(href);allowed=url.protocol==="https:"&&(/(^|\.)biz\.adpick\.co\.kr$/).test(url.hostname)}catch{}
+const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false;try{const url=new URL(href);allowed=url.protocol==="https:"&&(/^(biz|link)\.adpick\.co\.kr$/).test(url.hostname)}catch{}
 const link=make("a","go"+(allowed&&!isDemo?"":" disabled"),allowed&&!isDemo?"판매처 보러가기":"데모 상품");if(allowed&&!isDemo){link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer"}else link.setAttribute("aria-disabled","true");
 box.append(link);card.append(box);grid.append(card)})}
 let requestId=0;
