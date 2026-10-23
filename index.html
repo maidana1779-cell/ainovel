@@ -16,7 +16,7 @@
 .primary{border:0;border-radius:12px;background:#f46a56;color:white;font-weight:800;padding:12px 20px}
 .banner{margin:18px 0 30px;background:#fff0e9;color:#a25040;border-radius:14px;padding:14px 18px;font-size:13px;line-height:1.7}
 .section{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:30px 0 21px}.section h2{font-size:25px;margin:0 0 5px;letter-spacing:-.8px}.muted{color:#89909d;font-size:13px}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{border:1px solid #e6e8ec;border-radius:100px;background:white;padding:10px 17px;color:#626976;font-weight:700;font-size:13px}.tab.active{background:#252934;border-color:#252934;color:white}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:35px}.card{background:white;border:1px solid #eef0f3;border-radius:17px;overflow:hidden;display:flex;flex-direction:column;min-width:0;box-shadow:0 6px 20px #161a2608}.picture{width:100%;aspect-ratio:1.2;display:grid;place-items:center;background:linear-gradient(145deg,#fff5f0,#edf2fd);font-size:65px;overflow:hidden}.picture img{width:100%;height:100%;object-fit:contain;font-size:0;color:transparent}.picture.has-fallback{display:flex;flex-direction:column;justify-content:center;gap:6px}.fallback-symbol{font-size:47px;line-height:1.25}.fallback-caption{font-size:12px;font-weight:650;color:#8a91a1}.content{padding:15px;display:flex;flex-direction:column;flex:1}.merchant{color:#888e9c;font-size:12px}.product{font-weight:750;font-size:14px;line-height:1.5;min-height:42px;margin:7px 0}.price{font-size:22px;font-weight:900;letter-spacing:-.5px;margin:7px 0 13px}.go{display:block;text-align:center;padding:11px;border-radius:10px;background:#252934;color:white;font-size:13px;font-weight:800;margin-top:auto}.go.disabled{background:#e8eaf0;color:#8a909b;pointer-events:none}.empty{grid-column:1/-1;padding:65px 20px;text-align:center;background:white;border-radius:20px;border:1px dashed #d8dce5;color:#777}.footer{border-top:1px solid #e8eaf0;margin-top:42px;padding:28px 0 60px;color:#858a98;line-height:1.8;font-size:12px}.foothead{font-size:19px;color:#252934;font-weight:900}
+.category-section{margin:23px 0 24px}.category-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:16px;font-weight:850;margin-bottom:11px}.category-title small{font-size:12px;font-weight:500;color:#858c9a}.category-list{display:flex;gap:8px;flex-wrap:wrap}.catbtn{background:#fff;border:1px solid #e4e7ee;border-radius:12px;padding:10px 14px;color:#535965;font-weight:750;font-size:13px}.catbtn.active{background:#fff1eb;border-color:#f8afa0;color:#d64e3e}.catbtn:focus-visible,.tab:focus-visible{outline:3px solid #f46a56;outline-offset:2px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:35px}.card{background:white;border:1px solid #eef0f3;border-radius:17px;overflow:hidden;display:flex;flex-direction:column;min-width:0;box-shadow:0 6px 20px #161a2608}.picture{width:100%;aspect-ratio:1.2;display:grid;place-items:center;background:linear-gradient(145deg,#fff5f0,#edf2fd);font-size:65px;overflow:hidden}.picture img{width:100%;height:100%;object-fit:contain;font-size:0;color:transparent}.picture.has-fallback{display:flex;flex-direction:column;justify-content:center;gap:6px}.fallback-symbol{font-size:47px;line-height:1.25}.fallback-caption{font-size:12px;font-weight:650;color:#8a91a1}.content{padding:15px;display:flex;flex-direction:column;flex:1}.merchant{color:#888e9c;font-size:12px}.product{font-weight:750;font-size:14px;line-height:1.5;min-height:42px;margin:7px 0}.price{font-size:22px;font-weight:900;letter-spacing:-.5px;margin:7px 0 13px}.go{display:block;text-align:center;padding:11px;border-radius:10px;background:#252934;color:white;font-size:13px;font-weight:800;margin-top:auto}.go.disabled{background:#e8eaf0;color:#8a909b;pointer-events:none}.empty{grid-column:1/-1;padding:65px 20px;text-align:center;background:white;border-radius:20px;border:1px dashed #d8dce5;color:#777}.footer{border-top:1px solid #e8eaf0;margin-top:42px;padding:28px 0 60px;color:#858a98;line-height:1.8;font-size:12px}.foothead{font-size:19px;color:#252934;font-weight:900}
 @media(max-width:730px){.wrap{padding:0 15px}.headin{height:64px}.logo{font-size:25px}.nav{display:none}.hero{padding:33px 0 19px}.hero h1{font-size:31px;letter-spacing:-1.4px}.heroart{display:none}.sub{font-size:13px}.section{display:block}.section h2{font-size:22px}.tabs{margin-top:19px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.content{padding:11px}.picture{font-size:45px}.price{font-size:18px}.product{font-size:13px;min-height:58px}.merchant{font-size:11px}.go{padding:10px 4px;font-size:12px}.bar input{font-size:13px}}
 </style>
 </head>
@@ -25,25 +25,82 @@
 <main class="wrap">
 <section class="hero"><div><p class="eyebrow">SMART SHOPPING, EVERY DAY</p><h1>오늘 뭐 살까?<br><em>알뜰하게 골라보자!</em></h1><p class="sub">여러 제휴 쇼핑몰의 추천 상품을 한곳에서 둘러보세요.<br>실제 가격과 구매 조건은 판매처에서 다시 확인해 주세요.</p></div><div class="heroart" aria-hidden="true">🛍️</div></section>
 <form id="searchform" class="bar"><input id="q" aria-label="상품 검색어" placeholder="찾는 상품을 검색해 보세요" minlength="2" maxlength="60" autocomplete="off"><button class="primary" type="submit">검색</button></form>
-<p class="banner">📢 이 사이트에는 제휴마케팅 링크가 포함될 수 있으며, 구매 시 운영자가 일정 수수료를 지급받을 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p>
-<section id="deals"><div class="section"><div><h2>🔥 오늘의 추천 상품</h2><div id="status" class="muted" role="status">상품을 불러오는 중입니다...</div></div><div class="tabs" id="tabs"><button class="tab active" data-area="today">실시간 베스트</button><button class="tab" data-area="popular">인기상품</button><button class="tab" data-area="pick">추천상품</button></div></div><div id="products" class="grid"></div></section>
+<section class="category-section" aria-label="상품 카테고리"><div class="category-title">🧭 관심 카테고리 <small>관련 상품을 바로 검색합니다</small></div><div id="categories" class="category-list"><button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button><button type="button" class="catbtn" aria-pressed="false" data-query="세제">🧴 생활용품</button><button type="button" class="catbtn" aria-pressed="false" data-query="간편식">🍱 식품</button><button type="button" class="catbtn" aria-pressed="false" data-query="이어폰">🎧 디지털</button><button type="button" class="catbtn" aria-pressed="false" data-query="화장품">💄 뷰티</button><button type="button" class="catbtn" aria-pressed="false" data-query="의류">👕 패션</button><button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">🍳 주방</button></div></section><p class="banner">📢 이 사이트에는 제휴마케팅 링크가 포함될 수 있으며, 구매 시 운영자가 일정 수수료를 지급받을 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p>
+<section id="deals"><div class="section"><div><h2 id="product-heading">🔥 오늘의 추천 상품</h2><div id="status" class="muted" role="status">상품을 불러오는 중입니다...</div></div><div class="tabs" id="tabs"><button class="tab active" data-area="today">실시간 베스트</button><button class="tab" data-area="popular">인기상품</button><button class="tab" data-area="pick">추천상품</button></div></div><div id="products" class="grid"></div></section>
 <section id="about" class="banner" style="background:#eff4ff;color:#526280"><strong>알뜰픽 안내</strong><br>등록된 가격은 실시간 최종 결제 가격과 다를 수 있습니다. 할인율과 최저가를 보증하지 않으며, 이미지 및 상품 정보는 제공처의 권한과 정책에 따릅니다.</section>
 </main>
 <footer class="footer"><div class="wrap"><div class="foothead">알뜰픽.</div>알뜰픽 테스트 버전 · 문의/운영자 정보는 정식 출시 전에 추가됩니다.<br>© Alttulpick. 제휴사 및 쇼핑몰의 공식 사이트가 아닙니다.</div></footer>
 <script>
-const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),input=document.getElementById("q");
+const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
 const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
 function make(tag,klass,text){const el=document.createElement(tag);if(klass)el.className=klass;if(text!==undefined)el.textContent=String(text);return el}
 function imageFallback(pic,isDemo=false,icon="🛍️"){pic.classList.add("has-fallback");pic.replaceChildren(make("span","fallback-symbol",icon),make("span","fallback-caption",isDemo?"예시 상품":"이미지 준비 중"))}
 function show(items,isDemo){grid.replaceChildren();if(!items.length){grid.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
 items.forEach(p=>{const card=make("article","card"),pic=make("div","picture");if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){const img=document.createElement("img");img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.addEventListener("error",()=>imageFallback(pic));pic.append(img);img.src=p.photo}else imageFallback(pic,isDemo,p.icon||"🛍️");card.append(pic);
 const box=make("div","content");box.append(make("div","merchant",p.cp_name||"제휴 쇼핑몰"));box.append(make("div","product",p.title||"상품명 없음"));
-const price=(typeof p.price==="number"&&p.price>0)?p.price:null;box.append(make("div","price",price?new Intl.NumberFormat("ko-KR").format(price)+"원":"가격 확인 필요"));
+const rawPrice=(typeof p.price==="number"||typeof p.price==="string")?String(p.price):"";const parsedPrice=Number(rawPrice.replace(/[^0-9]/g,""));const price=Number.isFinite(parsedPrice)&&parsedPrice>0?parsedPrice:null;box.append(make("div","price",price?new Intl.NumberFormat("ko-KR").format(price)+"원":"가격 확인 필요"));
 const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false;try{const url=new URL(href);allowed=url.protocol==="https:"&&(/(^|\.)biz\.adpick\.co\.kr$/).test(url.hostname)}catch{}
 const link=make("a","go"+(allowed&&!isDemo?"":" disabled"),allowed&&!isDemo?"판매처 보러가기":"데모 상품");if(allowed&&!isDemo){link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer"}else link.setAttribute("aria-disabled","true");
 box.append(link);card.append(box);grid.append(card)})}
-async function load(url){statusEl.textContent="상품을 불러오는 중입니다...";grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));try{const res=await fetch(url,{cache:"no-store"});const payload=await res.json();if(payload.success&&payload.data&&Array.isArray(payload.data.list)){show(payload.data.list,false);statusEl.textContent="제휴사 제공 상품 "+payload.data.list.length+"개 · 가격은 판매처 확인 기준";return}if(payload.code==="API_NOT_CONFIGURED"){show(demo,true);statusEl.textContent="데모 모드 · API 키 등록 후 실제 상품으로 전환됩니다";return}throw Error(payload.message||"상품을 불러오지 못했습니다")}catch(e){show([],false);statusEl.textContent="상품 연결 오류 · 다시 시도해 주세요"}}
-tabs.addEventListener("click",e=>{const b=e.target.closest("[data-area]");if(!b)return;tabs.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));input.value="";load("/api/best?area="+encodeURIComponent(b.dataset.area)+"&limit=10")});
-document.getElementById("searchform").addEventListener("submit",e=>{e.preventDefault();const q=input.value.trim();if(q.length<2){input.focus();return}tabs.querySelectorAll("button").forEach(x=>x.classList.remove("active"));load("/api/search?q="+encodeURIComponent(q)+"&limit=20")});
+let requestId=0;
+function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
+async function load(url){
+const id=++requestId;
+statusEl.textContent="상품을 불러오는 중입니다...";
+grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
+try{
+  const res=await fetch(url,{cache:"no-store"});
+  const payload=await res.json();
+  if(id!==requestId)return;
+  const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
+  if(payload.success&&list){
+    show(list,false);
+    statusEl.textContent="제휴사 검색 결과 "+list.length+"개 · 표시 가격은 참고용 · 판매처에서 최종 확인";
+    return;
+  }
+  if(payload.code==="API_NOT_CONFIGURED"){
+    show(demo,true);
+    statusEl.textContent="데모 모드 · API 키 등록 후 실제 상품으로 전환됩니다";
+    return;
+  }
+  if(res.status===429){
+    grid.replaceChildren(make("div","empty","조회 요청이 많습니다. 잠시 후 다시 선택해 주세요."));
+    statusEl.textContent="API 요청량 보호 중";
+    return;
+  }
+  throw Error(payload.message||"상품을 불러오지 못했습니다");
+}catch(err){
+ if(id!==requestId)return;
+ grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
+ statusEl.textContent="상품 연결 오류";
+}}
+tabs.addEventListener("click",e=>{
+  const b=e.target.closest("[data-area]");if(!b)return;
+  activate(tabs,b);activate(categories,null);input.value="";
+  heading.textContent="🔥 "+b.textContent+" 상품";
+  load("/api/best?area="+encodeURIComponent(b.dataset.area)+"&limit=10");
+});
+categories.addEventListener("click",e=>{
+  const b=e.target.closest("[data-query]");if(!b)return;
+  activate(categories,b);
+  input.value="";
+  const q=b.dataset.query;
+  if(!q){
+    const first=tabs.querySelector("[data-area=today]");
+    activate(tabs,first);
+    heading.textContent="🔥 오늘의 추천 상품";
+    load("/api/best?area=today&limit=10");
+    return;
+  }
+  activate(tabs,null);
+  heading.textContent="🔎 "+b.textContent.trim()+" 관련 상품";
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
+});
+document.getElementById("searchform").addEventListener("submit",e=>{
+  e.preventDefault();const q=input.value.trim();if(q.length<2){input.focus();return}
+  activate(tabs,null);activate(categories,null);
+  heading.textContent="🔎 '"+q+"' 검색 결과";
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
+});
 load("/api/best?area=today&limit=10");
 </script></body></html>
