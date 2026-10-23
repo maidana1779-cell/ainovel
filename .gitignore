@@ -1,9 +1,3 @@
 node_modules/
-.next/
-out/
-outputs/
-work/
-.agents/
-.codex/
-*.zip
-
+.env
+.DS_Store

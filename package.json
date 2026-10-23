@@ -1,29 +1,12 @@
 {
-  "name": "chatlog-visual-novel-mvp",
-  "version": "0.1.0",
+  "name": "alttulpick-render-preview",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "postbuild:pages": "node scripts/prepare-github-pages-assets.mjs",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "node server.mjs"
   },
-  "dependencies": {
-    "framer-motion": "^12.42.2",
-    "lucide-react": "^1.23.0",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "latest",
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "autoprefixer": "latest",
-    "postcss": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest"
+  "engines": {
+    "node": ">=20"
   }
 }
