@@ -54,8 +54,14 @@ try{
   if(id!==requestId)return;
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
   if(payload.success&&list){
+    const excluded=Number(payload.filter_meta?.excluded||0);
     show(list,false);
-    statusEl.textContent="제휴사 검색 결과 "+list.length+"개 · 표시 가격은 참고용 · 판매처에서 최종 확인";
+    if(!list.length){
+      grid.replaceChildren(make("div","empty","검색어와 맞는 상품이 없어요. 무관한 상품은 표시하지 않습니다. 다른 키워드를 선택해 주세요."));
+      statusEl.textContent=excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음";
+    }else{
+      statusEl.textContent="관련 상품 "+list.length+"개"+(excluded?" · 관련 없는 결과 "+excluded+"개 제외":"")+" · 가격은 판매처에서 확인";
+    }
     return;
   }
   if(payload.code==="API_NOT_CONFIGURED"){
