@@ -46,6 +46,16 @@ server.on('listening',async()=>{
     const data=await response.json().catch(()=>null);
     const ok=response.ok&&data?.success===true&&Array.isArray(data?.data?.list);
     console.log('[ADPICK CHECK] result='+(ok?'success':'failed')+' http='+response.status+' count='+(ok?data.data.list.length:0));
+    // Temporary, non-secret audit: list merchant names and codes only.
+    // Never output commission links, key, or product payloads.
+    try {
+      const mallUrl=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/malls');
+      const mallResponse=await fetch(mallUrl,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+      const mallBody=await mallResponse.json().catch(()=>null);
+      const mallItems=Array.isArray(mallBody?.data)?mallBody.data:[];
+      const safeMalls=mallItems.map(m=>({code:String(m?.cp_code||'').slice(0,35),name:String(m?.name||'').slice(0,65)}));
+      console.log('[ADPICK MALL AUDIT] '+JSON.stringify({status:mallResponse.status,count:safeMalls.length,malls:safeMalls}).slice(0,14000));
+    }catch { console.log('[ADPICK MALL AUDIT] unavailable'); }
   }catch{
     console.log('[ADPICK CHECK] result=network_error');
   }
