@@ -23,3 +23,21 @@ const upstream=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'
 try{const r=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});if(!r.ok){send(res,502,{success:false,message:'제휴사에서 응답을 받지 못했습니다'});return}const data=await r.json();if(data.success!==true){send(res,502,{success:false,message:'제휴사 API 응답 오류'});return}send(res,200,data)}catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
+
+// Startup smoke test: never log the API key or any affiliate URLs.
+server.on('listening',async()=>{
+  const key=process.env.ADPICK_API_KEY;
+  console.log('[ADPICK CHECK] key_present='+Boolean(key));
+  if(!key) return;
+  try{
+    const url=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/best');
+    url.searchParams.set('area','today');
+    url.searchParams.set('limit','1');
+    const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+    const data=await response.json().catch(()=>null);
+    const ok=response.ok&&data?.success===true&&Array.isArray(data?.data?.list);
+    console.log('[ADPICK CHECK] result='+(ok?'success':'failed')+' http='+response.status+' count='+(ok?data.data.list.length:0));
+  }catch{
+    console.log('[ADPICK CHECK] result=network_error');
+  }
+});
