@@ -46,16 +46,22 @@ server.on('listening',async()=>{
     const data=await response.json().catch(()=>null);
     const ok=response.ok&&data?.success===true&&Array.isArray(data?.data?.list);
     console.log('[ADPICK CHECK] result='+(ok?'success':'failed')+' http='+response.status+' count='+(ok?data.data.list.length:0));
-    // Temporary, non-secret audit: list merchant names and codes only.
-    // Never output commission links, key, or product payloads.
+    // One temporary code-level probe, safe to log: no secret keys/product data.
     try {
-      const mallUrl=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/malls');
-      const mallResponse=await fetch(mallUrl,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
-      const mallBody=await mallResponse.json().catch(()=>null);
-      const mallItems=Array.isArray(mallBody?.data)?mallBody.data:[];
-      const safeMalls=mallItems.map(m=>({code:String(m?.cp_code||'').slice(0,35),name:String(m?.name||'').slice(0,65)}));
-      console.log('[ADPICK MALL AUDIT] '+JSON.stringify({status:mallResponse.status,count:safeMalls.length,malls:safeMalls}).slice(0,14000));
-    }catch { console.log('[ADPICK MALL AUDIT] unavailable'); }
+      const probeUrl=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
+      probeUrl.searchParams.set('q','라면');
+      probeUrl.searchParams.set('limit','3');
+      probeUrl.searchParams.set('cp_code','1e1c8,b735e,f5ff7,c6ac4,c16a2');
+      const probeResponse=await fetch(probeUrl,{signal:AbortSignal.timeout(9000)});
+      const probeBody=await probeResponse.json().catch(()=>null);
+      console.log('[ADPICK FOOD CP PROBE] '+JSON.stringify({
+        http:probeResponse.status,
+        success:probeBody?.success===true,
+        count:Array.isArray(probeBody?.data)?probeBody.data.length:0,
+        error_code:probeBody?.error_code||probeBody?.code||null,
+        error:String(probeBody?.error||'').slice(0,160)
+      }));
+    }catch { console.log('[ADPICK FOOD CP PROBE] unavailable'); }
   }catch{
     console.log('[ADPICK CHECK] result=network_error');
   }
