@@ -1,4 +1,5 @@
 import {createServer} from 'node:http';
+import {selectRelevantProducts} from './relevance.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const TIME_WINDOW=60000, MAX_CALLS=8, hits=[];
 const send=(res,code,obj)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))};
@@ -20,7 +21,15 @@ endpoint='search';params={q,limit:String(n)}
 const key=process.env.ADPICK_API_KEY;if(!key){send(res,503,{success:false,code:'API_NOT_CONFIGURED',message:'데모 모드'});return}
 const now=Date.now();while(hits.length&&now-hits[0]>TIME_WINDOW)hits.shift();if(hits.length>=MAX_CALLS){send(res,429,{success:false,message:'잠시 후 다시 시도해 주세요'});return}hits.push(now);
 const upstream=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/'+endpoint);for(const[k,v]of Object.entries(params))upstream.searchParams.set(k,v);
-try{const r=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});if(!r.ok){send(res,502,{success:false,message:'제휴사에서 응답을 받지 못했습니다'});return}const data=await r.json();if(data.success!==true){send(res,502,{success:false,message:'제휴사 API 응답 오류'});return}send(res,200,data)}catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
+try{const r=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});if(!r.ok){send(res,502,{success:false,message:'제휴사에서 응답을 받지 못했습니다'});return}const data=await r.json();if(data.success!==true){send(res,502,{success:false,message:'제휴사 API 응답 오류'});return}
+if(endpoint==='search'){
+  const incoming=Array.isArray(data.data)?data.data:(Array.isArray(data.data?.list)?data.data.list:[]);
+  const matched=selectRelevantProducts(params.q,incoming);
+  const filteredData=Array.isArray(data.data)?matched:{...data.data,list:matched};
+  send(res,200,{...data,data:filteredData,filter_meta:{received:incoming.length,matched:matched.length,excluded:incoming.length-matched.length}});
+  return;
+}
+send(res,200,data)}catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
 
