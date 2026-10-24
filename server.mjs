@@ -46,22 +46,31 @@ server.on('listening',async()=>{
     const data=await response.json().catch(()=>null);
     const ok=response.ok&&data?.success===true&&Array.isArray(data?.data?.list);
     console.log('[ADPICK CHECK] result='+(ok?'success':'failed')+' http='+response.status+' count='+(ok?data.data.list.length:0));
-    // One temporary code-level probe, safe to log: no secret keys/product data.
-    try {
-      const probeUrl=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
-      probeUrl.searchParams.set('q','라면');
-      probeUrl.searchParams.set('limit','3');
-      probeUrl.searchParams.set('cp_code','1e1c8,b735e,f5ff7,c6ac4,c16a2');
-      const probeResponse=await fetch(probeUrl,{signal:AbortSignal.timeout(9000)});
-      const probeBody=await probeResponse.json().catch(()=>null);
-      console.log('[ADPICK FOOD CP PROBE] '+JSON.stringify({
-        http:probeResponse.status,
-        success:probeBody?.success===true,
-        count:Array.isArray(probeBody?.data)?probeBody.data.length:0,
-        error_code:probeBody?.error_code||probeBody?.code||null,
-        error:String(probeBody?.error||'').slice(0,160)
-      }));
-    }catch { console.log('[ADPICK FOOD CP PROBE] unavailable'); }
+    // Single-run capability audit: no product data or affiliate URLs in logs.
+    // API search rate limit is 10 requests per minute; test six candidates once.
+    for(const [code,name] of [
+      ['f5ff7','CJ더마켓'],
+      ['c6ac4','풀무원'],
+      ['c16a2','11번가'],
+      ['b735e','SSG'],
+      ['f5d5a','GS SHOP'],
+      ['4d9b1','이유몰']
+    ]){
+      try{
+        const probeUrl=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
+        probeUrl.searchParams.set('q','라면');
+        probeUrl.searchParams.set('limit','1');
+        probeUrl.searchParams.set('cp_code',code);
+        const response=await fetch(probeUrl,{signal:AbortSignal.timeout(9000)});
+        const body=await response.json().catch(()=>null);
+        console.log('[ADPICK CODE TEST] '+JSON.stringify({
+          code,name,http:response.status,success:body?.success===true,
+          count:Array.isArray(body?.data)?body.data.length:0,
+          error_code:body?.error_code||null
+        }));
+        if(response.status===403||response.status===429)break;
+      }catch{console.log('[ADPICK CODE TEST] '+JSON.stringify({code,name,status:'unavailable'}));}
+    }
   }catch{
     console.log('[ADPICK CHECK] result=network_error');
   }
