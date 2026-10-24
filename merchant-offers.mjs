@@ -1,6 +1,5 @@
 // Merchant offer verification: only explicit public merchant product pages reached through
-// approved partner short links are inspected. Unavailable data remains unknown.
-const AFFILIATE_HOSTS=new Set(['biz.adpick.co.kr','link.adpick.co.kr','bitl.bz']);
+// explicitly supplied, non-affiliate merchant product URLs are inspected. No affiliate clicks.
 const MERCHANT_HOSTS=['11st.co.kr','gmarket.co.kr','auction.co.kr','ssg.com','oliveyoung.co.kr','gsshop.com','lotteon.com','coupang.com','smartstore.naver.com','shopping.naver.com','hmall.com','akmall.com','interpark.com'];
 const stockOut=new Set(['OutOfStock','SoldOut','Discontinued']);
 const stockIn=new Set(['InStock','LimitedAvailability','OnlineOnly']);
@@ -48,8 +47,9 @@ async function fetchLimited(url){
  return response;
 }
 async function verifyOne(item){
- const link=parseUrl(item?.commissionlink);
- if(!link||!AFFILIATE_HOSTS.has(link.hostname))return null;
+ const link=parseUrl(item?.product_url);
+ // Never open commission links in a bot: doing so may create artificial affiliate clicks.
+ if(!link||!approvedMerchant(link.hostname))return null;
  const cacheKey=link.href;
  const saved=cache.get(cacheKey);
  if(saved&&Date.now()-saved.at<CACHE_MS)return saved.value;
@@ -58,13 +58,13 @@ async function verifyOne(item){
   let destination=link;
   // Follow only whitelisted redirects; never reach an arbitrary host.
   for(let hop=0;hop<4;hop++){
-   if(!AFFILIATE_HOSTS.has(destination.hostname)&&!approvedMerchant(destination.hostname))break;
+   if(!approvedMerchant(destination.hostname))break;
    const response=await fetchLimited(destination.href);
    if(response.status>=300&&response.status<400){
     const location=response.headers.get('location');
     if(!location)break;
     const next=parseUrl(new URL(location,destination).href);
-    if(!next||(!AFFILIATE_HOSTS.has(next.hostname)&&!approvedMerchant(next.hostname)))break;
+    if(!next||!approvedMerchant(next.hostname))break;
     destination=next;continue;
    }
    if(!response.ok||!approvedMerchant(destination.hostname))break;
