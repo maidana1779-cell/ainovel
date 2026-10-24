@@ -11,7 +11,7 @@ const from=js.indexOf('function won(value)');
 const to=js.indexOf('function resetProductFilters(){',from);
 assert.ok(from>=0&&to>from);
 const {verifiedDiscount,sourceMoney,won}=new Function(js.slice(from,to)+'return {verifiedDiscount,sourceMoney,won};')();
-const fromFeed=(price_org,price_sale,price)=>({affiliate_source:'adpick_shoppingmate',price_org,price_sale,price});
+const fromFeed=(price_org,price_sale,price)=>({affiliate_source:'adpick_biz_verified_offer',price_org,price_sale,price});
 
 test('Verified 30,000 to 16,500 sale is precisely 45% off',()=>{
  const d=verifiedDiscount(fromFeed('30,000원','16,500원','16,500원'));
@@ -19,10 +19,10 @@ test('Verified 30,000 to 16,500 sale is precisely 45% off',()=>{
  assert.equal(won(d.original),'30,000원');
  assert.equal(won(d.sale),'16,500원');
 });
-test('Normal Adpick BIZ search cannot masquerade as discounted',()=>{
+test('Unverified BIZ search prices cannot masquerade as discounted',()=>{
  assert.equal(verifiedDiscount({price:'16,500원',price_org:'30,000원',price_sale:'16,500원'}),null);
  assert.equal(verifiedDiscount({affiliate_source:'adpick_biz',price:'16,500원',price_org:'30,000원',price_sale:'16,500원'}),null);
- assert.equal(verifiedDiscount({affiliate_source:'adpick_shoppingmate',price:'16,500원'}),null);
+ assert.equal(verifiedDiscount({affiliate_source:'adpick_biz_verified_offer',price:'16,500원'}),null);
  assert.equal(verifiedDiscount(fromFeed('30,000원','16,500원','19,900원')),null);
 });
 test('Invalid, unchanged and greater-than-normal price cannot show a discount',()=>{
