@@ -878,7 +878,7 @@ async function loadPartnerMalls(){
       if(typeof m?.name!=="string"||typeof m?.commissionlink!=="string")return false;
       try{
         const u=new URL(m.commissionlink);
-        return u.protocol==="https:"&&(u.hostname==="link.adpick.co.kr"||u.hostname==="biz.adpick.co.kr");
+        return u.protocol==="https:"&&(u.hostname==="link.adpick.co.kr"||u.hostname==="bitl.bz"||u.hostname==="biz.adpick.co.kr");
       }catch{return false}
     });
     renderPartnerMalls();
