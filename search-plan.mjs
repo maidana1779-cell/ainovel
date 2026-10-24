@@ -4,7 +4,7 @@ import {normalize,isGroceryQuery,isDetergentQuery} from './relevance.mjs';
 export const FOOD_STORES=Object.freeze(['f5ff7','c6ac4','c16a2','b735e','f5d5a']);
 export const HOUSEHOLD_STORES=Object.freeze(['c16a2','b735e','f5d5a','012a5','2cfd6']);
 const EXPANSION=Object.freeze({
- '세제':['세제','세탁세제'],
+ '세제':['세제','주방세제'],
  '간편식':['간편식','즉석밥'],
  '커피':['커피','커피믹스'],
  '라면':['라면','컵라면'],
