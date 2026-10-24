@@ -39,20 +39,25 @@ send(res,200,data)}catch{send(res,502,{success:false,message:'제휴사 연결 �
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
 
-// Startup smoke test: never log the API key or any affiliate URLs.
+// Lightweight startup check. Do not log secrets, product titles or affiliate links.
 server.on('listening',async()=>{
   const key=process.env.ADPICK_API_KEY;
   console.log('[ADPICK CHECK] key_present='+Boolean(key));
-  if(!key) return;
+  if(!key)return;
   try{
-    const url=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/best');
-    url.searchParams.set('area','today');
-    url.searchParams.set('limit','1');
+    const url=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
+    url.searchParams.set('q','라면');
+    url.searchParams.set('limit','5');
+    url.searchParams.set('cp_code',FOOD_MALL_CODES.join(','));
     const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
     const data=await response.json().catch(()=>null);
-    const ok=response.ok&&data?.success===true&&Array.isArray(data?.data?.list);
-    console.log('[ADPICK CHECK] result='+(ok?'success':'failed')+' http='+response.status+' count='+(ok?data.data.list.length:0));
-  }catch{
-    console.log('[ADPICK CHECK] result=network_error');
-  }
+    const items=Array.isArray(data?.data)?data.data:[];
+    const scoped=items.filter(item=>FOOD_MALL_SET.has(String(item?.cp_code||'').toLowerCase()));
+    const matched=selectRelevantProducts('라면',scoped);
+    console.log('[ADPICK FOOD CHECK] '+JSON.stringify({
+      status:response.status,success:data?.success===true,received:items.length,
+      allowed_stores:scoped.length,relevant:matched.length,
+      code:data?.error_code||null
+    }));
+  }catch{console.log('[ADPICK FOOD CHECK] network_error');}
 });
