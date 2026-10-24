@@ -24,7 +24,7 @@ test('Ad and partner disclosures remain in the interface',()=>{
   assert.match(html,/최저가를 보장하지 않습니다/);
 });
 test('Mobile layout and semantic product sections remain present',()=>{
-  assert.match(html,/@media\(max-width:680px\)/);
+  assert.match(html,/@media\(max-width:730px\)/);
   assert.match(html,/id="deals"/);
   assert.match(html,/id="toss-picks"/);
   assert.match(html,/data-query="간편식"/);
