@@ -850,7 +850,7 @@ const discoveryGrid=document.getElementById("discovery-products");
 const discoveryMore=document.getElementById("discovery-more");
 const discoveryStatus=document.getElementById("discovery-status");
 const discoverySection=document.getElementById("product-discovery");
-let discoveredProducts=[],discoveryLoaded=false,discoveryBusy=false,discoveryStep=0;
+let discoveredProducts=[],discoveryLoaded=false,discoveryBusy=false,discoveryStep=0,discoveryError=false;
 let mainBestArea="today";
 function discoveryUnique(items){
   const existing=new Set(availableItems.map(productKey));
@@ -871,7 +871,7 @@ function renderDiscovered(){
   discoveryMore.hidden=discoveryStep>=2;
   discoveryMore.disabled=discoveryBusy;
   discoveryMore.textContent=discoveryBusy?"상품을 가져오는 중…":discoveryStep===0?"인기 상품 불러오기 +":"추천 상품 더 보기 +";
-  discoveryStatus.textContent="추가로 보는 서로 다른 상품 "+visible.length+"개 · 가격과 배송은 판매처에서 확인";
+  discoveryStatus.textContent=discoveryError?"인기 상품 연결이 원활하지 않습니다. 버튼을 눌러 다시 시도해 주세요.":"추가로 보는 서로 다른 상품 "+visible.length+"개 · 가격과 배송은 판매처에서 확인";
 }
 async function loadDiscoveryStep(){
   if(discoveryBusy||discoveryStep>=2||document.body.classList.contains("category-active"))return;
@@ -893,8 +893,9 @@ async function loadDiscoveryStep(){
     }
     discoveryStep=step+1;
     discoveryLoaded=true;
+    discoveryError=false;
   }catch{
-    discoveryStatus.textContent="인기 상품 연결이 원활하지 않습니다. 아래 버튼으로 다시 시도할 수 있어요.";
+    discoveryError=true;
   }finally{
     discoveryBusy=false;
     renderDiscovered();
