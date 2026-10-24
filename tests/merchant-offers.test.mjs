@@ -81,7 +81,7 @@ test('Coverage metadata distinguishes eligible, unknown and verified unavailable
 
 test('Cloudflare-compatible merchant verification reads a real merchant offer without Node Buffer',async()=>{
  const source=readFileSync(new URL('../merchant-offers.mjs',import.meta.url),'utf8');
- assert.doesNotMatch(source,/\\bBuffer\\b/);
+ assert.doesNotMatch(source,/\bBuffer\b/);
  const old=globalThis.fetch;
  globalThis.fetch=async()=>new Response(page('InStock'),{status:200,headers:{'content-type':'text/html'}});
  try{
