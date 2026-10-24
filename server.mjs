@@ -1,5 +1,5 @@
 import {createServer} from 'node:http';
-import {selectRelevantProducts,isGroceryQuery} from './relevance.mjs';
+import {selectRelevantProducts} from './relevance.mjs';
 import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from './search-plan.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
@@ -20,10 +20,15 @@ const area=url.searchParams.get('area')||'today';const n=Number(url.searchParams
 if(!['today','popular','pick','commission'].includes(area)||!Number.isInteger(n)||n<1||n>10){send(res,400,{success:false,message:'요청값이 올바르지 않습니다'});return}
 endpoint='best';params={area,limit:String(n)}
 }else if(url.pathname==='/api/search'){
-const q=(url.searchParams.get('q')||'').trim(),n=Number(url.searchParams.get('limit')||30);
-if(q.length<2||q.length>60||!Number.isInteger(n)||n<1||n>30){send(res,400,{success:false,message:'요청값이 올바르지 않습니다'});return}
+const q=(url.searchParams.get('q')||'').trim();
+const n=Number(url.searchParams.get('limit')||30);
+const batch=Number(url.searchParams.get('batch')||0);
+if(q.length<2||q.length>60||!Number.isInteger(n)||n<1||n>30||!Number.isInteger(batch)||batch<0||batch>2){
+ send(res,400,{success:false,message:'요청값이 올바르지 않습니다'});return
+}
+plan=getSearchPlan(q,batch);
+if(!plan.terms.length){send(res,400,{success:false,message:'더 검색할 연관 품목이 없습니다'});return}
 endpoint='search';params={q,limit:String(Math.min(n,20))};requested=n;
-plan=getSearchPlan(q);
 if(plan.codes)params.cp_code=plan.codes.join(',');
 }else{send(res,404,{success:false,message:'Unknown route'});return}
 const key=process.env.ADPICK_API_KEY;if(!key){send(res,503,{success:false,code:'API_NOT_CONFIGURED',message:'데모 모드'});return}
@@ -56,13 +61,17 @@ try{
    const scoped=allowed?incoming.filter(item=>allowed.has(String(item?.cp_code||'').toLowerCase())):incoming;
    const matched=selectRelevantProducts(params.q,scoped);
    const distinct=uniqueProductResults(matched);
-   const combined=uniqueProductResults([...matchingCuratedProducts(params.q),...distinct]).slice(0,requested);
+   const curated=plan.batch===0?matchingCuratedProducts(params.q):[];
+   const combined=uniqueProductResults([...curated,...distinct]).slice(0,requested);
    const original=successes[0];
    const filteredData=Array.isArray(original.data)?combined:{...original.data,list:combined};
    send(res,200,{...original,data:filteredData,filter_meta:{
      received:incoming.length,matched:combined.length,excluded:incoming.length-matched.length,
      duplicates_removed:matched.length-distinct.length,stores_restricted:Boolean(allowed),
-     queries_checked:successes.length,queries_requested:activeTerms.length
+     queries_checked:successes.length,queries_requested:activeTerms.length,
+     batch:plan.batch,total_batches:plan.totalBatches,
+     has_more:plan.batch+1<plan.totalBatches,
+     quota_limited:activeTerms.length<plan.terms.length
    }});
    return;
  }
