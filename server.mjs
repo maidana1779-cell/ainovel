@@ -95,7 +95,7 @@ if(url.pathname==='/api/malls'){
     const data=await response.json();
     if(data?.success!==true)throw Error('UPSTREAM_DATA');
     const malls=normalizePartnerMalls(data);
-    send(res,200,{success:true,data:malls,count:malls.length});
+    send(res,200,{success:true,data:malls,count:malls.length,linked:malls.filter(m=>m.commissionlink).length});
   }catch{
     send(res,502,{success:false,message:'제휴몰 목록을 불러오지 못했습니다',data:[]});
   }
@@ -105,7 +105,7 @@ if(url.pathname==='/api/malls'){
 let endpoint,params={},plan=null,requested=1;
 if(url.pathname==='/api/best'){
 const area=url.searchParams.get('area')||'today';const n=Number(url.searchParams.get('limit')||10);
-if(!['today','popular','pick','commission'].includes(area)||!Number.isInteger(n)||n<1||n>10){send(res,400,{success:false,message:'요청값이 올바르지 않습니다'});return}
+if(!['today','popular','pick'].includes(area)||!Number.isInteger(n)||n<1||n>10){send(res,400,{success:false,message:'요청값이 올바르지 않습니다'});return}
 endpoint='best';params={area,limit:String(n)}
 }else if(url.pathname==='/api/search'){
 const q=(url.searchParams.get('q')||'').trim();
