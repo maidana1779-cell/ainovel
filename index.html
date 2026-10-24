@@ -382,7 +382,7 @@ body.category-active .category-caption{display:none}
  <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
 </section>
 <section id="about" class="policy-strip">
- <div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 상품을 직접 판매하지 않는 제휴 상품 안내 서비스입니다. 표시 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 배송 조건 역시 판매처에서 확인해 주세요. 제휴 링크를 통한 구매 시 운영자에게 수수료가 지급될 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p></div>
+ <div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 상품을 직접 판매하지 않는 제휴 상품 안내 서비스입니다. 표시 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 상품의 재고와 판매 여부는 실시간으로 확인되지 않으며, 표시된 가격과 구매 가능 여부는 판매처에서 달라질 수 있습니다. 배송 조건 역시 판매처에서 확인해 주세요. 제휴 링크를 통한 구매 시 운영자에게 수수료가 지급될 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p></div>
  <span class="policy-mark">ALTTUL PICK / GUIDE</span>
 </section>
 </main>
@@ -456,7 +456,6 @@ if(discount){
     price===null?(p.affiliate_source==="toss_sharelink"?"가격은 토스에서 확인":"가격 확인 필요"):won(price)));
 }
 box.append(pricing);
-if(!isDemo)box.append(make("div","price-reference","실시간 재고 확인 불가 · 품절 및 가격 변동 가능"));
 const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false,isToss=false;
 try{
   const url=new URL(href);
