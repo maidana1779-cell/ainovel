@@ -156,7 +156,7 @@ async function loadTossStore(){
     const data=await r.json();
     if(!r.ok||data.success!==true||data.available!==true||typeof data.link!=="string")return;
     const url=new URL(data.link);
-    if(url.protocol!=="https:"||!["link.adpick.co.kr","biz.adpick.co.kr"].includes(url.hostname))return;
+    if(url.protocol!=="https:"||!["link.adpick.co.kr","biz.adpick.co.kr","bitl.bz"].includes(url.hostname))return;
     link.href=url.href;
     panel.hidden=false;
   }catch{
