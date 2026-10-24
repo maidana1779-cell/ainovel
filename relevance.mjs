@@ -66,6 +66,9 @@ function genuineGrocery(query,tokens,title){
   if(words)return hasAny(tokens,words);
   return hasPhraseToken(tokens,query);
 }
+export function isGroceryQuery(query){
+  return FOOD_QUERY_SET.has(normalize(query));
+}
 export function relevantItem(query,item){
   if(!item||typeof item.title!=="string"||!item.title.trim())return false;
   const q=normalize(query), title=item.title, tokens=productTokens(title);
