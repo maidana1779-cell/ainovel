@@ -393,7 +393,21 @@ body.category-active .category-caption{display:none}
 </div>
 
 <script>
-const API_ORIGIN='https://alttulpick-preview.onrender.com';
+const API_ORIGIN='https://alttulpick-api.maidana1779.workers.dev';
+const BACKUP_API_ORIGIN='https://alttulpick-preview.onrender.com';
+async function fetchProducts(path){
+  try{
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),3500);
+    let response;
+    try{response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:controller.signal})}
+    finally{clearTimeout(timer)}
+    if(response.ok)return response;
+    // When Cloudflare has no secret or transient problems, keep shopping usable.
+    if(response.status!==502&&response.status!==503&&response.status!==504&&response.status!==429) return response;
+  }catch{}
+  return fetch(BACKUP_API_ORIGIN+path,{cache:"no-store"});
+}
 const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
 const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
 function make(tag,klass,text){const el=document.createElement(tag);if(klass)el.className=klass;if(text!==undefined)el.textContent=String(text);return el}
@@ -579,7 +593,7 @@ relatedBrowse.hidden=true;relatedList.replaceChildren();
 statusEl.textContent="상품을 불러오는 중입니다...";
 grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
 try{
-  const res=await fetch(API_ORIGIN+url,{cache:"no-store"});
+  const res=await fetchProducts(url);
   const payload=await res.json();
   if(id!==requestId)return;
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
@@ -632,7 +646,7 @@ moreButton.addEventListener("click",async()=>{
   moreBusy=true;moreNote.textContent="다른 관련 품목을 검색하고 있어요.";
   updateMoreControls(true);
   try{
-    const res=await fetch(API_ORIGIN+"/api/search?q="+encodeURIComponent(q)+"&batch="+batch+"&limit=30",{cache:"no-store"});
+    const res=await fetchProducts("/api/search?q="+encodeURIComponent(q)+"&batch="+batch+"&limit=30");
     const payload=await res.json();
     if(id!==requestId)return;
     if(!res.ok||!payload.success){
@@ -841,7 +855,7 @@ async function loadCuratedProducts(){
   const panel=document.getElementById("toss-picks");
   const target=document.getElementById("toss-products");
   try{
-    const response=await fetch(API_ORIGIN+"/api/curated",{cache:"no-store"});
+    const response=await fetchProducts("/api/curated");
     const payload=await response.json();
     if(!response.ok||payload.success!==true||!Array.isArray(payload.data)||!payload.data.length)return;
     show(payload.data,false,target);
@@ -896,7 +910,7 @@ async function loadDiscoveryStep(){
   const area=step===0?"popular":"pick";
   const endpoint=step===0?"/api/search?q="+encodeURIComponent(featuredTopic)+"&limit=20":"/api/best?area="+area+"&limit=10";
   try{
-    const response=await fetch(API_ORIGIN+endpoint,{cache:"no-store"});
+    const response=await fetchProducts(endpoint);
     const payload=await response.json();
     if(!response.ok||payload.success!==true)throw Error("best feed unavailable");
     const items=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
