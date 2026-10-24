@@ -818,7 +818,6 @@ if(Object.prototype.hasOwnProperty.call(departmentInfo,requestedDepartment)){
   changeDepartment(requestedDepartment,{navigate:false});
 }else{
   load("/api/best?area=today&limit=10");
-  ensureDiscovery();
 }
 window.addEventListener("popstate",()=>{
  const category=new URLSearchParams(location.search).get("category");
@@ -906,6 +905,7 @@ function ensureDiscovery(){
   if(!discoveryLoaded&&!discoveryBusy)loadDiscoveryStep();
   else renderDiscovered();
 }
+if(!document.body.classList.contains("category-active"))ensureDiscovery();
 </script>
 </body>
 </html>
