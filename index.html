@@ -546,6 +546,7 @@ sortSelect.addEventListener("change",renderListing);
 const moreArea=document.getElementById("more-area"),moreButton=document.getElementById("more-products"),moreNote=document.getElementById("more-note");
 const relatedBrowse=document.getElementById("related-browse"),relatedList=document.getElementById("related-list");
 let requestId=0,currentQuery="",nextBatch=0,moreBusy=false,seenProductKeys=new Set(),shownCount=0;
+let primaryPending=false,discoveryInView=false;
 function productKey(p){
   const title=String(p?.title||"").normalize("NFKC").toLowerCase().replace(/[^가-힣a-z0-9]/g,"");
   return String(p?.affiliate_source||p?.cp_code||p?.cp_name||"")+"|"+title+"|"+String(p?.price??"");
@@ -568,6 +569,7 @@ function updateMoreControls(hasMore){
 function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
 async function load(url){
 const id=++requestId;
+primaryPending=true;
 const u=new URL(url,location.href);
 currentQuery=u.pathname==="/api/search"?u.searchParams.get("q")||"":"";
 nextBatch=0;moreBusy=false;seenProductKeys=new Set();shownCount=0;
@@ -619,6 +621,8 @@ try{
  if(id!==requestId)return;
  grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
  statusEl.textContent="상품 연결 오류";
+}finally{
+ if(id===requestId){primaryPending=false;if(discoveryInView)ensureDiscovery()}
 }}
 // Progressive category discovery. Supplier data remains in browser memory only
 // until the user changes the search or closes the page.
@@ -846,7 +850,7 @@ async function loadCuratedProducts(){
     // Keep the section hidden if curated product data cannot be loaded.
   }
 }
-loadCuratedProducts();
+// Curated feed is requested when the lower sections approach the viewport.
 const discoveryGrid=document.getElementById("discovery-products");
 const discoveryMore=document.getElementById("discovery-more");
 const discoveryStatus=document.getElementById("discovery-status");
@@ -914,10 +918,27 @@ async function loadDiscoveryStep(){
 }
 discoveryMore.addEventListener("click",loadDiscoveryStep);
 function ensureDiscovery(){
+  if(primaryPending||!discoveryInView||document.body.classList.contains("category-active"))return;
   if(!discoveryLoaded&&!discoveryBusy)loadDiscoveryStep();
   else renderDiscovered();
 }
-if(!document.body.classList.contains("category-active"))ensureDiscovery();
+// Do not use extra affiliate API calls until shoppers actually scroll to this section.
+if("IntersectionObserver" in window){
+  const observer=new IntersectionObserver(entries=>{
+    if(!entries.some(entry=>entry.isIntersecting))return;
+    discoveryInView=true;
+    observer.disconnect();
+    ensureDiscovery();
+    loadCuratedProducts();
+  },{rootMargin:"120px"});
+  observer.observe(discoverySection);
+}else{
+  window.addEventListener("load",()=>{
+    discoveryInView=true;
+    ensureDiscovery();
+    loadCuratedProducts();
+  },{once:true});
+}
 </script>
 </body>
 </html>
