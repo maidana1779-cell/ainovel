@@ -4,7 +4,6 @@ import {createAnalytics} from './analytics.mjs';
 import {selectRelevantProducts} from './relevance.mjs';
 import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from './search-plan.mjs';
-import {getShoppingMateProducts} from './shoppingmate.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
 const analytics=createAnalytics();
@@ -78,17 +77,7 @@ if(url.pathname==='/api/curated'){
   send(res,200,{success:true,data:curatedProducts()});
   return;
 }
-if(url.pathname==='/api/shoppingmate'){
-  try{
-    const {configured,products}=await getShoppingMateProducts();
-    if(!configured){
-      send(res,200,{success:true,configured:false,data:[]});return;
-    }
-    send(res,200,{success:true,configured:true,data:products});return;
-  }catch{
-    send(res,502,{success:false,configured:true,data:[],message:'할인 상품 제휴사 연결 실패'});return;
-  }
-}
+
 let endpoint,params={},plan=null,requested=1;
 if(url.pathname==='/api/best'){
 const area=url.searchParams.get('area')||'today';const n=Number(url.searchParams.get('limit')||10);
