@@ -3,55 +3,233 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>알뜰픽 | 오늘의 추천 쇼핑</title>
-<meta name="description" content="여러 쇼핑몰에서 제공되는 제휴 추천 상품을 한눈에 살펴보는 알뜰픽">
+<meta name="theme-color" content="#ffffff">
+<title>알뜰픽 | 잘 찾는 쇼핑의 시작</title>
+<meta name="description" content="여러 제휴 쇼핑몰의 상품과 직접 고른 추천 상품을 검색하고 둘러보는 알뜰픽">
 <meta name="robots" content="noindex,nofollow">
 <style>
-:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#242532;background:#f8f9fc;font-synthesis:none}
-*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
-.wrap{max-width:1080px;margin:0 auto;padding:0 22px}.header{background:white;border-bottom:1px solid #eceef2}.headin{display:flex;align-items:center;justify-content:space-between;height:75px;gap:20px}.logo{font-size:29px;font-weight:900;letter-spacing:-1.5px}.logo span{color:#ff654f}.nav{display:flex;gap:26px;color:#5c6070;font-size:14px;font-weight:700}.pill{border-radius:40px;background:#fff1ef;color:#e95443;padding:9px 14px;font-size:12px;font-weight:800}
-.hero{padding:52px 0 33px;display:flex;justify-content:space-between;gap:24px;align-items:center}.eyebrow{font-size:14px;font-weight:800;color:#f05c4f;margin:0 0 12px}.hero h1{font-size:clamp(29px,5vw,49px);line-height:1.23;letter-spacing:-2.1px;margin:0}.hero h1 em{color:#f26552;font-style:normal}.sub{color:#767b8a;line-height:1.8;font-size:15px;margin:18px 0}.heroart{background:linear-gradient(135deg,#ffdfd2,#ff8067);border-radius:35px;min-width:260px;width:300px;height:210px;display:grid;place-items:center;font-size:91px;box-shadow:0 23px 50px #f56c5140}
-.bar{display:flex;align-items:center;gap:10px;max-width:590px;padding:8px;background:white;border:1px solid #e9eaf0;border-radius:17px;box-shadow:0 6px 24px #20232b08}
-.bar input{border:0;outline:0;flex:1;min-width:0;padding:11px 13px;font-size:15px}
-.primary{border:0;border-radius:12px;background:#f46a56;color:white;font-weight:800;padding:12px 20px}
-.banner{margin:18px 0 30px;background:#fff0e9;color:#a25040;border-radius:14px;padding:14px 18px;font-size:13px;line-height:1.7}
-.curated-section{margin:35px 0 45px;border-top:2px solid #202833;padding-top:20px}
-.curated-head{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:18px}
-.curated-kicker{font-size:11px;font-weight:800;letter-spacing:1.5px;color:#556070}
-.curated-head h2{margin:5px 0 8px;font-size:24px;letter-spacing:-.9px}
-.curated-head p{font-size:13px;color:#687080;line-height:1.6;margin:0}
-.curated-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
-.curated-grid .picture{background:#f1f5f8}
-.curated-disclosure{font-size:12px;line-height:1.7;color:#667080;margin:15px 0 0}
-.commission-detail{font-size:11px;line-height:1.5;color:#7b8290;margin:0 0 10px}
-.section{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:30px 0 21px}.section h2{font-size:25px;margin:0 0 5px;letter-spacing:-.8px}.muted{color:#89909d;font-size:13px}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{border:1px solid #e6e8ec;border-radius:100px;background:white;padding:10px 17px;color:#626976;font-weight:700;font-size:13px}.tab.active{background:#252934;border-color:#252934;color:white}
-.category-section{margin:23px 0 24px}.category-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:16px;font-weight:850;margin-bottom:11px}.category-title small{font-size:12px;font-weight:500;color:#858c9a}.category-list{display:flex;gap:8px;flex-wrap:wrap}.catbtn{background:#fff;border:1px solid #e4e7ee;border-radius:12px;padding:10px 14px;color:#535965;font-weight:750;font-size:13px}.catbtn.active{background:#fff1eb;border-color:#f8afa0;color:#d64e3e}.catbtn:focus-visible,.tab:focus-visible{outline:3px solid #f46a56;outline-offset:2px}.subcat-panel{margin-top:12px;padding:13px;border:1px solid #e8eaf0;border-radius:14px;background:#fff}.subcat-panel .note{display:block;font-size:12px;color:#818694;margin-bottom:10px}.subcat-list{display:flex;gap:8px;flex-wrap:wrap}.subbtn{border:1px solid #e8eaf0;border-radius:9px;background:#f8f9fc;font-size:12px;font-weight:700;padding:8px 11px;color:#535965}.subbtn.active{border-color:#f3ae9f;background:#ffede7;color:#bd4b3a}.subbtn:focus-visible{outline:3px solid #f46a56;outline-offset:2px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:35px}.card{background:white;border:1px solid #eef0f3;border-radius:17px;overflow:hidden;display:flex;flex-direction:column;min-width:0;box-shadow:0 6px 20px #161a2608}.picture{width:100%;aspect-ratio:1.2;display:grid;place-items:center;background:linear-gradient(145deg,#fff5f0,#edf2fd);font-size:65px;overflow:hidden}.picture img{width:100%;height:100%;object-fit:contain;font-size:0;color:transparent}.picture.has-fallback{display:flex;flex-direction:column;justify-content:center;gap:6px}.fallback-symbol{font-size:47px;line-height:1.25}.fallback-caption{font-size:12px;font-weight:650;color:#8a91a1}.content{padding:15px;display:flex;flex-direction:column;flex:1}.merchant{color:#888e9c;font-size:12px}.product{font-weight:750;font-size:14px;line-height:1.5;min-height:42px;margin:7px 0}.price{font-size:22px;font-weight:900;letter-spacing:-.5px;margin:7px 0 13px}.go{display:block;text-align:center;padding:11px;border-radius:10px;background:#252934;color:white;font-size:13px;font-weight:800;margin-top:auto}.go.disabled{background:#e8eaf0;color:#8a909b;pointer-events:none}.empty{grid-column:1/-1;padding:65px 20px;text-align:center;background:white;border-radius:20px;border:1px dashed #d8dce5;color:#777}.footer{border-top:1px solid #e8eaf0;margin-top:42px;padding:28px 0 60px;color:#858a98;line-height:1.8;font-size:12px}.foothead{font-size:19px;color:#252934;font-weight:900}
-@media(max-width:730px){.wrap{padding:0 15px}.headin{height:64px}.logo{font-size:25px}.nav{display:none}.hero{padding:33px 0 19px}.hero h1{font-size:31px;letter-spacing:-1.4px}.heroart{display:none}.sub{font-size:13px}.section{display:block}.section h2{font-size:22px}.tabs{margin-top:19px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.content{padding:11px}.picture{font-size:45px}.price{font-size:18px}.product{font-size:13px;min-height:58px}.merchant{font-size:11px}.go{padding:10px 4px;font-size:12px}.bar input{font-size:13px}.curated-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.curated-head h2{font-size:21px}}
+:root{--ink:#202422;--muted:#747978;--line:#e3e5e1;--paper:#fff;--wash:#f6f6f2;--accent:#d85236;--soft:#f7f2ea;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{margin:0;min-width:320px}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin-inline:auto;padding-inline:32px}
+.notice-bar{background:#202422;color:#f4f4f0;font-size:11px;letter-spacing:-.1px}
+.notice-inner{min-height:32px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.notice-inner span:last-child{color:#c5c9c4}
+.header{background:#fff;border-bottom:1px solid var(--line)}
+.headin{height:75px;display:flex;align-items:center;justify-content:space-between;gap:30px}
+.brand{font-size:27px;font-weight:900;letter-spacing:-1.9px;white-space:nowrap;line-height:1}
+.brand b{color:var(--accent);font-weight:900}
+.brand small{display:block;color:#808681;font-size:9px;font-weight:800;letter-spacing:1.9px;margin-top:7px}
+.nav{display:flex;align-items:center;gap:31px;color:#555d58;font-size:13px;font-weight:650}
+.nav a:hover{color:var(--accent)}
+.header-note{font-size:11px;font-weight:700;color:#6e756f;border:1px solid var(--line);padding:9px 11px}
+.hero{background:var(--wash);margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:54px 55px 55px}
+.eyebrow{font-size:12px;color:#626c64;font-weight:750;display:flex;align-items:center;gap:9px;margin:0 0 25px;letter-spacing:-.1px}
+.eyebrow-dot{width:7px;height:7px;display:inline-block;background:var(--accent)}
+.hero h1{font-size:clamp(37px,4vw,52px);line-height:1.28;letter-spacing:-2.7px;margin:0;font-weight:850;word-break:keep-all}
+.hero h1 strong{font-weight:850;color:var(--accent)}
+.hero-intro{color:#69716d;font-size:14px;line-height:1.85;margin:22px 0 26px;word-break:keep-all}
+.hero-foot{font-size:11px;color:#919691;padding-top:13px;border-top:1px solid #dadfd7}
+.search-surface{background:#fff;border:1px solid #e0e1dc;padding:28px 27px 27px}
+.search-meta{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#7d837d;letter-spacing:.4px;font-weight:700;border-bottom:1px solid var(--line);padding-bottom:15px}
+.search-title{padding:25px 0 20px}
+.search-title label{display:block;font-size:22px;font-weight:800;letter-spacing:-.8px}
+.search-title p{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.6}
+.bar{display:flex;align-items:stretch;min-height:54px;border:1px solid #cbd0c9;background:#fff}
+.bar:focus-within{border-color:#424a43}
+.search-mark{display:flex;align-items:center;justify-content:center;min-width:47px;color:#7c867d;font-size:23px;line-height:1}
+.bar input{border:0;outline:0;min-width:0;flex:1;font-size:14px;color:var(--ink);padding:10px 0;background:transparent}
+.bar input::placeholder{color:#a0a6a0}
+.primary{border:0;background:var(--ink);color:#fff;font-weight:760;padding:0 20px;font-size:13px;min-width:82px}
+.primary:hover{background:var(--accent)}
+.quick-searches{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:19px}
+.quick-title{font-size:11px;color:#858d85;margin-right:3px}
+.quick-searches button{border:1px solid #e6e8e4;background:#fff;color:#515b53;font-size:11px;padding:7px 11px}
+.quick-searches button:hover{background:#f1f3ed;border-color:#abb4a8}
+.category-section{margin:52px 0 18px}
+.category-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:20px}
+.overline{display:block;color:#9a9f97;font-size:10px;font-weight:800;letter-spacing:1.45px}
+.category-heading h2{font-size:21px;letter-spacing:-.8px;font-weight:850;margin:6px 0 0}
+.category-helper{font-size:12px;color:#818781}
+.category-list{display:flex;align-items:stretch;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);gap:0;overflow-x:auto;scrollbar-width:none}
+.category-list::-webkit-scrollbar{display:none}
+.catbtn{border:0;background:none;color:#686e69;font-size:14px;white-space:nowrap;font-weight:660;padding:18px 22px 17px;position:relative}
+.catbtn:first-child{padding-left:4px}
+.catbtn.active{color:var(--ink);font-weight:850}
+.catbtn.active::after{position:absolute;bottom:0;left:17px;right:17px;height:3px;background:var(--accent);content:""}
+.catbtn:first-child.active::after{left:0}
+.catbtn:hover{color:var(--accent)}
+.subcat-panel{padding:15px 0 0}
+.subcat-panel .note{display:inline-block;font-size:11px;color:#979e96;margin:0 14px 12px 0}
+.subcat-list{display:inline-flex;flex-wrap:wrap;gap:6px}
+.subbtn{background:var(--wash);border:1px solid transparent;color:#626a62;font-size:12px;font-weight:600;padding:9px 14px}
+.subbtn.active{background:var(--ink);color:#fff}
+.subbtn:hover:not(.active){border-color:#c6ccc3}
+.category-caption{font-size:11px;color:#989e97;margin:14px 0 0;line-height:1.6}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:23px}
+.section-head h2{font-size:28px;line-height:1.3;letter-spacing:-1.05px;margin:7px 0 6px;font-weight:850}
+.section-head p{font-size:13px;line-height:1.7;color:var(--muted);margin:0}
+.section-count{font-weight:800;font-size:11px;letter-spacing:1.8px;color:#9a9f99}
+.curated-section{padding-top:44px;margin:47px 0 58px;border-top:1px solid var(--line)}
+.curated-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.curated-grid .card{display:grid;grid-template-columns:minmax(230px,36%) minmax(0,1fr);border:1px solid var(--line);background:#fff;overflow:hidden}
+.curated-grid .picture{aspect-ratio:auto;height:100%;min-height:270px;border:0;border-right:1px solid var(--line);background:#f1f3ef}
+.curated-grid .content{padding:28px 33px 25px}
+.curated-grid .merchant{font-size:12px}
+.curated-grid .product{font-size:21px;line-height:1.4;min-height:0;letter-spacing:-.45px;max-width:520px;margin:12px 0 9px}
+.curated-grid .price{font-size:19px;margin:12px 0 10px}
+.curated-grid .go{max-width:300px}
+.curated-disclosure{font-size:11px;color:#878d86;line-height:1.7;margin:16px 0 0}
+.commission-detail{font-size:11px;color:#858b85;line-height:1.7;margin:0 0 10px}
+.deals{padding-top:33px;border-top:1px solid var(--ink);margin-top:35px}
+.section{display:flex;align-items:end;justify-content:space-between;gap:25px;margin:0 0 20px}
+.section h2{font-size:28px;letter-spacing:-1.1px;line-height:1.3;margin:7px 0 0;font-weight:850}
+.tabs{display:flex;gap:21px;flex-wrap:wrap}
+.tab{border:0;border-bottom:2px solid transparent;padding:12px 0;color:#7a8078;background:none;font-size:12px;font-weight:700;white-space:nowrap}
+.tab.active{color:var(--ink);border-bottom-color:var(--ink)}
+.tab:hover{color:var(--accent)}
+.results-meta{display:flex;justify-content:space-between;gap:20px;align-items:center;border-top:1px solid var(--line);padding:14px 0 23px}
+.muted{font-size:12px;color:#737b73;line-height:1.7}
+.results-meta .aside{font-size:11px;color:#a0a6a0}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px 19px;margin:0 0 55px}
+.card{display:flex;flex-direction:column;min-width:0}
+.picture{width:100%;aspect-ratio:1/1;position:relative;display:grid;place-items:center;background:#f5f5f2;border:1px solid #efefea;overflow:hidden}
+.picture img{width:100%;height:100%;object-fit:contain;transition:transform .24s ease}
+.card:hover .picture img{transform:scale(1.035)}
+.picture.has-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px}
+.fallback-no{font-size:10px;color:#a3aaa3;font-weight:850;letter-spacing:2px}
+.fallback-wordmark{font-size:12px;color:#778881;font-weight:850;letter-spacing:3px}
+.fallback-size{font-size:clamp(24px,3.2vw,41px);font-weight:850;color:#405b50;letter-spacing:-1.6px;line-height:1}
+.fallback-caption{font-size:11px;line-height:1.6;color:#929991}
+.content{padding:13px 2px 0;display:flex;flex-direction:column;flex:1}
+.merchant{font-size:11px;font-weight:750;color:#6a736a}
+.product{font-size:14px;font-weight:680;line-height:1.55;letter-spacing:-.25px;margin:8px 0 10px;min-height:44px;word-break:keep-all;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.price{font-size:20px;font-weight:850;letter-spacing:-.9px;line-height:1.35;margin:0 0 18px}
+.go{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding:11px 0;border-top:1px solid #d5d9d3;color:#2c352e;font-size:12px;font-weight:800;transition:color .15s ease}
+.go:hover{color:var(--accent)}
+.go.disabled{color:#a2aaa3;pointer-events:none}
+.empty{grid-column:1/-1;border:1px solid var(--line);padding:50px 22px;text-align:center;color:#737c73;background:#fafbf9;font-size:13px;line-height:1.8}
+.policy-strip{margin:58px 0 0;padding:25px 27px;background:#f7f8f5;display:flex;gap:24px;align-items:start;justify-content:space-between}
+.policy-strip strong{font-size:13px}
+.policy-strip p{font-size:12px;line-height:1.8;color:#777e76;margin:5px 0 0;max-width:780px}
+.policy-strip .policy-mark{font-size:10px;color:#9fa89e;letter-spacing:1px;white-space:nowrap}
+.footer{border-top:1px solid var(--line);margin-top:60px;padding:33px 0 55px}
+.footerin{display:flex;align-items:start;justify-content:space-between;gap:30px}
+.foothead{font-size:22px;font-weight:900;letter-spacing:-1.4px}
+.foothead b{color:var(--accent)}
+.footer-meta{font-size:11px;color:#8a918a;line-height:1.95;margin-top:10px}
+.footer-note{font-size:11px;line-height:1.8;color:#8b918a;max-width:460px;text-align:right}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.picture img{transition:none}}
+@media(max-width:990px){.hero{grid-template-columns:1fr;gap:25px;padding:36px}.hero-intro{margin-bottom:10px}.hero-foot{display:none}.search-surface{max-width:none}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:680px){
+ .wrap{padding-inline:17px}.notice-inner{font-size:10px;justify-content:center}.notice-inner span:last-child{display:none}
+ .headin{height:67px;gap:13px}.brand{font-size:25px}.brand small{font-size:8px;margin-top:5px}.nav{gap:15px;font-size:12px}.nav a:last-child{display:none}.header-note{display:none}
+ .hero{margin:0 -17px;padding:35px 17px 27px;gap:23px}.eyebrow{font-size:11px;margin-bottom:18px}.hero h1{font-size:38px;letter-spacing:-2px;line-height:1.25}.hero-intro{font-size:13px;margin:16px 0 0}
+ .search-surface{padding:21px 17px 22px}.search-title{padding:21px 0 17px}.search-title label{font-size:19px}.search-meta{font-size:9px}.bar{min-height:50px}.search-mark{min-width:38px;font-size:20px}.bar input{font-size:13px}.primary{min-width:65px;padding-inline:11px}.quick-searches{margin-top:15px;gap:6px}.quick-title{width:100%;margin-bottom:2px}
+ .category-section{margin:35px 0 8px}.category-heading{margin-bottom:14px}.category-heading h2{font-size:20px}.category-helper{display:none}.category-list{margin-right:-17px}.catbtn{font-size:13px;padding:15px 17px}.catbtn:first-child{padding-left:2px}.catbtn.active::after{left:13px;right:13px}.catbtn:first-child.active::after{left:0}.category-caption{font-size:10px}
+ .section-head h2,.section h2{font-size:23px}.section-head p{font-size:12px}.curated-section{margin:32px 0 43px;padding-top:30px}
+ .curated-grid .card{grid-template-columns:42% minmax(0,1fr);min-height:205px}.curated-grid .picture{min-height:200px}.curated-grid .content{padding:14px 12px}.curated-grid .product{font-size:14px;line-height:1.5;letter-spacing:-.2px;margin:8px 0 7px}.curated-grid .price{font-size:13px;letter-spacing:-.25px;margin:5px 0 8px}.curated-grid .merchant{font-size:11px}.curated-grid .go{font-size:11px}.fallback-size{font-size:23px}.fallback-wordmark{font-size:9px}.fallback-caption{font-size:9px}
+ .deals{padding-top:26px}.section{display:block}.tabs{gap:22px;margin-top:12px;overflow:auto;flex-wrap:nowrap}.results-meta{padding:13px 0 19px}.results-meta .aside{display:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 12px;margin-bottom:36px}
+ .product{font-size:13px;line-height:1.48;min-height:56px;-webkit-line-clamp:3}.price{font-size:18px;letter-spacing:-.5px;margin-bottom:15px}.merchant{font-size:10px}.go{font-size:11px;padding:10px 0}.content{padding-top:11px}
+ .policy-strip{margin-top:42px;padding:20px;display:block}.policy-strip .policy-mark{display:none}.footer{margin-top:40px;padding:28px 0 42px}.footerin{display:block}.footer-note{text-align:left;margin-top:18px}
+}
+@media(max-width:380px){.hero h1{font-size:34px}.nav a:nth-child(2){display:none}.curated-grid .card{grid-template-columns:39% minmax(0,1fr)}.curated-grid .content{padding:12px 10px}.curated-grid .price{font-size:12px}}
 </style>
 </head>
 <body>
-<header class="header"><div class="wrap headin"><div class="logo">알뜰<span>픽.</span></div><nav class="nav"><a href="/">홈</a><a href="#deals">오늘의 추천</a><a href="#about">서비스 소개</a></nav><div class="pill">쇼핑 추천 플랫폼</div></div></header>
+<div class="notice-bar"><div class="wrap notice-inner"><span>알뜰픽은 상품을 직접 판매하지 않는 제휴 상품 안내 서비스입니다.</span><span>가격·배송 정보는 판매처에서 확인하세요.</span></div></div>
+<header class="header"><div class="wrap headin">
+<a href="/" class="brand" aria-label="알뜰픽 홈">알뜰<b>픽.</b><small>ALTTUL PICK</small></a>
+<nav class="nav" aria-label="주 메뉴"><a href="#categories">카테고리</a><a href="#deals">상품 보기</a><a href="#about">서비스 안내</a></nav>
+<span class="header-note">SHOPPING EDIT · BETA</span>
+</div></header>
 <main class="wrap">
-<section class="hero"><div><p class="eyebrow">SMART SHOPPING, EVERY DAY</p><h1>오늘 뭐 살까?<br><em>알뜰하게 골라보자!</em></h1><p class="sub">여러 제휴 쇼핑몰의 추천 상품을 한곳에서 둘러보세요.<br>실제 가격과 구매 조건은 판매처에서 다시 확인해 주세요.</p></div><div class="heroart" aria-hidden="true">🛍️</div></section>
-<form id="searchform" class="bar"><input id="q" aria-label="상품 검색어" placeholder="찾는 상품을 검색해 보세요" minlength="2" maxlength="60" autocomplete="off"><button class="primary" type="submit">검색</button></form>
-<section class="category-section" aria-label="상품 카테고리"><div class="category-title">🧭 관심 카테고리 <small>관련 상품을 바로 검색합니다</small></div><div id="categories" class="category-list"><button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button><button type="button" class="catbtn" aria-pressed="false" data-query="세제">🧴 생활용품</button><button type="button" class="catbtn" aria-pressed="false" data-query="간편식">🍱 식품</button><button type="button" class="catbtn" aria-pressed="false" data-query="이어폰">🎧 디지털</button><button type="button" class="catbtn" aria-pressed="false" data-query="화장품">💄 뷰티</button><button type="button" class="catbtn" aria-pressed="false" data-query="의류">👕 패션</button><button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">🍳 주방</button></div><div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목 선택 · 원하는 제품을 더 구체적으로 찾아보세요</span><div id="subcatlist" class="subcat-list"></div></div><div class="muted" style="margin-top:9px">현재 검색은 키워드당 최대 20개를 보여줍니다. 전체 쇼핑몰 상품 목록은 아닙니다.</div></section><p class="banner">📢 이 사이트에는 제휴마케팅 링크가 포함될 수 있으며, 구매 시 운영자가 일정 수수료를 지급받을 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p>
-<section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
-<div class="curated-head"><div><span class="curated-kicker">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2>
-<p>알뜰픽에 직접 등록한 상품입니다. 가격·배송조건은 토스쇼핑에서 확인하세요.</p></div></div>
+<section class="hero" aria-labelledby="hero-heading">
+<div class="hero-copy">
+<p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> 흩어진 쇼핑을 간결하게</p>
+<h1 id="hero-heading">좋은 소비는<br><strong>잘 찾는 것부터.</strong></h1>
+<p class="hero-intro">여러 쇼핑몰의 제휴 추천 상품을 한곳에서 살펴보세요.<br>필요한 상품을 찾고, 가격과 구매 조건은 판매처에서 확인하세요.</p>
+<div class="hero-foot">상품을 직접 판매하거나 최저가를 보장하지 않습니다.</div>
+</div>
+<div class="search-surface">
+<div class="search-meta"><span>01 / 상품 찾기</span><span>한 번에 최대 20개 결과</span></div>
+<div class="search-title"><label for="q">무엇을 찾고 있나요?</label><p>구체적인 상품명으로 검색하면 더 정확해요.</p></div>
+<form id="searchform" class="bar" role="search">
+<span class="search-mark" aria-hidden="true">⌕</span>
+<input id="q" aria-label="상품 검색어" placeholder="예: 라면, 무선이어폰, 생수" minlength="2" maxlength="60" autocomplete="off">
+<button class="primary" type="submit">검색 →</button>
+</form>
+<div class="quick-searches" id="quick-searches" aria-label="빠른 검색">
+<span class="quick-title">바로 검색</span>
+<button type="button" data-quick="라면">라면</button>
+<button type="button" data-quick="생수">생수</button>
+<button type="button" data-quick="세탁세제">세탁세제</button>
+<button type="button" data-quick="무선이어폰">무선이어폰</button>
+</div>
+</div>
+</section>
+
+<section id="categories" class="category-section" aria-label="상품 카테고리">
+<div class="category-heading"><div><span class="overline">SHOP BY CATEGORY</span><h2>카테고리</h2></div><span class="category-helper">관심 있는 품목을 선택해 바로 찾아보세요.</span></div>
+<div id="categories-buttons" class="category-list" role="group" aria-label="카테고리 선택">
+<button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="세제">생활용품</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="간편식">식품</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="이어폰">디지털</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="화장품">뷰티</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="의류">패션</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">주방</button>
+</div>
+<div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
+<p class="category-caption">검색 결과는 연결된 제휴 쇼핑몰의 일부 상품입니다. 전체 쇼핑몰 상품 목록과 다를 수 있습니다.</p>
+</section>
+
+<section id="toss-picks" class="curated-section" aria-label="토스쇼핑 개별 추천 상품" hidden>
+<div class="section-head"><div><span class="overline">HANDPICKED / PARTNER</span><h2>직접 골라둔 상품</h2><p>별도로 등록한 토스쇼핑 제휴 상품입니다. 최신 가격은 판매처에서 확인해 주세요.</p></div><span class="section-count">SELECTED 01</span></div>
 <div id="toss-products" class="curated-grid"></div>
 <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
 </section>
-<section id="deals"><div class="section"><div><h2 id="product-heading">🔥 오늘의 추천 상품</h2><div id="status" class="muted" role="status">상품을 불러오는 중입니다...</div></div><div class="tabs" id="tabs"><button class="tab active" data-area="today">실시간 베스트</button><button class="tab" data-area="popular">인기상품</button><button class="tab" data-area="pick">추천상품</button></div></div><div id="products" class="grid"></div></section>
-<section id="about" class="banner" style="background:#eff4ff;color:#526280"><strong>알뜰픽 안내</strong><br>등록된 가격은 실시간 최종 결제 가격과 다를 수 있습니다. 할인율과 최저가를 보증하지 않으며, 이미지 및 상품 정보는 제공처의 권한과 정책에 따릅니다.</section>
+
+<section id="deals" class="deals" aria-label="상품 목록">
+<div class="section"><div><span class="overline">PRODUCTS / DISCOVER</span><h2 id="product-heading">오늘의 추천 상품</h2></div>
+<div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
+<button type="button" class="tab active" data-area="today" aria-pressed="true">실시간 베스트</button>
+<button type="button" class="tab" data-area="popular" aria-pressed="false">인기상품</button>
+<button type="button" class="tab" data-area="pick" aria-pressed="false">추천상품</button>
+</div></div>
+<div class="results-meta"><div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div><span class="aside">상품별 실제 가격과 배송비는 판매처에서 확인해 주세요.</span></div>
+<div id="products" class="grid"></div>
+</section>
+
+<section id="about" class="policy-strip">
+<div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 제휴 쇼핑몰의 추천 상품을 안내합니다. 표시된 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 상품 이미지와 정보는 각 제공처의 권한 및 정책에 따릅니다. 일부 링크를 통한 구매 시 운영자에게 수수료가 지급될 수 있습니다.</p></div>
+<span class="policy-mark">ABOUT ALTTULPICK</span>
+</section>
 </main>
-<footer class="footer"><div class="wrap"><div class="foothead">알뜰픽.</div>알뜰픽 테스트 버전 · 문의/운영자 정보는 정식 출시 전에 추가됩니다.<br>© Alttulpick. 제휴사 및 쇼핑몰의 공식 사이트가 아닙니다.</div></footer>
+<footer class="footer"><div class="wrap footerin">
+<div><div class="foothead">알뜰<b>픽.</b></div><div class="footer-meta">알뜰픽 테스트 버전 · 문의 및 운영자 정보는 정식 출시 전에 추가됩니다.<br>© Alttulpick. 제휴사 및 판매처의 공식 쇼핑몰이 아닙니다.</div></div>
+<p class="footer-note">이 사이트에는 광고·제휴 링크가 포함되어 있으며, 링크를 통한 구매 시 운영자에게 일정 수수료가 지급될 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p>
+</div></footer>
 <script>
-const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
+const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
 const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
 function make(tag,klass,text){const el=document.createElement(tag);if(klass)el.className=klass;if(text!==undefined)el.textContent=String(text);return el}
-function imageFallback(pic,isDemo=false,icon="🛍️"){pic.classList.add("has-fallback");pic.replaceChildren(make("span","fallback-symbol",icon),make("span","fallback-caption",isDemo?"예시 상품":"이미지 준비 중"))}
+function imageFallback(pic,isDemo=false,product=null){
+  pic.classList.add("has-fallback");
+  if(product?.id==="toss-sparkle-water-500ml-80"){
+    pic.replaceChildren(make("span","fallback-wordmark","SPARKLE"),make("span","fallback-size","500 mL × 80"),make("span","fallback-caption","상품 사진은 판매처에서 확인"));
+  }else{
+    pic.replaceChildren(make("span","fallback-no","NO IMAGE"),make("span","fallback-caption",isDemo?"예시 상품":"이미지 미제공"));
+  }
+}
 function show(items,isDemo,target=grid){target.replaceChildren();if(!items.length){target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
-items.forEach(p=>{const card=make("article","card"),pic=make("div","picture");if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){const img=document.createElement("img");img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.addEventListener("error",()=>imageFallback(pic));pic.append(img);img.src=p.photo}else imageFallback(pic,isDemo,p.icon||"🛍️");card.append(pic);
+items.forEach(p=>{const card=make("article","card"),pic=make("div","picture");if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){const img=document.createElement("img");img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.addEventListener("error",()=>imageFallback(pic,isDemo,p));pic.append(img);img.src=p.photo}else imageFallback(pic,isDemo,p);card.append(pic);
 const box=make("div","content");box.append(make("div","merchant",p.cp_name||"제휴 쇼핑몰"));box.append(make("div","product",p.title||"상품명 없음"));
 const rawPrice=(typeof p.price==="number"||typeof p.price==="string")?String(p.price):"";const parsedPrice=Number(rawPrice.replace(/[^0-9]/g,""));const price=Number.isFinite(parsedPrice)&&parsedPrice>0?parsedPrice:null;box.append(make("div","price",price?new Intl.NumberFormat("ko-KR").format(price)+"원":p.affiliate_source==="toss_sharelink"?"가격은 토스에서 확인":"가격 확인 필요"));
 const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false,isToss=false;
@@ -62,7 +240,7 @@ try{
   allowed=isAdpick||isToss;
 }catch{}
 if(isToss)box.append(make("div","commission-detail","토스쇼핑 쉐어링크 제휴 상품 · 가격은 판매처에서 확인"));
-const label=allowed&&!isDemo?(isToss?"토스쇼핑에서 상품 보기 ↗":"판매처 보러가기"):"판매처 확인 불가";
+const label=allowed&&!isDemo?(isToss?"토스쇼핑에서 보기 ↗":"판매처에서 보기 ↗"):"판매처 확인 불가";
 const link=make("a","go"+(allowed&&!isDemo?"":" disabled"),label);
 if(allowed&&!isDemo){link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer"}else link.setAttribute("aria-disabled","true");
 box.append(link);card.append(box);target.append(card)})}
@@ -107,7 +285,7 @@ try{
 tabs.addEventListener("click",e=>{
   const b=e.target.closest("[data-area]");if(!b)return;
   activate(tabs,b);activate(categories,null);input.value="";
-  heading.textContent="🔥 "+b.textContent+" 상품";
+  heading.textContent=b.textContent+" 상품";
   load("/api/best?area="+encodeURIComponent(b.dataset.area)+"&limit=10");
 });
 // Each category triggers one live search. Do not store third-party product data.
@@ -124,7 +302,7 @@ const subQueries={
 function searchProducts(q,label){
   activate(tabs,null);
   input.value="";
-  heading.textContent="🔎 "+(label||q)+" 관련 상품";
+  heading.textContent=(label||q)+" 관련 상품";
   load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
 }
 function renderSubcategories(q){
@@ -143,7 +321,7 @@ categories.addEventListener("click",e=>{
   renderSubcategories(q);
   if(!q){
     activate(tabs,tabs.querySelector("[data-area=today]"));
-    heading.textContent="🔥 오늘의 추천 상품";
+    heading.textContent="오늘의 추천 상품";
     input.value="";
     load("/api/best?area=today&limit=10");
     return;
@@ -158,7 +336,17 @@ subcatlist.addEventListener("click",e=>{
 document.getElementById("searchform").addEventListener("submit",e=>{
   e.preventDefault();const q=input.value.trim();if(q.length<2){input.focus();return}
   activate(tabs,null);activate(categories,null);
-  heading.textContent="🔎 '"+q+"' 검색 결과";
+  heading.textContent="‘"+q+"’ 검색 결과";
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
+});
+document.getElementById("quick-searches").addEventListener("click",e=>{
+  const b=e.target.closest("[data-quick]");
+  if(!b)return;
+  const q=b.dataset.quick;
+  activate(categories,null);activate(tabs,null);
+  renderSubcategories("");
+  input.value=q;
+  heading.textContent=q+" 검색 결과";
   load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
 });
 load("/api/best?area=today&limit=10");
@@ -176,4 +364,7 @@ async function loadCuratedProducts(){
   }
 }
 loadCuratedProducts();
-</script></body></html>
+
+</script>
+</body>
+</html>
