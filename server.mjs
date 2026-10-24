@@ -26,7 +26,7 @@ function allowedOrigin(req){
  try{
   const parsed=new URL(origin);
   const host=String(req.headers.host||'');
-  return parsed.host===host&&(parsed.protocol==='https:'||parsed.protocol==='http:');
+  return origin==='https://alttulpick-shop.onrender.com'||(parsed.host===host&&(parsed.protocol==='https:'||parsed.protocol==='http:'));
  }catch{return false}
 }
 async function readSmallJson(req){
@@ -42,6 +42,17 @@ const TIME_WINDOW=60000, MAX_CALLS=8, hits=[];
 const send=(res,code,obj)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))};
 const server=createServer(async(req,res)=>{
 const url=new URL(req.url||'/', 'http://localhost');
+// Browser access is limited to the separate, public Alttulpick storefront.
+const storefrontOrigin='https://alttulpick-shop.onrender.com';
+if(req.headers.origin===storefrontOrigin && url.pathname.startsWith('/api/')){
+ res.setHeader('Access-Control-Allow-Origin',storefrontOrigin);
+ res.setHeader('Vary','Origin');
+}
+if(req.method==='OPTIONS'&&url.pathname.startsWith('/api/')){
+ if(req.headers.origin!==storefrontOrigin){res.writeHead(403);res.end();return}
+ res.writeHead(204,{'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600'});
+ res.end();return;
+}
 if(req.method==='GET'&&(url.pathname==='/'||url.pathname==='/index.html')){
  analytics.pageView();
  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
