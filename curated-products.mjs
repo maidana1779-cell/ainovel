@@ -7,6 +7,8 @@ const products=Object.freeze([
     id:'toss-sparkle-water-500ml-80',
     title:'스파클 생수, 무라벨, 500ml, 80개',
     cp_name:'토스쇼핑',
+    // Official Toss brand asset; this is presentation-only, not a tracking link.
+    cp_icon:'https://static.toss.im/icons/png/4x/icon-toss-logo.png',
     price:null,
     photo:null,
     commissionlink:'https://toss.shopping/_m/fEfXH2Dz',
