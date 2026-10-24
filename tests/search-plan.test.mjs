@@ -74,8 +74,9 @@ test('Union result removes duplicates but retains distinct merchants or pack pri
 });
 test('Server reserves actual affiliate API quota for all expanded searches',()=>{
  const src=readFileSync(new URL('../server.mjs',import.meta.url),'utf8');
- assert.match(src,/callCount=endpoint==='search'\?plan\.terms\.length:1/);
- assert.match(src,/hits\.length\+callCount>MAX_CALLS/);
+ assert.match(src,/const remaining=MAX_CALLS-hits\.length/);
+ assert.match(src,/const activeTerms=endpoint==='search'\?plan\.terms\.slice\(0,remaining\):\[\]/);
+ assert.match(src,/const callCount=endpoint==='search'\?activeTerms\.length:1/);
  assert.match(src,/Promise\.allSettled\(requests\)/);
  assert.match(src,/uniqueProductResults/);
 });
