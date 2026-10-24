@@ -4,6 +4,7 @@ import {createAnalytics} from './analytics.mjs';
 import {selectRelevantProducts} from './relevance.mjs';
 import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from './search-plan.mjs';
+import {normalizePartnerMalls} from './partner-malls.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
 const analytics=createAnalytics();
@@ -39,6 +40,7 @@ async function readSmallJson(req){
 }
 
 const TIME_WINDOW=60000, MAX_CALLS=8, hits=[];
+const mallHits=[]; // /malls has its own BIZ quota (60/min).
 const send=(res,code,obj)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))};
 const server=createServer(async(req,res)=>{
 const url=new URL(req.url||'/', 'http://localhost');
@@ -75,6 +77,28 @@ if(!url.pathname.startsWith('/api/')){res.writeHead(404);res.end('Not found');re
 if(req.method!=='GET'){send(res,405,{success:false,message:'GET only'});return}
 if(url.pathname==='/api/curated'){
   send(res,200,{success:true,data:curatedProducts()});
+  return;
+}
+if(url.pathname==='/api/malls'){
+  const key=process.env.ADPICK_API_KEY;
+  if(!key){send(res,503,{success:false,code:'API_NOT_CONFIGURED',data:[]});return}
+  const now=Date.now();
+  while(mallHits.length&&now-mallHits[0]>TIME_WINDOW)mallHits.shift();
+  if(mallHits.length>=30){send(res,429,{success:false,message:'제휴몰 조회 요청이 많습니다'});return}
+  mallHits.push(now);
+  try{
+    const upstream=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/malls');
+    upstream.searchParams.set('order','popular');
+    upstream.searchParams.set('rewardmalls','false');
+    const response=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+    if(!response.ok)throw Error('UPSTREAM_HTTP_'+response.status);
+    const data=await response.json();
+    if(data?.success!==true)throw Error('UPSTREAM_DATA');
+    const malls=normalizePartnerMalls(data);
+    send(res,200,{success:true,data:malls,count:malls.length});
+  }catch{
+    send(res,502,{success:false,message:'제휴몰 목록을 불러오지 못했습니다',data:[]});
+  }
   return;
 }
 
