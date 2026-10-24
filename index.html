@@ -114,6 +114,17 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .go.disabled{background:#f4f5f7;color:#9da6b1;pointer-events:none}
 .commission-detail{color:#8290a1;font-size:10px;line-height:1.65;margin:0 0 13px}
 .empty{grid-column:1/-1;background:#f9fafc;border:1px dashed #d9e1eb;border-radius:14px;color:#7b8ba0;font-size:13px;line-height:1.8;padding:55px 25px;text-align:center}
+.more-area{display:flex;flex-direction:column;align-items:center;gap:8px;margin:-7px 0 36px}
+.more-button{background:#fff;color:#2658b1;border:1px solid #cbdaf3;padding:14px 27px;min-width:230px;border-radius:12px;font-size:13px;font-weight:850}
+.more-button:hover:not(:disabled){background:#eef5ff;border-color:#8ab0ea}
+.more-button:disabled{cursor:wait;opacity:.65}
+.more-note{font-size:11px;color:#8b98a9;text-align:center;line-height:1.7;max-width:650px}
+.related-browse{border-top:1px solid var(--border);padding:20px 0 12px;margin:0 0 30px}
+.related-browse strong{font-size:14px;letter-spacing:-.3px}
+.related-browse p{font-size:11px;color:#8894a5;margin:6px 0 13px}
+.related-list{display:flex;flex-wrap:wrap;gap:8px}
+.related-link{background:#f4f7fb;border:1px solid #e8edf5;border-radius:50px;font-weight:720;font-size:12px;padding:9px 14px;color:#46586f}
+.related-link:hover{background:#e9f2ff;border-color:#acc8f1;color:#1657cc}
 .curated-section{margin:24px 0 52px;padding:28px 26px 22px;background:#eff5ff;border-radius:23px}
 .section-head{margin:0 0 18px;display:flex;justify-content:space-between;align-items:end;gap:18px}
 .section-head .overline{letter-spacing:1.35px}
@@ -160,6 +171,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:24px}
  .content{padding:11px}.merchant-logo{width:23px;height:23px;flex-basis:23px;border-radius:6px}.merchant-badge{gap:5px}.merchant-name{max-width:128px}.product{font-size:12px;min-height:58px;line-height:1.5;margin:7px 0}.merchant{font-size:10px}.price{font-size:18px;margin:0 0 12px}
  .go{font-size:11px;padding:11px 4px}.picture{aspect-ratio:1.05}
+ .more-area{margin:0 0 27px}.more-button{width:100%}.related-browse{padding-top:17px;margin-bottom:25px}.related-list{gap:7px}.related-link{font-size:11px;padding:8px 12px}
  .curated-section{margin:19px -17px 42px;border-radius:0;padding:25px 17px 22px}.section-head h2{font-size:23px}.section-head p{font-size:11px}.section-count{display:none}
  .curated-grid .card{grid-template-columns:40% minmax(0,1fr);min-height:210px}.curated-grid .picture{min-height:210px}
  .curated-grid .content{padding:15px 12px}.curated-grid .product{font-size:14px;margin:8px 0}.curated-grid .price{font-size:11px;padding:9px 8px}.curated-grid .go{font-size:11px;min-height:42px;padding:9px 5px}.curated-grid .merchant{font-size:11px}.curated-grid .fallback-size{font-size:25px}
@@ -230,6 +242,14 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   <span class="aside">실제 구매 가격과 배송비는 판매처에서 확인</span>
  </div>
  <div id="products" class="grid"></div>
+ <div id="more-area" class="more-area" hidden>
+  <button id="more-products" type="button" class="more-button" aria-controls="products">관련 상품 더 보기 +</button>
+  <div id="more-note" class="more-note" role="status" aria-live="polite">연관 품목을 새로 검색해 보여줍니다. 동일한 상품은 제외해요.</div>
+ </div>
+ <div id="related-browse" class="related-browse" hidden>
+  <strong>다른 품목 둘러보기</strong><p>선택한 품목의 상품을 새로 검색합니다.</p>
+  <div id="related-list" class="related-list"></div>
+ </div>
 </section>
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
@@ -295,7 +315,7 @@ function merchantBadge(product){
   badge.append(logo,make("span","merchant-name",name));
   return badge;
 }
-function show(items,isDemo,target=grid){target.replaceChildren();if(!items.length){target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
+function show(items,isDemo,target=grid,append=false){if(!append)target.replaceChildren();if(!items.length){if(!append)target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
 items.forEach(p=>{const card=make("article","card"),pic=make("div","picture");if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){const img=document.createElement("img");img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.addEventListener("error",()=>imageFallback(pic,isDemo,p));pic.append(img);img.src=p.photo}else imageFallback(pic,isDemo,p);card.append(pic);
 const box=make("div","content");box.append(merchantBadge(p));box.append(make("div","product",p.title||"상품명 없음"));
 const rawPrice=(typeof p.price==="number"||typeof p.price==="string")?String(p.price):"";const parsedPrice=Number(rawPrice.replace(/[^0-9]/g,""));const price=Number.isFinite(parsedPrice)&&parsedPrice>0?parsedPrice:null;box.append(make("div","price",price?new Intl.NumberFormat("ko-KR").format(price)+"원":p.affiliate_source==="toss_sharelink"?"가격은 토스에서 확인":"가격 확인 필요"));
@@ -311,10 +331,36 @@ const label=allowed&&!isDemo?(isToss?"토스쇼핑에서 보기 ↗":"판매처�
 const link=make("a","go"+(allowed&&!isDemo?"":" disabled"),label);
 if(allowed&&!isDemo){link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer"}else link.setAttribute("aria-disabled","true");
 box.append(link);card.append(box);target.append(card)})}
-let requestId=0;
+const moreArea=document.getElementById("more-area"),moreButton=document.getElementById("more-products"),moreNote=document.getElementById("more-note");
+const relatedBrowse=document.getElementById("related-browse"),relatedList=document.getElementById("related-list");
+let requestId=0,currentQuery="",nextBatch=0,moreBusy=false,seenProductKeys=new Set(),shownCount=0;
+function productKey(p){
+  const title=String(p?.title||"").normalize("NFKC").toLowerCase().replace(/[^가-힣a-z0-9]/g,"");
+  return String(p?.affiliate_source||p?.cp_code||p?.cp_name||"")+"|"+title+"|"+String(p?.price??"");
+}
+function uniqueNew(items){
+  const added=[];
+  for(const item of items){
+    if(!item||typeof item.title!=="string")continue;
+    const key=productKey(item);
+    if(seenProductKeys.has(key))continue;
+    seenProductKeys.add(key);added.push(item);
+  }
+  return added;
+}
+function updateMoreControls(hasMore){
+  moreArea.hidden=!hasMore;
+  moreButton.disabled=moreBusy;
+  moreButton.textContent=moreBusy?"새 상품 찾는 중…":"관련 상품 더 보기 +";
+}
 function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
 async function load(url){
 const id=++requestId;
+const u=new URL(url,location.href);
+currentQuery=u.pathname==="/api/search"?u.searchParams.get("q")||"":"";
+nextBatch=0;moreBusy=false;seenProductKeys=new Set();shownCount=0;
+updateMoreControls(false);
+relatedBrowse.hidden=true;relatedList.replaceChildren();
 statusEl.textContent="상품을 불러오는 중입니다...";
 grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
 try{
@@ -326,12 +372,19 @@ try{
     const excluded=Number(payload.filter_meta?.excluded||0);
     const duplicates=Number(payload.filter_meta?.duplicates_removed||0);
     const expanded=Number(payload.filter_meta?.queries_checked||0)>1;
-    show(list,false);
+    const initial=uniqueNew(list);
+    shownCount=initial.length;
+    show(initial,false);
+    if(currentQuery) {
+      nextBatch=1;
+      updateMoreControls(payload.filter_meta?.has_more===true);
+      showRelatedBrowse(currentQuery);
+    }
     if(!list.length){
       grid.replaceChildren(make("div","empty","검색어와 맞는 상품이 없어요. 무관한 상품은 표시하지 않습니다. 다른 키워드를 선택해 주세요."));
       statusEl.textContent=excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음";
     }else{
-      statusEl.textContent="관련 상품 "+list.length+"개"+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+" · 가격은 판매처에서 확인";
+      statusEl.textContent="관련 상품 "+shownCount+"개"+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+" · 가격은 판매처에서 확인";
     }
     return;
   }
@@ -351,6 +404,38 @@ try{
  grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
  statusEl.textContent="상품 연결 오류";
 }}
+// Progressive category discovery. Supplier data remains in browser memory only
+// until the user changes the search or closes the page.
+moreButton.addEventListener("click",async()=>{
+  if(moreBusy||!currentQuery||moreArea.hidden)return;
+  const id=requestId,q=currentQuery,batch=nextBatch;
+  moreBusy=true;moreNote.textContent="다른 관련 품목을 검색하고 있어요.";
+  updateMoreControls(true);
+  try{
+    const res=await fetch("/api/search?q="+encodeURIComponent(q)+"&batch="+batch+"&limit=30",{cache:"no-store"});
+    const payload=await res.json();
+    if(id!==requestId)return;
+    if(!res.ok||!payload.success){
+      moreNote.textContent=res.status===429?"검색 요청 한도에 도달했어요. 잠시 후 다시 눌러주세요.":"추가 상품을 가져오지 못했어요. 다시 눌러주세요.";
+      return;
+    }
+    const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:[];
+    const fresh=uniqueNew(list);
+    if(fresh.length){show(fresh,false,grid,true);shownCount+=fresh.length;}
+    nextBatch=batch+1;
+    const hasMore=payload.filter_meta?.has_more===true;
+    statusEl.textContent="표시 중인 서로 다른 관련 상품 "+shownCount+"개 · 구매 조건은 판매처에서 확인";
+    moreNote.textContent=fresh.length?("새 상품 "+fresh.length+"개 추가 · 현재 "+shownCount+"개 표시"):(hasMore?"이번 검색에서는 새 상품이 없었어요. 다음 품목을 확인할 수 있어요.":"더 찾을 수 있는 연관 검색어가 없어요. 아래 다른 품목을 골라보세요.");
+    moreArea.hidden=!hasMore;
+  }catch{
+    if(id===requestId)moreNote.textContent="연결이 원활하지 않아요. 다시 눌러주세요.";
+  }finally{
+    if(id===requestId){
+      moreBusy=false;
+      if(!moreArea.hidden)updateMoreControls(true);
+    }
+  }
+});
 tabs.addEventListener("click",e=>{
   const b=e.target.closest("[data-area]");if(!b)return;
   activate(tabs,b);activate(categories,null);input.value="";
@@ -361,7 +446,7 @@ tabs.addEventListener("click",e=>{
 const subcategories=document.getElementById("subcategories");
 const subcatlist=document.getElementById("subcatlist");
 const subQueries={
-  "세제":["세탁세제","화장지","물티슈","청소용품","샴푸","섬유유연제","수납용품"],
+  "세제":["세탁세제","주방세제","캡슐세제","액체세제","화장지","물티슈","청소용품","샴푸","섬유유연제"],
   "간편식":["라면","즉석밥","커피","생수","쌀","과자","냉동식품"],
   "이어폰":["무선이어폰","충전기","키보드","마우스","노트북","보조배터리","모니터"],
   "화장품":["선크림","스킨케어","쿠션","클렌징","립스틱","핸드크림"],
@@ -373,6 +458,15 @@ function searchProducts(q,label){
   input.value="";
   heading.textContent=(label||q)+" 관련 상품";
   load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
+}
+function showRelatedBrowse(q){
+  relatedList.replaceChildren();
+  const options=subQueries[q]||[];
+  relatedBrowse.hidden=!options.length;
+  for(const term of options){
+    const b=make("button","related-link",term+" ↗");
+    b.type="button";b.dataset.related=term;relatedList.append(b);
+  }
 }
 function renderSubcategories(q){
   subcatlist.replaceChildren();
@@ -396,6 +490,14 @@ categories.addEventListener("click",e=>{
     return;
   }
   searchProducts(q,b.textContent.trim());
+});
+relatedList.addEventListener("click",e=>{
+  const b=e.target.closest("[data-related]");if(!b)return;
+  const term=b.dataset.related;
+  activate(tabs,null);
+  heading.textContent=term+" 관련 상품";
+  searchProducts(term,term);
+  document.getElementById("deals").scrollIntoView({block:"start"});
 });
 subcatlist.addEventListener("click",e=>{
   const b=e.target.closest("[data-subquery]");if(!b)return;
