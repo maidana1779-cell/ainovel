@@ -1,13 +1,76 @@
 import {createServer} from 'node:http';
+import {createHash,timingSafeEqual} from 'node:crypto';
+import {createAnalytics} from './analytics.mjs';
 import {selectRelevantProducts} from './relevance.mjs';
 import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from './search-plan.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
+const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
+const analytics=createAnalytics();
+const trackHits=[];
+const TRACK_LIMIT=120;
+function isAdmin(req){
+ const secret=process.env.ALTTUL_ADMIN_TOKEN||'';
+ const supplied=String(req.headers.authorization||'');
+ if(secret.length<32||!supplied.startsWith('Bearer '))return false;
+ const offered=supplied.slice(7);
+ if(offered.length<32||offered.length>256)return false;
+ const storedHash=createHash('sha256').update(secret).digest();
+ const suppliedHash=createHash('sha256').update(offered).digest();
+ return timingSafeEqual(storedHash,suppliedHash);
+}
+function allowedOrigin(req){
+ const origin=req.headers.origin;
+ // Same-origin sendBeacon POSTs include the page origin.
+ if(typeof origin!=='string')return false;
+ try{
+  const parsed=new URL(origin);
+  const host=String(req.headers.host||'');
+  return parsed.host===host&&(parsed.protocol==='https:'||parsed.protocol==='http:');
+ }catch{return false}
+}
+async function readSmallJson(req){
+ let content='';
+ for await (const chunk of req){
+  content+=chunk.toString('utf8');
+  if(content.length>900)throw Error('too large');
+ }
+ return JSON.parse(content);
+}
+
 const TIME_WINDOW=60000, MAX_CALLS=8, hits=[];
 const send=(res,code,obj)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))};
 const server=createServer(async(req,res)=>{
 const url=new URL(req.url||'/', 'http://localhost');
-if(req.method==='GET'&&(url.pathname==='/'||url.pathname==='/index.html')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(await page);return}
+if(req.method==='GET'&&(url.pathname==='/'||url.pathname==='/index.html')){
+ analytics.pageView();
+ res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
+ res.end(await page);return;
+}
+if(req.method==='GET'&&(url.pathname==='/admin'||url.pathname==='/admin/')){
+ res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store, private','X-Robots-Tag':'noindex, nofollow','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','X-Content-Type-Options':'nosniff'});
+ res.end(await adminPage);return;
+}
+if(req.method==='GET'&&url.pathname==='/api/admin/summary'){
+ if(!isAdmin(req)){send(res,401,{success:false,message:'Unauthorized'});return}
+ send(res,200,analytics.snapshot());return;
+}
+if(req.method==='POST'&&url.pathname==='/api/telemetry'){
+ if(!allowedOrigin(req)||!String(req.headers['content-type']||'').startsWith('application/json')){
+  send(res,403,{success:false});return;
+ }
+ const now=Date.now();while(trackHits.length&&now-trackHits[0]>60000)trackHits.shift();
+ if(trackHits.length>=TRACK_LIMIT){send(res,429,{success:false});return}
+ trackHits.push(now);
+ try{
+  const body=await readSmallJson(req);
+  if(body?.event!=='product_click'||typeof body?.merchant!=='string'||body.merchant.length>80){
+   send(res,400,{success:false});return;
+  }
+  analytics.click(body.merchant);
+  send(res,200,{success:true});return;
+ }catch{send(res,400,{success:false});return}
+}
 if(!url.pathname.startsWith('/api/')){res.writeHead(404);res.end('Not found');return}
 if(req.method!=='GET'){send(res,405,{success:false,message:'GET only'});return}
 if(url.pathname==='/api/curated'){
@@ -63,6 +126,7 @@ try{
    const distinct=uniqueProductResults(matched);
    const curated=plan.batch===0?matchingCuratedProducts(params.q):[];
    const combined=uniqueProductResults([...curated,...distinct]).slice(0,requested);
+   analytics.search(params.q,combined.length);
    const original=successes[0];
    const filteredData=Array.isArray(original.data)?combined:{...original.data,list:combined};
    send(res,200,{...original,data:filteredData,filter_meta:{
