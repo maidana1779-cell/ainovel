@@ -261,6 +261,60 @@ body.category-active .category-caption{display:none}
 }
 @media(max-width:390px){.brand-tag{display:none}.nav a:last-child{display:none}.curated-grid .card{grid-template-columns:38% minmax(0,1fr)}.curated-grid .content{padding:11px 10px}.curated-grid .fallback-size{font-size:21px}}
 
+
+/* Marketplace-inspired image-first product cards with full-card affiliate links. */
+.grid,.product-discovery .discovery-grid{column-gap:17px;row-gap:25px}
+.card{border:0;border-radius:13px;background:#fff;box-shadow:none;overflow:visible}
+.card:hover{transform:none;box-shadow:none}
+.product-card-link{display:flex;flex-direction:column;height:100%;min-width:0;min-height:100%;text-decoration:none;border-radius:13px;outline-offset:3px}
+.card--clickable .product-card-link{cursor:pointer}
+.card--clickable .product-card-link:hover .product{color:#1762da}
+.card--clickable .product-card-link:hover .picture{box-shadow:0 7px 22px #1b304b16}
+.card--clickable .product-card-link:hover .picture img{transform:scale(1.045)}
+.product-card-link:focus-visible{outline:3px solid #2468e8;outline-offset:4px}
+.picture{border-radius:13px;aspect-ratio:1/1;background:#f5f6f8}
+.picture img{border-radius:13px}
+.content{padding:12px 2px 5px;gap:0}
+.merchant-badge{order:0;gap:5px;margin-bottom:7px;color:#7c8798}
+.merchant-logo{width:20px;height:20px;flex-basis:20px;border-radius:5px}
+.merchant-name{font-size:11px;font-weight:680}
+.product{order:1;min-height:0;margin:0 0 8px;font-size:14px;font-weight:650;line-height:1.5;-webkit-line-clamp:2}
+.pricing{order:2;min-height:0;margin:0 0 7px;gap:3px}
+.pricing .price{font-size:23px;font-weight:900;letter-spacing:-.85px;color:#172236}
+.discount-line{gap:8px}
+.discount-rate{font-size:18px}
+.regular-price{font-size:12px}
+.card-foot{order:3;display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:auto;min-height:18px;color:#8a97a7}
+.shop-hint{font-size:10px;font-weight:600}
+.external-arrow{font-size:17px;line-height:1;color:#557fbe;transition:transform .2s}
+.card--clickable .product-card-link:hover .external-arrow{transform:translate(2px,-2px)}
+.card--unavailable .shop-hint{color:#a4abb5}
+.curated-grid .card{display:block;min-height:0}
+.curated-grid .product-card-link{display:grid;grid-template-columns:minmax(210px,38%) minmax(0,1fr)}
+.curated-grid .picture{height:100%;min-height:250px;border-radius:14px 0 0 14px}
+.curated-grid .content{padding:24px 28px;justify-content:center}
+.curated-grid .product{font-size:21px;min-height:0;margin:8px 0 12px;-webkit-line-clamp:3;font-weight:800}
+.curated-grid .price{font-size:21px;background:none;border-radius:0;padding:0;margin:0}
+.curated-grid .card-foot{margin-top:16px}
+@media(max-width:730px){
+ .grid,.product-discovery .discovery-grid{column-gap:12px;row-gap:21px}
+ .picture{aspect-ratio:1/1}
+ .content{padding:9px 1px 4px}
+ .merchant-logo{width:18px;height:18px;flex-basis:18px}
+ .merchant-name{font-size:10px}
+ .product{font-size:12px;line-height:1.5;min-height:0;margin:0 0 7px;-webkit-line-clamp:2}
+ .pricing{margin-bottom:5px}
+ .pricing .price{font-size:19px}
+ .discount-rate{font-size:15px}.regular-price{font-size:11px}
+ .shop-hint{font-size:9px}.external-arrow{font-size:15px}
+ .curated-grid .product-card-link{grid-template-columns:40% minmax(0,1fr)}
+ .curated-grid .picture{min-height:185px}
+ .curated-grid .content{padding:14px 12px}
+ .curated-grid .product{font-size:14px;margin:7px 0;min-height:0}
+ .curated-grid .pricing .price{font-size:16px;padding:0;margin:0}
+ .curated-grid .card-foot{margin-top:9px}
+}
+
 </style>
 </head>
 <body>
@@ -452,47 +506,63 @@ function merchantBadge(product){
   badge.append(logo,make("span","merchant-name",name));
   return badge;
 }
-function show(items,isDemo,target=grid,append=false){if(!append)target.replaceChildren();if(!items.length){if(!append)target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
-items.forEach(p=>{const card=make("article","card"),pic=make("div","picture");if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){const img=document.createElement("img");img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.addEventListener("error",()=>imageFallback(pic,isDemo,p));pic.append(img);img.src=p.photo}else imageFallback(pic,isDemo,p);card.append(pic);
-const box=make("div","content");box.append(merchantBadge(p));box.append(make("div","product",p.title||"상품명 없음"));
-const pricing=make("div","pricing");
-const discount=verifiedDiscount(p);
-if(discount){
-  pricing.classList.add("has-discount");
-  const row=make("div","discount-line");
-  row.append(make("strong","discount-rate",discount.rate+"% 할인"),
-    make("s","regular-price",won(discount.original)));
-  pricing.append(row,make("div","price sale-price",won(discount.sale)),
-    make("span","price-reference","판매처 상품정보 기준 · 결제 가격 확인"));
-}else{
-  const price=displayPrice(p);
-  pricing.append(make("div","price"+(price===null?" price-unavailable":""),
-    price===null?(p.affiliate_source==="toss_sharelink"?"가격은 토스에서 확인":"가격 확인 필요"):won(price)));
-}
-box.append(pricing);
-const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false,isToss=false;
-try{
-  const url=new URL(href);
-  const isAdpick=url.protocol==="https:"&&(/^(biz|link)\.adpick\.co\.kr$/.test(url.hostname)||url.hostname==="bitl.bz");
-  isToss=p.affiliate_source==="toss_sharelink"&&url.protocol==="https:"&&url.hostname==="toss.shopping"&&/^\/_m\/[A-Za-z0-9]+$/.test(url.pathname);
-  allowed=isAdpick||isToss;
-}catch{}
-if(isToss)box.append(make("div","commission-detail","토스쇼핑 쉐어링크 제휴 상품 · 가격은 판매처에서 확인"));
-const label=allowed&&!isDemo?(isToss?"토스쇼핑에서 보기 ↗":"판매처에서 보기 ↗"):"판매처 확인 불가";
-const link=make("a","go"+(allowed&&!isDemo?"":" disabled"),label);
-if(allowed&&!isDemo){
-  link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer";
-  // Small aggregate-only telemetry. No personal IDs, cookies, URL or product title.
-  link.addEventListener("click",()=>{
+function show(items,isDemo,target=grid,append=false){
+ if(!append)target.replaceChildren();
+ if(!items.length){if(!append)target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
+ items.forEach(p=>{
+  const href=typeof p.commissionlink==="string"?p.commissionlink:"";
+  let allowed=false,isToss=false;
+  try{
+   const url=new URL(href);
+   const isAdpick=url.protocol==="https:"&&(/^(biz|link)\\.adpick\\.co\\.kr$/.test(url.hostname)||url.hostname==="bitl.bz");
+   isToss=p.affiliate_source==="toss_sharelink"&&url.protocol==="https:"&&url.hostname==="toss.shopping"&&/^\\/_m\\/[A-Za-z0-9]+$/.test(url.pathname);
+   allowed=isAdpick||isToss;
+  }catch{}
+  const clickable=allowed&&!isDemo;
+  const card=make("article","card"+(clickable?" card--clickable":" card--unavailable"));
+  const link=make(clickable?"a":"div","product-card-link");
+  if(clickable){
+   link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer";
+   link.setAttribute("aria-label",(p.title||"상품")+" · "+(p.cp_name||"판매처")+"에서 보기 (새 창)");
+   link.addEventListener("click",()=>{
     const event=JSON.stringify({event:"product_click",merchant:String(p.cp_name||"제휴 쇼핑몰").slice(0,80)});
     try{
-      const blob=new Blob([event],{type:"application/json"});
-      if(navigator.sendBeacon?.(API_ORIGIN+"/api/telemetry",blob))return;
-      fetch(API_ORIGIN+"/api/telemetry",{method:"POST",headers:{"Content-Type":"application/json"},body:event,keepalive:true}).catch(()=>{});
-    }catch{/* Affiliate link remains clickable if analytics fails. */}
-  });
-}else link.setAttribute("aria-disabled","true");
-box.append(link);card.append(box);target.append(card)})}
+     const blob=new Blob([event],{type:"application/json"});
+     if(navigator.sendBeacon?.(API_ORIGIN+"/api/telemetry",blob))return;
+     fetch(API_ORIGIN+"/api/telemetry",{method:"POST",headers:{"Content-Type":"application/json"},body:event,keepalive:true}).catch(()=>{});
+    }catch{}
+   });
+  }
+  const pic=make("div","picture");
+  if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){
+   const img=document.createElement("img");img.alt="";img.loading="lazy";img.decoding="async";img.referrerPolicy="no-referrer";
+   img.addEventListener("error",()=>imageFallback(pic,isDemo,p));pic.append(img);img.src=p.photo;
+  }else imageFallback(pic,isDemo,p);
+  link.append(pic);
+  const box=make("div","content");
+  box.append(merchantBadge(p));
+  box.append(make("div","product",p.title||"상품명 없음"));
+  const pricing=make("div","pricing");
+  const discount=verifiedDiscount(p);
+  if(discount){
+   pricing.classList.add("has-discount");
+   const row=make("div","discount-line");
+   row.append(make("strong","discount-rate",discount.rate+"% 할인"),make("s","regular-price",won(discount.original)));
+   pricing.append(row,make("div","price sale-price",won(discount.sale)),
+    make("span","price-reference","판매처 확인 가격 · 결제 시 변동 가능"));
+  }else{
+   const price=displayPrice(p);
+   pricing.append(make("div","price"+(price===null?" price-unavailable":""),
+    price===null?(p.affiliate_source==="toss_sharelink"?"가격은 토스에서 확인":"가격 확인 필요"):won(price)));
+  }
+  box.append(pricing);
+  const foot=make("div","card-foot");
+  foot.append(make("span","shop-hint",clickable?"상품 자세히 보기":"판매처 링크 확인 불가"));
+  if(clickable)foot.append(make("span","external-arrow","↗"));
+  box.append(foot);
+  link.append(box);card.append(link);target.append(card);
+ })
+}
 
 const browseLayout=document.getElementById("browse-layout"),departmentGrid=document.getElementById("department-grid");
 const sideLinks=document.getElementById("side-links"),categoryTitle=document.getElementById("category-intro-title");
