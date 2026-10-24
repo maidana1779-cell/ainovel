@@ -4,7 +4,7 @@ import {createAnalytics} from './analytics.mjs';
 import {selectRelevantProducts} from './relevance.mjs';
 import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from './search-plan.mjs';
-import {verifyProductBatch} from './merchant-offers.mjs';
+import {verifyProductBatchWithMeta} from './merchant-offers.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
 const analytics=createAnalytics();
@@ -137,7 +137,7 @@ try{
    const matched=selectRelevantProducts(params.q,scoped);
    const distinct=uniqueProductResults(matched);
    const curated=plan.batch===0?matchingCuratedProducts(params.q):[];
-   const combined=await verifyProductBatch(uniqueProductResults([...curated,...distinct]).slice(0,requested));
+   const {items:combined,verification}=await verifyProductBatchWithMeta(uniqueProductResults([...curated,...distinct]).slice(0,requested));
    analytics.search(params.q,combined.length);
    const original=successes[0];
    const filteredData=Array.isArray(original.data)?combined:{...original.data,list:combined};
@@ -147,16 +147,16 @@ try{
      queries_checked:successes.length,queries_requested:activeTerms.length,
      batch:plan.batch,total_batches:plan.totalBatches,
      has_more:plan.batch+1<plan.totalBatches,
-     quota_limited:activeTerms.length<plan.terms.length
+     quota_limited:activeTerms.length<plan.terms.length,verification
    }});
    return;
  }
  const data=await fetchAffiliate('best',params);
  const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
  if(!list){send(res,200,data);return}
- const checked=await verifyProductBatch(list);
+ const {items:checked,verification}=await verifyProductBatchWithMeta(list);
  const result=Array.isArray(data.data)?checked:{...data.data,list:checked};
- send(res,200,{...data,data:result});
+ send(res,200,{...data,data:result,filter_meta:{verification}});
 }catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
