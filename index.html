@@ -214,7 +214,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   <button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">주방</button>
  </div>
  <div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
- <p class="category-caption">검색 결과는 연결된 제휴 쇼핑몰의 일부 상품입니다. 검색어당 최대 20개의 제휴 상품을 조회합니다.</p>
+ <p class="category-caption">검색 결과는 연결된 제휴 쇼핑몰의 일부 상품입니다. 일부 카테고리는 관련 검색어를 함께 확인하며, 결과는 최대 30개까지 표시합니다.</p>
 </section>
 <section id="deals" class="deals" aria-label="상품 목록">
  <div class="section">
@@ -324,12 +324,14 @@ try{
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
   if(payload.success&&list){
     const excluded=Number(payload.filter_meta?.excluded||0);
+    const duplicates=Number(payload.filter_meta?.duplicates_removed||0);
+    const expanded=Number(payload.filter_meta?.queries_checked||0)>1;
     show(list,false);
     if(!list.length){
       grid.replaceChildren(make("div","empty","검색어와 맞는 상품이 없어요. 무관한 상품은 표시하지 않습니다. 다른 키워드를 선택해 주세요."));
       statusEl.textContent=excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음";
     }else{
-      statusEl.textContent="관련 상품 "+list.length+"개"+(excluded?" · 관련 없는 결과 "+excluded+"개 제외":"")+" · 가격은 판매처에서 확인";
+      statusEl.textContent="관련 상품 "+list.length+"개"+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+" · 가격은 판매처에서 확인";
     }
     return;
   }
@@ -370,7 +372,7 @@ function searchProducts(q,label){
   activate(tabs,null);
   input.value="";
   heading.textContent=(label||q)+" 관련 상품";
-  load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
 }
 function renderSubcategories(q){
   subcatlist.replaceChildren();
@@ -404,7 +406,7 @@ document.getElementById("searchform").addEventListener("submit",e=>{
   e.preventDefault();const q=input.value.trim();if(q.length<2){input.focus();return}
   activate(tabs,null);activate(categories,null);
   heading.textContent="‘"+q+"’ 검색 결과";
-  load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
 });
 document.getElementById("quick-searches").addEventListener("click",e=>{
   const b=e.target.closest("[data-quick]");
@@ -414,7 +416,7 @@ document.getElementById("quick-searches").addEventListener("click",e=>{
   renderSubcategories("");
   input.value=q;
   heading.textContent=q+" 검색 결과";
-  load("/api/search?q="+encodeURIComponent(q)+"&limit=20");
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
 });
 load("/api/best?area=today&limit=10");
 async function loadCuratedProducts(){
