@@ -13,21 +13,24 @@ export function safeAffiliateLink(value){
 }
 export function normalizePartnerMalls(raw){
  const rows=Array.isArray(raw?.data)?raw.data:Array.isArray(raw?.data?.list)?raw.data.list:[];
- const seen=new Set(),valid=[];
- for(const mall of rows.slice(0,150)){
+ const byCode=new Map();
+ for(const mall of rows.slice(0,500)){
   const name=typeof mall?.name==="string"?mall.name.trim():"";
   const code=typeof mall?.cp_code==="string"?mall.cp_code.trim():"";
-  const url=typeof mall?.commissionlink==="string"?mall.commissionlink.trim():"";
-  if(!name||name.length>100||!code||code.length>40||!safeAffiliateLink(url))continue;
+  if(!name||name.length>100||!code||code.length>40)continue;
+  const rawLink=typeof mall?.commissionlink==="string"?mall.commissionlink.trim():"";
+  const commissionlink=safeAffiliateLink(rawLink)?rawLink:null;
   const key=code.toLowerCase();
-  if(seen.has(key))continue;
-  seen.add(key);
-  valid.push({
+  const normalized={
    cp_code:code,name,
    icon:safeHttpsImage(mall.icon),
    title:typeof mall.title==="string"?mall.title.trim().slice(0,140):"",
-   commissionlink:url
-  });
+   commissionlink
+  };
+  // The entire BIZ catalog should be visible even if a shop currently has
+  // no usable referral link. Prefer a duplicate with a genuine tracking URL.
+  const previous=byCode.get(key);
+  if(!previous||(!previous.commissionlink&&commissionlink))byCode.set(key,normalized);
  }
- return valid;
+ return [...byCode.values()];
 }
