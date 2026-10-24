@@ -38,7 +38,8 @@ test('Main today grid and distinct additional popular-product grid render live p
  assert.match(script,/const seen=new Set\(\)/);
  assert.match(script,/discoveredProducts\.push\(p\)/);
  assert.match(script,/discoveryMore\.addEventListener\("click",loadDiscoveryStep\)/);
- assert.match(script,/if\(!document\.body\.classList\.contains\("category-active"\)\)ensureDiscovery\(\)/);
+ assert.match(script,/observer\.observe\(discoverySection\)/);
+ assert.match(script,/if\(primaryPending\|\|!discoveryInView/);
  assert.match(html,/category-active \.product-discovery\{display:none\}/);
  assert.match(script,/const API_ORIGIN='https:\/\/alttulpick-preview\.onrender\.com'/);
  assert.match(server,/Access-Control-Allow-Origin/);
@@ -48,6 +49,7 @@ test('Default browsing spends two BIZ requests, extra products require a user cl
  assert.match(script,/if\(discoveryBusy\|\|discoveryStep>=2/);
  assert.match(script,/discoveryStep=step\+1/);
  assert.match(script,/if\(!discoveryLoaded&&!discoveryBusy\)loadDiscoveryStep\(\)/);
+ assert.match(script,/if\(id===requestId\)\{primaryPending=false;if\(discoveryInView\)ensureDiscovery\(\)\}/);
  assert.doesNotMatch(script,/setInterval|setTimeout\(loadDiscovery/);
  assert.match(server,/const TIME_WINDOW=60000, MAX_CALLS=8/);
 });
