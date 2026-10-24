@@ -28,3 +28,6 @@ Cloudflare 배포 전에 Render 서비스는 삭제하지 마세요.
 - 애드픽 API 자체 지연은 Workers로 옮겨도 없어지지 않습니다.
 - Worker telemetry 엔드포인트는 현재 유효성 검사 후 응답만 반환합니다. 기존 Render의 관리자 클릭 통계와 연동되지 않으므로 통계 이전 작업은 별도로 필요합니다.
 - Worker에서는 제휴 추적 링크를 서버에서 자동 열지 않으며, 판매처의 명시적인 원본 상품 URL이 있는 경우에만 재고·할인가 검증을 시도합니다.
+
+## 빌드 문제 진단
+현재 Workers 빌드의 Production branch는 반드시 `alttulpick-deploy`여야 합니다. 해당 브랜치에는 `wrangler.jsonc`와 `worker/index.mjs`가 존재합니다. 과거 `main` 브랜치의 Next.js 자동 감지 오류가 보이면 최신 빌드의 커밋/브랜치를 확인하고 새 배포를 실행하세요. 기존 Render API는 Cloudflare의 `/health`와 실제 상품 검색이 검증될 때까지 유지합니다.
