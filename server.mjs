@@ -76,7 +76,7 @@ server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰�
 server.on('listening',async()=>{
  const key=process.env.ADPICK_API_KEY;
  if(!key)return;
- const selections=['세제','세탁세제','커피','생수'];
+ const selections=['주방세제','캡슐세제','액체세제','라면'];
  for(const q of selections){
   const p=getSearchPlan(q),upstream=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
   upstream.searchParams.set('q',q);
