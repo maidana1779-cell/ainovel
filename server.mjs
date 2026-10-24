@@ -60,4 +60,24 @@ server.on('listening',async()=>{
       code:data?.error_code||null
     }));
   }catch{console.log('[ADPICK FOOD CHECK] network_error');}
+  // Probe known Adpick marketplace codes once at startup; log status/count only.
+  for (const [name,code,q] of [
+    ['토스쇼핑','2205c','라면'],
+    ['알리익스프레스','83eca','이어폰'],
+    ['하이마트','6958f','이어폰'],
+    ['오늘의집','2cfd6','프라이팬'],
+    ['Hmall','012a5','라면']
+  ]) {
+    try{
+      const u=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
+      u.searchParams.set('q',q);u.searchParams.set('limit','1');u.searchParams.set('cp_code',code);
+      const response=await fetch(u,{signal:AbortSignal.timeout(8000)});
+      const data=await response.json().catch(()=>null);
+      console.log('[ADPICK MALL SEARCH CHECK] '+JSON.stringify({
+        name,code,status:response.status,success:data?.success===true,
+        count:Array.isArray(data?.data)?data.data.length:0,error_code:data?.error_code||null
+      }));
+      if(response.status===429)break;
+    }catch{console.log('[ADPICK MALL SEARCH CHECK] '+JSON.stringify({name,code,status:'unavailable'}));}
+  }
 });
