@@ -47,7 +47,7 @@ async function fetchLimited(url){
  return response;
 }
 async function verifyOne(item){
- const link=parseUrl(item?.product_url);
+ const link=parseUrl(item?.product_url||item?.productUrl||item?.item_url);
  // Never open commission links in a bot: doing so may create artificial affiliate clicks.
  if(!link||!approvedMerchant(link.hostname))return null;
  const cacheKey=link.href;
