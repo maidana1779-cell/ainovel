@@ -1,48 +1,19 @@
 import {createServer} from 'node:http';
 import {selectRelevantProducts,isGroceryQuery} from './relevance.mjs';
+import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 // Confirmed search-capable Adpick retailers on 2026-10-24; food queries use a curated five-mall search.
 const FOOD_MALL_CODES=['f5ff7','c6ac4','c16a2','b735e','f5d5a'];
 const FOOD_MALL_SET=new Set(FOOD_MALL_CODES);
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const TIME_WINDOW=60000, MAX_CALLS=8, hits=[];
-const TOSS_CODE='2205c';
-let tossCache=null, tossCacheUntil=0;
-function safeAffiliateLink(raw){
-  if(typeof raw!=='string')return null;
-  try{
-    const u=new URL(raw);
-    const host=u.hostname.toLowerCase();
-    if(u.protocol==='https:'&&['link.adpick.co.kr','biz.adpick.co.kr','bitl.bz'].includes(host))return u.href;
-  }catch{}
-  return null;
-}
-async function getTossLink(){
-  const now=Date.now();
-  if(tossCache && now<tossCacheUntil)return tossCache;
-  const key=process.env.ADPICK_API_KEY;
-  if(!key)return {available:false,reason:'API_NOT_CONFIGURED'};
-  const u=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/malls');
-  u.searchParams.set('p_data','alttulpick_toss');
-  const response=await fetch(u,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
-  if(!response.ok)throw Error('Affiliate mall lookup failed: '+response.status);
-  const data=await response.json();
-  const entry=Array.isArray(data?.data)?data.data.find(x=>String(x?.cp_code||'')===TOSS_CODE):null;
-  const raw=entry?.commissionlink;
-  const link=safeAffiliateLink(raw);
-  const result={available:Boolean(link),name:'토스쇼핑',link:link||undefined};
-  // In-memory mall metadata cache only (not product details/images); avoid frequent API calls.
-  tossCache=result; tossCacheUntil=now+(link?300000:60000);
-  return result;
-}
 const send=(res,code,obj)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))};
 const server=createServer(async(req,res)=>{
 const url=new URL(req.url||'/', 'http://localhost');
 if(req.method==='GET'&&(url.pathname==='/'||url.pathname==='/index.html')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(await page);return}
 if(!url.pathname.startsWith('/api/')){res.writeHead(404);res.end('Not found');return}
 if(req.method!=='GET'){send(res,405,{success:false,message:'GET only'});return}
-if(url.pathname==='/api/toss'){
-  try{const item=await getTossLink();send(res,200,{success:true,...item})}
-  catch{send(res,502,{success:false,message:'토스쇼핑 제휴 링크 확인 실패'})}
+if(url.pathname==='/api/curated'){
+  send(res,200,{success:true,data:curatedProducts()});
   return;
 }
 let endpoint,params={};
@@ -65,17 +36,12 @@ if(endpoint==='search'){
   const stores_restricted=isGroceryQuery(params.q);
   const scoped=stores_restricted?incoming.filter(item=>FOOD_MALL_SET.has(String(item?.cp_code||'').toLowerCase())):incoming;
   const matched=selectRelevantProducts(params.q,scoped);
-  const filteredData=Array.isArray(data.data)?matched:{...data.data,list:matched};
-  send(res,200,{...data,data:filteredData,filter_meta:{received:incoming.length,matched:matched.length,excluded:incoming.length-matched.length,stores_restricted}});
+  // Independently curated Toss Sharelink items are not part of Adpick supplier responses.
+  const combined=[...matchingCuratedProducts(params.q),...matched];
+  const filteredData=Array.isArray(data.data)?combined:{...data.data,list:combined};
+  send(res,200,{...data,data:filteredData,filter_meta:{received:incoming.length,matched:combined.length,excluded:incoming.length-matched.length,stores_restricted}});
   return;
 }
 send(res,200,data)}catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
-server.on('listening',async()=>{
-  try{
-    const data=await getTossLink();
-    // Never log affiliate links, API keys, or link identifiers.
-    console.log('[TOSS AFFILIATE CHECK] '+JSON.stringify({available:data.available,merchant:data.name||'unknown'}));
-  }catch{console.log('[TOSS AFFILIATE CHECK] unavailable');}
-});
