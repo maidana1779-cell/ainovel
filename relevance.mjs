@@ -66,6 +66,31 @@ function genuineGrocery(query,tokens,title){
   if(words)return hasAny(tokens,words);
   return hasPhraseToken(tokens,query);
 }
+
+const DETERGENT_QUERIES=new Set(["세제","세탁세제","주방세제","캡슐세제","액체세제"]);
+// A substring match would classify "넥타이 세제품" as detergent.
+// Require detergent-shaped product words with known suffix boundaries.
+const DETERGENT_PRODUCT_WORD=/세제(?=$|[0-9]|리필|본품|세트|대용량|캡슐|액상|액체|분말|가루|무향|저자극|드럼|일반|파우치|시트|젤|겔|팩)/i;
+const DETERGENT_ACCESSORIES=/세제(?:통|용기|케이스|보관함|디스펜서|펌프)|세제\s*(?:소분|보관|정리|용기|통|뚜껑)|넥타이|보타이|정장|스카프|목걸이|브로치|원피스|패딩|셔츠|신발|가방|전자책|도서|강의|코딩|프로그래밍|개발|여행|투어|세제곱|세제품|세제목/i;
+const DETERGENT_BRANDS=/퍼실|리큐|액츠|수퍼타이|파워액츠|파워젤/i;
+export function isDetergentQuery(query){
+  return DETERGENT_QUERIES.has(normalize(query));
+}
+function genuineDetergent(query,title,merchant){
+  if(NON_GROCERY_MERCHANT.test(merchant)||DETERGENT_ACCESSORIES.test(title))return false;
+  const tokens=productTokens(title);
+  const hasProduct=tokens.some(t=>DETERGENT_PRODUCT_WORD.test(t)) ||
+    (DETERGENT_BRANDS.test(title)&&/(?:세탁|리필|\b[1-9]\d*\s?(?:kg|l|ml|개입)|[1-9]\d*kg)/i.test(title));
+  if(!hasProduct)return false;
+  if(query==="세탁세제"||query==="캡슐세제"||query==="액체세제"){
+    if(/주방|식기|설거지|퐁퐁/i.test(title))return false;
+    if(query==="캡슐세제"&&!/캡슐/i.test(title))return false;
+    if(query==="액체세제"&&!/액체|액상|젤|겔|리큐|액츠|퍼실/i.test(title))return false;
+    if(query==="세탁세제"&&!/세탁|드럼|일반용|퍼실|리큐|액츠|캡슐|비트|테크|수퍼타이/i.test(title))return false;
+  }
+  if(query==="주방세제"&&!/주방|식기|설거지|퐁퐁/i.test(title))return false;
+  return true;
+}
 export function isGroceryQuery(query){
   return FOOD_QUERY_SET.has(normalize(query));
 }
@@ -73,6 +98,7 @@ export function relevantItem(query,item){
   if(!item||typeof item.title!=="string"||!item.title.trim())return false;
   const q=normalize(query), title=item.title, tokens=productTokens(title);
   if(!q)return false;
+  if(DETERGENT_QUERIES.has(q))return genuineDetergent(q,title,String(item.cp_name||""));
   if(FOOD_QUERY_SET.has(q)){
     if(NON_GROCERY_MERCHANT.test(String(item.cp_name||""))||
        EDUCATION_TRAVEL.test(title)||OTHER_PHYSICAL.test(title))return false;
