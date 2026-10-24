@@ -37,7 +37,7 @@ test('Classify detergent terms for retail-mall routing',()=>{
 });
 test('Broad shopping intent searches at most two keywords',()=>{
  const plans={
-  '세제':['세제','세탁세제'],
+  '세제':['세제','주방세제'],
   '간편식':['간편식','즉석밥'],
   '커피':['커피','커피믹스'],
   '라면':['라면','컵라면'],
