@@ -9,7 +9,7 @@ const LIMIT=600;
 const subdomain=(host,base)=>host===base||host.endsWith('.'+base);
 function approvedMerchant(host){return MERCHANT_HOSTS.some(base=>subdomain(host,base))}
 function parseUrl(raw){try{const u=new URL(raw);return u.protocol==='https:'&& !u.username&&!u.password&&!u.port&&u.href.length<2200?u:null}catch{return null}}
-function money(value){if(typeof value==='number')return Number.isSafeInteger(value)&&value>0?value:null;if(typeof value!=='string'||!/^[0-9]+(?:\.[0-9]{1,2})?$/.test(value.trim()))return null;const n=Number(value);return Number.isSafeInteger(n)&&n>0?n:null}
+function money(value){if(typeof value==='number')return Number.isSafeInteger(value)&&value>0?value:null;if(typeof value!=='string'||!/^(?:[0-9]+|[1-9][0-9]{0,2}(?:,[0-9]{3})+)(?:원)?$/.test(value.trim()))return null;const n=Number(value.trim().replace(/[원,]/g,''));return Number.isSafeInteger(n)&&n>0?n:null}
 function typeHas(v,name){return (Array.isArray(v)?v:[v]).some(t=>typeof t==='string'&&(t===name||t.endsWith('/'+name)))}
 function flatten(input,output=[]){if(Array.isArray(input)){for(const x of input)flatten(x,output)}else if(input&&typeof input==='object'){output.push(input);if(input['@graph'])flatten(input['@graph'],output);if(input.mainEntity)flatten(input.mainEntity,output)}return output}
 function cleanTitle(t){return String(t||'').normalize('NFKC').toLowerCase().replace(/[^가-힣a-z0-9]+/g,' ').trim().split(/\s+/).filter(t=>t.length>=2)}
@@ -85,12 +85,24 @@ async function verifyOne(item){
  cache.set(cacheKey,{at:Date.now(),value:result});
  return result;
 }
-export async function verifyProductBatch(items){
- if(!Array.isArray(items)||!items.length)return items;
- const results=await Promise.all(items.slice(0,10).map(async item=>({item,check:await verifyOne(item)})));
- return [...results.map(({item,check})=>{
+export async function verifyProductBatchWithMeta(items){
+ if(!Array.isArray(items)||!items.length)return {items:Array.isArray(items)?items:[],verification:{checked:0,eligible:0,unverified:0,sold_out_removed:0,discounts_verified:0}};
+ const subset=items.slice(0,10);
+ const eligible=subset.filter(item=>{const url=parseUrl(item?.product_url||item?.productUrl||item?.item_url);return url&&approvedMerchant(url.hostname)}).length;
+ const results=await Promise.all(subset.map(async item=>({item,check:await verifyOne(item)})));
+ const verified=results.filter(x=>x.check);
+ const returned=results.map(({item,check})=>{
   if(!check)return item;
   if(check.stock==='out')return null;
   return check.discount?{...item,...check.discount}:item;
- }).filter(Boolean),...items.slice(10)];
+ }).filter(Boolean);
+ return {items:[...returned,...items.slice(10)],verification:{
+  checked:verified.length,eligible,unverified:subset.length-verified.length,
+  sold_out_removed:results.filter(x=>x.check?.stock==='out').length,
+  discounts_verified:results.filter(x=>x.check?.discount&&x.check.stock!=='out').length
+ }};
+}
+export async function verifyProductBatch(items){
+ const outcome=await verifyProductBatchWithMeta(items);
+ return outcome.items;
 }
