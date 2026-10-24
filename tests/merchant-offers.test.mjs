@@ -36,3 +36,26 @@ test('Arbitrary product-supplied URL does not initiate direct server fetch',asyn
               {title,price:70000,commissionlink:'http://bitl.bz/foo'}];
  assert.deepEqual(await verifyProductBatch(input),input);
 });
+
+test('Direct merchant page can suppress confirmed sold-out products without touching tracking links',async()=>{
+ const old=globalThis.fetch;
+ let count=0;
+ globalThis.fetch=async(url)=>{
+  count++;
+  assert.match(url,/^https:\/\/www\.11st\.co\.kr\/products\//);
+  return new Response(page('OutOfStock'),{status:200,headers:{'content-type':'text/html'}});
+ };
+ try{
+  const input=[{title,price:70000,commissionlink:'https://bitl.bz/abc',product_url:'https://www.11st.co.kr/products/123'}];
+  assert.deepEqual(await verifyProductBatch(input),[]);
+  assert.equal(count,1);
+ }finally{globalThis.fetch=old}
+});
+test('Without direct merchant product URL the affiliate link is never fetched',async()=>{
+ const old=globalThis.fetch;
+ globalThis.fetch=()=>{throw Error('Affiliate tracking URL was touched')};
+ try{
+  const p={title,price:70000,commissionlink:'https://bitl.bz/test'};
+  assert.deepEqual(await verifyProductBatch([p]),[p]);
+ }finally{globalThis.fetch=old}
+});
