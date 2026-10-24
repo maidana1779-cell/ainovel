@@ -449,7 +449,7 @@ if(discount){
   row.append(make("strong","discount-rate",discount.rate+"% 할인"),
     make("s","regular-price",won(discount.original)));
   pricing.append(row,make("div","price sale-price",won(discount.sale)),
-    make("span","price-reference","제휴몰 제공 참고가 · 실제 판매가 확인"));
+    make("span","price-reference","판매처 상품정보 기준 · 결제 가격 확인"));
 }else{
   const price=displayPrice(p);
   pricing.append(make("div","price"+(price===null?" price-unavailable":""),
