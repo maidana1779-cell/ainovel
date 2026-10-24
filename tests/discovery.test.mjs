@@ -58,7 +58,8 @@ test('Load more UI appends products and guards stale responses',()=>{
  for(const id of ['more-area','more-products','more-note','related-browse','related-list']){
   assert.equal(html.split('id="'+id+'"').length-1,1,id);
  }
- assert.match(script,/availableItems\.push\(\.\.\.fresh\)/);\n assert.match(script,/refreshMerchantOptions\(\);renderListing\(\)/);
+ assert.match(script,/availableItems\.push\(\.\.\.fresh\)/);
+ assert.match(script,/refreshMerchantOptions\(\);renderListing\(\)/);
  assert.match(script,/if\(id!==requestId\)return/);
  assert.match(script,/moreButton\.addEventListener\("click"/);
  assert.match(script,/seenProductKeys/);
