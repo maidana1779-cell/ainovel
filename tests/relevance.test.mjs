@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {relevantItem, selectRelevantProducts} from '../relevance.mjs';
+import {relevantItem, selectRelevantProducts, isGroceryQuery} from '../relevance.mjs';
 
 const cases=[
   ["커피","클리오 킬브로우 컬러 브로우 래커 피넛브라운 6g","뷰티몰",false],
@@ -55,4 +55,13 @@ test('Only relevant products survive in a live response',()=>{
 test('Empty / malformed input stays empty',()=>{
  assert.deepEqual(selectRelevantProducts('라면',null),[]);
  assert.deepEqual(selectRelevantProducts('라면',[{},null]),[]);
+});
+
+test('Grocery searches use curated affiliate malls',()=>{
+  for(const keyword of ['라면','커피','간편식','생수','쌀','과자','원두','라떼']) {
+    assert.equal(isGroceryQuery(keyword),true,keyword);
+  }
+  for(const keyword of ['세제','화장품','이어폰','노트북','주방용품']) {
+    assert.equal(isGroceryQuery(keyword),false,keyword);
+  }
 });
