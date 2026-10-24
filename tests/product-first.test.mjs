@@ -31,7 +31,8 @@ test('Main today grid and distinct additional popular-product grid render live p
  assert.match(script,/const endpoint=step===0\?"\/api\/search\?q="/);
  assert.match(script,/fetch\(API_ORIGIN\+endpoint/);
  assert.match(script,/timeZone:"Asia\/Seoul"/);
- assert.match(html,/실시간 재고 확인 불가/);
+ assert.match(html,/상품의 재고와 판매 여부는 실시간으로 확인되지 않으며/);
+ assert.doesNotMatch(script,/if\(!isDemo\)box\.append\(make\("div","price-reference","실시간 재고 확인 불가/);
  assert.match(script,/show\(visible,false,discoveryGrid\)/);
  assert.match(script,/const existing=new Set\(availableItems\.map\(productKey\)\)/);
  assert.match(script,/const seen=new Set\(\)/);
