@@ -45,7 +45,7 @@ test('BIZ provider route is separate from search quota and never displays secret
 });
 test('All four exact BIZ console best areas are accessible from shop UI',()=>{
  for(const area of ['today','popular','pick','commission']){
-  assert.equal(html.split('data-area="'+area+'"').length-1,1,area);
+  assert.equal((html.match(new RegExp('<button[^>]*data-area="'+area+'"','g'))||[]).length,1,area);
  }
  assert.match(html,/최고 수익 상품/);
  assert.match(html,/운영자 수익 성과 기준이며 할인율이 아닙니다/);
