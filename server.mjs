@@ -28,8 +28,11 @@ if(plan.codes)params.cp_code=plan.codes.join(',');
 }else{send(res,404,{success:false,message:'Unknown route'});return}
 const key=process.env.ADPICK_API_KEY;if(!key){send(res,503,{success:false,code:'API_NOT_CONFIGURED',message:'데모 모드'});return}
 const now=Date.now();while(hits.length&&now-hits[0]>TIME_WINDOW)hits.shift();
-const callCount=endpoint==='search'?plan.terms.length:1;
-if(hits.length+callCount>MAX_CALLS){send(res,429,{success:false,message:'잠시 후 다시 시도해 주세요'});return}
+const remaining=MAX_CALLS-hits.length;
+if(remaining<1){send(res,429,{success:false,message:'잠시 후 다시 시도해 주세요'});return}
+// If the remaining API quota only permits one call, preserve the core keyword search.
+const activeTerms=endpoint==='search'?plan.terms.slice(0,remaining):[];
+const callCount=endpoint==='search'?activeTerms.length:1;
 for(let i=0;i<callCount;i++)hits.push(now);
 const apiBase='https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/';
 const fetchAffiliate=async(action,searchParams)=>{
@@ -44,7 +47,7 @@ const fetchAffiliate=async(action,searchParams)=>{
 try{
  if(endpoint==='search'){
    // One bounded follow-up keyword for broad categories, never an unbounded crawler.
-   const requests=plan.terms.map(term=>fetchAffiliate('search',{...params,q:term}));
+   const requests=activeTerms.map(term=>fetchAffiliate('search',{...params,q:term}));
    const batches=await Promise.allSettled(requests);
    const successes=batches.filter(batch=>batch.status==='fulfilled').map(batch=>batch.value);
    if(!successes.length){send(res,502,{success:false,message:'제휴사 검색 응답을 받지 못했습니다'});return}
@@ -59,7 +62,7 @@ try{
    send(res,200,{...original,data:filteredData,filter_meta:{
      received:incoming.length,matched:combined.length,excluded:incoming.length-matched.length,
      duplicates_removed:matched.length-distinct.length,stores_restricted:Boolean(allowed),
-     queries_checked:successes.length,queries_requested:plan.terms.length
+     queries_checked:successes.length,queries_requested:activeTerms.length
    }});
    return;
  }
@@ -68,3 +71,25 @@ try{
 }catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
+// Temporary supplier diagnostics: four bounded API queries, no product titles or links
+// written to logs. Remove after collecting a baseline.
+server.on('listening',async()=>{
+ const key=process.env.ADPICK_API_KEY;
+ if(!key)return;
+ const selections=['세제','세탁세제','커피','생수'];
+ for(const q of selections){
+  const p=getSearchPlan(q),upstream=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
+  upstream.searchParams.set('q',q);
+  upstream.searchParams.set('limit','20');
+  if(p.codes)upstream.searchParams.set('cp_code',p.codes.join(','));
+  try{
+   const response=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+   const body=await response.json().catch(()=>null);
+   const incoming=Array.isArray(body?.data)?body.data:(Array.isArray(body?.data?.list)?body.data.list:[]);
+   const scoped=p.codes?incoming.filter(item=>p.codes.includes(String(item?.cp_code||'').toLowerCase())):incoming;
+   const matched=selectRelevantProducts(q,scoped);
+   console.log('[SEARCH BASELINE] '+JSON.stringify({q,status:response.status,success:body?.success===true,received:incoming.length,allowed:scoped.length,relevant:matched.length,reason:body?.error_code||null}));
+   if(response.status===429)break;
+  }catch{console.log('[SEARCH BASELINE] '+JSON.stringify({q,error:'unavailable'}));}
+ }
+});
