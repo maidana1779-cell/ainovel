@@ -169,3 +169,26 @@ try{
 }catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
+
+/* TEMPORARY BIZ DATA DIAGNOSTIC: emits count/status only, never links or keys. */
+server.on('listening',async()=>{
+ const key=process.env.ADPICK_API_KEY;
+ if(!key)return;
+ for(const [kind,path,params] of [
+  ['malls','malls','order=popular&rewardmalls=false'],
+  ['best_commission','best','area=commission&limit=5']
+ ]){
+  try{
+   const upstream=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/'+path+'?'+params);
+   const response=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+   const body=await response.json().catch(()=>null);
+   const rows=Array.isArray(body?.data)?body.data:Array.isArray(body?.data?.list)?body.data.list:[];
+   const valid=kind==='malls'?normalizePartnerMalls(body):rows;
+   const hostCounts={};
+   if(kind==='malls')for(const item of rows){
+    try{const host=new URL(item?.commissionlink).hostname;hostCounts[host]=(hostCounts[host]||0)+1}catch{}
+   }
+   console.log('[BIZ CONNECT CHECK] '+JSON.stringify({kind,status:response.status,success:body?.success===true,total:rows.length,valid:valid.length,hosts:hostCounts}));
+  }catch(e){console.log('[BIZ CONNECT CHECK] '+JSON.stringify({kind,error:'upstream_unavailable'}))}
+ }
+});
