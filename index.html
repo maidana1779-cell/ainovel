@@ -362,8 +362,8 @@ body.category-active .category-caption{display:none}
 </div><!-- /browse-layout -->
 <section id="product-discovery" class="product-discovery" aria-labelledby="discovery-title">
  <div class="section-head">
-  <div><span class="overline">MORE PRODUCTS / BIZ PARTNER FEEDS</span><h2 id="discovery-title">다른 인기 상품도 둘러보세요</h2>
-  <p>제휴사에서 제공하는 인기 판매상품과 추천상품을 추가로 살펴보세요.</p></div>
+  <div><span class="overline">MORE PRODUCTS / BIZ PARTNER FEEDS</span><h2 id="discovery-title">오늘 새롭게 둘러볼 상품</h2>
+  <p>한국 날짜에 따라 상품군을 바꿔 새롭게 소개합니다. 실제 구매 가능 여부는 판매처에서 확인해 주세요.</p></div>
  </div>
  <div id="discovery-products" class="discovery-grid" aria-live="polite">
   <div class="empty">인기 상품을 불러오는 중입니다.</div>
@@ -456,6 +456,7 @@ if(discount){
     price===null?(p.affiliate_source==="toss_sharelink"?"가격은 토스에서 확인":"가격 확인 필요"):won(price)));
 }
 box.append(pricing);
+if(!isDemo)box.append(make("div","price-reference","실시간 재고 확인 불가 · 품절 및 가격 변동 가능"));
 const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false,isToss=false;
 try{
   const url=new URL(href);
@@ -853,6 +854,15 @@ const discoveryStatus=document.getElementById("discovery-status");
 const discoverySection=document.getElementById("product-discovery");
 let discoveredProducts=[],discoveryLoaded=false,discoveryBusy=false,discoveryStep=0,discoveryError=false;
 let mainBestArea="today";
+// Daily assortment based on the current calendar date in Korea; it is not a claim of inventory verification.
+const dailyTopics=["생활용품","커피","라면","무선이어폰","선크림","주방용품","과자","생수","운동화","샴푸","충전기","물티슈","즉석밥","키보드"];
+function koreanDayIndex(){
+  const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+  const parts=today.split("-").map(Number);
+  return Math.floor(Date.UTC(parts[0],parts[1]-1,parts[2])/86400000);
+}
+const featuredTopic=dailyTopics[koreanDayIndex()%dailyTopics.length];
+document.getElementById("discovery-title").textContent="오늘의 상품 발견 · "+featuredTopic;
 function discoveryUnique(items){
   const existing=new Set(availableItems.map(productKey));
   const seen=new Set();
@@ -872,7 +882,7 @@ function renderDiscovered(){
   discoveryMore.hidden=discoveryStep>=2;
   discoveryMore.disabled=discoveryBusy;
   discoveryMore.textContent=discoveryBusy?"상품을 가져오는 중…":discoveryStep===0?"인기 상품 불러오기 +":"추천 상품 더 보기 +";
-  discoveryStatus.textContent=discoveryError?"인기 상품 연결이 원활하지 않습니다. 버튼을 눌러 다시 시도해 주세요.":"추가로 보는 서로 다른 상품 "+visible.length+"개 · 가격과 배송은 판매처에서 확인";
+  discoveryStatus.textContent=discoveryError?"상품 연결이 원활하지 않습니다. 버튼을 눌러 다시 시도해 주세요.":"오늘의 "+featuredTopic+" 포함 "+visible.length+"개 · 재고·가격·배송은 판매처에서 확인";
 }
 async function loadDiscoveryStep(){
   if(discoveryBusy||discoveryStep>=2||document.body.classList.contains("category-active"))return;
@@ -881,8 +891,9 @@ async function loadDiscoveryStep(){
   discoveryMore.hidden=false;discoveryMore.disabled=true;
   discoveryStatus.textContent="새 상품을 확인하는 중입니다.";
   const area=step===0?"popular":"pick";
+  const endpoint=step===0?"/api/search?q="+encodeURIComponent(featuredTopic)+"&limit=20":"/api/best?area="+area+"&limit=10";
   try{
-    const response=await fetch(API_ORIGIN+"/api/best?area="+area+"&limit=10",{cache:"no-store"});
+    const response=await fetch(API_ORIGIN+endpoint,{cache:"no-store"});
     const payload=await response.json();
     if(!response.ok||payload.success!==true)throw Error("best feed unavailable");
     const items=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
