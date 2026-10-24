@@ -427,6 +427,52 @@ if(allowed&&!isDemo){
   });
 }else link.setAttribute("aria-disabled","true");
 box.append(link);card.append(box);target.append(card)})}
+
+const browseLayout=document.getElementById("browse-layout"),departmentGrid=document.getElementById("department-grid");
+const sideLinks=document.getElementById("side-links"),categoryTitle=document.getElementById("category-intro-title");
+const categoryDescription=document.getElementById("category-intro-description"),categoryCrumb=document.getElementById("category-breadcrumb");
+const productToolbar=document.getElementById("product-toolbar"),merchantFilter=document.getElementById("merchant-filter");
+const sortSelect=document.getElementById("product-sort"),visibleCount=document.getElementById("visible-count");
+const sortDisclaimer=document.getElementById("sort-disclaimer");
+let availableItems=[],currentDepartment="";
+function displayPrice(p){
+ const raw=(typeof p?.price==="number"||typeof p?.price==="string")?String(p.price):"";
+ const value=Number(raw.replace(/[^0-9]/g,""));
+ return Number.isFinite(value)&&value>0?value:null;
+}
+function resetProductFilters(){
+ availableItems=[];merchantFilter.value="";sortSelect.value="default";
+ merchantFilter.replaceChildren(new Option("전체 판매처",""));
+ productToolbar.hidden=true;sortDisclaimer.hidden=true;
+}
+function refreshMerchantOptions(){
+ const previous=merchantFilter.value;
+ const names=[...new Set(availableItems.map(p=>String(p.cp_name||"제휴 쇼핑몰").trim()))].sort((a,b)=>a.localeCompare(b,"ko"));
+ merchantFilter.replaceChildren(new Option("전체 판매처",""));
+ for(const name of names)merchantFilter.add(new Option(name,name));
+ merchantFilter.value=names.includes(previous)?previous:"";
+ productToolbar.hidden=!availableItems.length;sortDisclaimer.hidden=!availableItems.length;
+}
+function renderListing(){
+ if(!availableItems.length){show([],false);visibleCount.textContent="불러온 상품이 없습니다";return}
+ const vendor=merchantFilter.value;
+ const sort=sortSelect.value;
+ const filtered=availableItems.filter(p=>!vendor||String(p.cp_name||"제휴 쇼핑몰").trim()===vendor);
+ const sorted=filtered.map((p,i)=>({p,i}));
+ if(sort!=="default")sorted.sort((a,b)=>{
+   const pa=displayPrice(a.p),pb=displayPrice(b.p);
+   if(pa===null&&pb!==null)return 1;
+   if(pa!==null&&pb===null)return -1;
+   if(pa!==null&&pb!==null&&pa!==pb)return sort==="asc"?pa-pb:pb-pa;
+   return a.i-b.i;
+ });
+ const visible=sorted.map(v=>v.p);
+ show(visible,false);
+ if(!visible.length)grid.replaceChildren(make("div","empty","이 판매처에 해당하는 상품이 없습니다. 전체 판매처를 선택해 보세요."));
+ visibleCount.textContent="현재 불러온 "+availableItems.length+"개 중 "+visible.length+"개 표시";
+}
+merchantFilter.addEventListener("change",renderListing);
+sortSelect.addEventListener("change",renderListing);
 const moreArea=document.getElementById("more-area"),moreButton=document.getElementById("more-products"),moreNote=document.getElementById("more-note");
 const relatedBrowse=document.getElementById("related-browse"),relatedList=document.getElementById("related-list");
 let requestId=0,currentQuery="",nextBatch=0,moreBusy=false,seenProductKeys=new Set(),shownCount=0;
@@ -455,6 +501,7 @@ const id=++requestId;
 const u=new URL(url,location.href);
 currentQuery=u.pathname==="/api/search"?u.searchParams.get("q")||"":"";
 nextBatch=0;moreBusy=false;seenProductKeys=new Set();shownCount=0;
+resetProductFilters();
 updateMoreControls(false);
 relatedBrowse.hidden=true;relatedList.replaceChildren();
 statusEl.textContent="상품을 불러오는 중입니다...";
@@ -469,8 +516,10 @@ try{
     const duplicates=Number(payload.filter_meta?.duplicates_removed||0);
     const expanded=Number(payload.filter_meta?.queries_checked||0)>1;
     const initial=uniqueNew(list);
+    availableItems=initial;
     shownCount=initial.length;
-    show(initial,false);
+    refreshMerchantOptions();
+    renderListing();
     if(currentQuery) {
       nextBatch=1;
       updateMoreControls(payload.filter_meta?.has_more===true);
@@ -517,7 +566,7 @@ moreButton.addEventListener("click",async()=>{
     }
     const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:[];
     const fresh=uniqueNew(list);
-    if(fresh.length){show(fresh,false,grid,true);shownCount+=fresh.length;}
+    if(fresh.length){availableItems.push(...fresh);shownCount=availableItems.length;refreshMerchantOptions();renderListing();}
     nextBatch=batch+1;
     const hasMore=payload.filter_meta?.has_more===true;
     statusEl.textContent="표시 중인 서로 다른 관련 상품 "+shownCount+"개 · 구매 조건은 판매처에서 확인";
@@ -534,6 +583,7 @@ moreButton.addEventListener("click",async()=>{
 });
 tabs.addEventListener("click",e=>{
   const b=e.target.closest("[data-area]");if(!b)return;
+  leaveDepartment();
   activate(tabs,b);activate(categories,null);input.value="";
   heading.textContent=b.textContent+" 상품";
   load("/api/best?area="+encodeURIComponent(b.dataset.area)+"&limit=10");
@@ -549,6 +599,79 @@ const subQueries={
   "의류":["티셔츠","운동화","가방","재킷","양말","청바지"],
   "주방용품":["프라이팬","냄비","밀폐용기","그릇","주방세제","수세미"]
 };
+const departmentInfo={
+ "간편식":{name:"식품",description:"간편식부터 생수·커피·라면까지, 필요한 먹거리를 품목별로 살펴보세요."},
+ "세제":{name:"생활용품",description:"세탁·주방용 세제와 생활 잡화를 목적에 맞게 찾아보세요."},
+ "이어폰":{name:"디지털",description:"이어폰·충전기·노트북 등 디지털 제품을 세부 품목부터 탐색하세요."},
+ "화장품":{name:"뷰티",description:"스킨케어와 색조 제품을 원하는 종류별로 찾아보세요."},
+ "의류":{name:"패션",description:"의류와 패션잡화를 품목 중심으로 둘러보세요."},
+ "주방용품":{name:"주방",description:"프라이팬·냄비·도마·보관용기를 종류별로 확인하세요."}
+};
+function markSideSelected(term){
+ sideLinks.querySelectorAll("button").forEach(b=>{
+  const active=b.dataset.sidequery===term;
+  b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));
+ });
+}
+function renderSideNav(department,term){
+ sideLinks.replaceChildren();
+ for(const item of [department,...(subQueries[department]||[])]){
+  const btn=make("button","side-link",item===department?"전체 "+departmentInfo[department].name:item);
+  btn.type="button";btn.dataset.sidequery=item;
+  sideLinks.append(btn);
+ }
+ markSideSelected(term||department);
+}
+function setDepartmentMode(department,term=department){
+ currentDepartment=department;
+ const info=departmentInfo[department];
+ const active=Boolean(info);
+ document.body.classList.toggle("category-active",active);
+ browseLayout.classList.toggle("category-open",active);
+ if(active){
+   categoryTitle.textContent=info.name+" 쇼핑관";
+   categoryCrumb.textContent="홈 / 카테고리 / "+info.name;
+   categoryDescription.textContent=info.description;
+   renderSideNav(department,term);
+ }else{
+   sideLinks.replaceChildren();
+ }
+}
+function changeDepartment(q,{navigate=true,scroll=false}={}){
+ const info=departmentInfo[q];
+ if(!info)return;
+ setDepartmentMode(q);
+ activate(categories,categories.querySelector('[data-query="'+q+'"]'));
+ renderSubcategories(q);
+ searchProducts(q,info.name);
+ if(navigate)history.pushState({category:q},"","/?category="+encodeURIComponent(q));
+ if(scroll)document.getElementById("categories").scrollIntoView({block:"start"});
+}
+function leaveDepartment({navigate=true}={}){
+ setDepartmentMode("");
+ if(navigate)history.pushState({},"","/");
+ renderSubcategories("");
+ activate(categories,categories.querySelector('[data-query=""]'));
+}
+function selectCategoryTerm(term){
+ if(!currentDepartment)return;
+ markSideSelected(term);
+ subcatlist.querySelectorAll("button").forEach(b=>{
+  const active=b.dataset.subquery===term;
+  b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));
+ });
+ searchProducts(term,term===currentDepartment?departmentInfo[currentDepartment].name:term);
+}
+sideLinks.addEventListener("click",e=>{
+ const btn=e.target.closest("[data-sidequery]");
+ if(!btn)return;
+ selectCategoryTerm(btn.dataset.sidequery);
+});
+departmentGrid.addEventListener("click",e=>{
+ const btn=e.target.closest("[data-department]");
+ if(btn)changeDepartment(btn.dataset.department,{scroll:true});
+});
+
 function searchProducts(q,label){
   activate(tabs,null);
   input.value="";
@@ -575,22 +698,21 @@ function renderSubcategories(q){
 }
 categories.addEventListener("click",e=>{
   const b=e.target.closest("[data-query]");if(!b)return;
-  activate(categories,b);
-  const q=b.dataset.query;
-  renderSubcategories(q);
-  if(!q){
+  if(!b.dataset.query){
+    leaveDepartment();
     activate(tabs,tabs.querySelector("[data-area=today]"));
     heading.textContent="오늘의 추천 상품";
     input.value="";
     load("/api/best?area=today&limit=10");
     return;
   }
-  searchProducts(q,b.textContent.trim());
+  changeDepartment(b.dataset.query);
 });
 relatedList.addEventListener("click",e=>{
   const b=e.target.closest("[data-related]");if(!b)return;
   const term=b.dataset.related;
   activate(tabs,null);
+  if(currentDepartment)markSideSelected(term);
   heading.textContent=term+" 관련 상품";
   searchProducts(term,term);
   document.getElementById("deals").scrollIntoView({block:"start"});
@@ -598,10 +720,12 @@ relatedList.addEventListener("click",e=>{
 subcatlist.addEventListener("click",e=>{
   const b=e.target.closest("[data-subquery]");if(!b)return;
   activate(subcatlist,b);
-  searchProducts(b.dataset.subquery,b.textContent.trim());
+  if(currentDepartment)selectCategoryTerm(b.dataset.subquery);
+  else searchProducts(b.dataset.subquery,b.textContent.trim());
 });
 document.getElementById("searchform").addEventListener("submit",e=>{
   e.preventDefault();const q=input.value.trim();if(q.length<2){input.focus();return}
+  leaveDepartment();
   activate(tabs,null);activate(categories,null);
   heading.textContent="‘"+q+"’ 검색 결과";
   load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
@@ -610,13 +734,30 @@ document.getElementById("quick-searches").addEventListener("click",e=>{
   const b=e.target.closest("[data-quick]");
   if(!b)return;
   const q=b.dataset.quick;
+  leaveDepartment();
   activate(categories,null);activate(tabs,null);
   renderSubcategories("");
   input.value=q;
   heading.textContent=q+" 검색 결과";
   load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
 });
-load("/api/best?area=today&limit=10");
+const requestedDepartment=new URLSearchParams(location.search).get("category");
+if(Object.prototype.hasOwnProperty.call(departmentInfo,requestedDepartment)){
+  changeDepartment(requestedDepartment,{navigate:false});
+}else{
+  load("/api/best?area=today&limit=10");
+}
+window.addEventListener("popstate",()=>{
+ const category=new URLSearchParams(location.search).get("category");
+ if(Object.prototype.hasOwnProperty.call(departmentInfo,category)){
+  changeDepartment(category,{navigate:false});
+ }else{
+  leaveDepartment({navigate:false});
+  activate(tabs,tabs.querySelector('[data-area="today"]'));
+  heading.textContent="오늘의 추천 상품";
+  load("/api/best?area=today&limit=10");
+ }
+});
 async function loadCuratedProducts(){
   const panel=document.getElementById("toss-picks");
   const target=document.getElementById("toss-products");
