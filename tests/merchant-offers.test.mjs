@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {parseMerchantOffer,verifyProductBatch,verifyProductBatchWithMeta} from '../merchant-offers.mjs';
 const title='브랜드 무선 이어폰 2세대';
 const originalPrice=100000;
@@ -75,5 +76,24 @@ test('Coverage metadata distinguishes eligible, unknown and verified unavailable
   ]);
   assert.equal(out.items.length,1);
   assert.deepEqual(out.verification,{checked:1,eligible:1,unverified:1,sold_out_removed:1,discounts_verified:0});
+ }finally{globalThis.fetch=old}
+});
+
+test('Cloudflare-compatible merchant verification reads a real merchant offer without Node Buffer',async()=>{
+ const source=readFileSync(new URL('../merchant-offers.mjs',import.meta.url),'utf8');
+ assert.doesNotMatch(source,/\\bBuffer\\b/);
+ const old=globalThis.fetch;
+ globalThis.fetch=async()=>new Response(page('InStock'),{status:200,headers:{'content-type':'text/html'}});
+ try{
+  const result=await verifyProductBatchWithMeta([{
+   title,price:70000,cp_name:'11번가',
+   commissionlink:'https://bitl.bz/real-affiliate-link',
+   product_url:'https://www.11st.co.kr/products/worker-compatible-sale'
+  }]);
+  assert.equal(result.verification.checked,1);
+  assert.equal(result.verification.discounts_verified,1);
+  assert.deepEqual(result.items[0].price_org,100000);
+  assert.deepEqual(result.items[0].price_sale,70000);
+  assert.equal(result.items[0].commissionlink,'https://bitl.bz/real-affiliate-link');
  }finally{globalThis.fetch=old}
 });
