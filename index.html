@@ -68,6 +68,51 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .subbtn{border:1px solid var(--border);border-radius:20px;background:#fff;color:#647388;font-size:12px;font-weight:650;padding:8px 13px}
 .subbtn.active{background:var(--blue-light);border-color:#b7cef9;color:var(--primary);font-weight:800}
 .category-caption{color:#99a4b1;font-size:10px;line-height:1.6;margin:12px 0 0}
+
+/* Category-first navigation inspired by marketplace IA, without fake promotions */
+.category-hub{margin:25px 0 37px}
+.hub-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:0 0 17px}
+.hub-heading h2{font-size:24px;letter-spacing:-1px;margin:0 0 5px;font-weight:900}
+.hub-heading p{font-size:12px;color:#8390a0;margin:0;line-height:1.7}
+.hub-heading .hub-overline{font-size:10px;letter-spacing:1.2px;color:#4779c8;font-weight:850;white-space:nowrap}
+.department-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px}
+.department{appearance:none;display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0;text-align:left;background:#fff;border:1px solid #e6ebf1;border-radius:15px;padding:18px 15px 17px;transition:border-color .18s,box-shadow .18s,transform .18s}
+.department:hover{border-color:#9cbef6;box-shadow:0 7px 20px #1c4a9512;transform:translateY(-2px)}
+.department:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.department-icon{width:43px;height:43px;flex:none;display:grid;place-items:center;background:#f0f5fd;color:#2567bb;border-radius:12px}
+.department-icon svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.department-name{font-size:15px;font-weight:880;letter-spacing:-.6px;line-height:1.3}
+.department-desc{font-size:11px;color:#8a96a7;line-height:1.5;min-height:32px}
+.department-arrow{margin-top:auto;font-size:12px;color:#2760b9;font-weight:800}
+body:not(.category-active) .category-section{display:none}
+body.category-active .category-hub{display:none}
+body.category-active .hero{padding:20px 0 11px}
+body.category-active .hero-top,body.category-active .quick-searches{display:none}
+body.category-active .category-section{margin:17px 0 24px}
+body.category-active .category-caption{display:none}
+.browse-layout.category-open{display:grid;grid-template-columns:196px minmax(0,1fr);gap:24px;align-items:start}
+.category-aside{display:none;border:1px solid #e8edf3;border-radius:15px;padding:20px 13px 17px;background:#fff;position:sticky;top:15px}
+.browse-layout.category-open .category-aside{display:block}
+.side-head{font-size:11px;color:#8b97a8;letter-spacing:.8px;font-weight:800;margin:0 9px 13px}
+.side-links{display:flex;flex-direction:column;gap:3px}
+.side-link{background:transparent;text-align:left;width:100%;border:0;border-radius:8px;color:#4d5d70;font-size:12px;font-weight:670;line-height:1.5;padding:11px 10px}
+.side-link:hover{background:#f2f6fd;color:#1d5fb9}
+.side-link.active{background:#eaf2ff;color:#165ccd;font-weight:850}
+.side-note{margin:15px 10px 0;font-size:10px;color:#9aa6b4;line-height:1.65}
+.category-intro{display:none;background:linear-gradient(108deg,#f1f6ff,#f8fafd 75%);border:1px solid #e6eef9;border-radius:16px;padding:23px 26px;margin-bottom:26px}
+.browse-layout.category-open .category-intro{display:block}
+.breadcrumb{display:block;color:#778ca8;font-size:11px;font-weight:650;margin:0 0 10px}
+.category-intro h2{font-size:25px;line-height:1.25;font-weight:930;letter-spacing:-1px;margin:0 0 8px}
+.category-intro p{font-size:12px;color:#6e829e;line-height:1.7;margin:0}
+.browse-layout.category-open .section h2{font-size:22px}
+.browse-layout.category-open .section .section-sub{font-size:11px}
+.browse-layout.category-open .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.product-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-2px 0 16px;padding:12px 15px;background:#f9fafc;border:1px solid #edf0f4;border-radius:11px}
+.toolbar-label{font-size:11px;color:#7a879a;font-weight:700}
+.toolbar-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar-controls label{font-size:11px;color:#6c7c92;font-weight:700}
+.toolbar-controls select{appearance:auto;border:1px solid #dfe6f0;background:#fff;border-radius:8px;padding:8px 28px 8px 10px;color:#31445d;font-size:11px;max-width:160px}
+.shop-disclaimer{font-size:10px;color:#98a4b3;margin:0 0 15px;line-height:1.7}
 .deals{padding:1px 0 26px}
 .section{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:16px}
 .overline{display:block;color:var(--primary);font-size:10px;font-weight:850;letter-spacing:1.8px}
@@ -155,7 +200,19 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .footer-note{text-align:right;max-width:460px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card,.picture img{transition:none}}
 @media(max-width:980px){.headin{min-height:75px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:731px) and (max-width:1030px){.department-grid{grid-template-columns:repeat(3,1fr)}.browse-layout.category-open{grid-template-columns:165px minmax(0,1fr);gap:17px}.browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:730px){
+ .department-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .category-hub{margin:19px 0 31px}
+ .hub-heading h2{font-size:21px}.hub-heading .hub-overline{display:none}
+ .department{padding:13px 10px;gap:9px;border-radius:12px}.department-icon{width:36px;height:36px;border-radius:9px}.department-icon svg{width:22px;height:22px}
+ .department-name{font-size:13px}.department-desc{font-size:10px;min-height:30px}.department-arrow{font-size:10px}
+ .browse-layout.category-open{display:block}.browse-layout.category-open .category-aside{display:none}
+ .category-intro{padding:17px 18px;margin-bottom:19px}.category-intro h2{font-size:22px}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.category-active .category-section{margin:8px 0 20px}
+ .product-toolbar{display:block;padding:10px 11px}.toolbar-label{display:block;margin-bottom:9px}.toolbar-controls select{max-width:155px}
+ .shop-disclaimer{font-size:10px}
  .wrap{padding-inline:17px}
  .headin{min-height:65px;gap:10px}.brand{font-size:26px;letter-spacing:-1.7px}.brand b{font-size:28px}
  .brand-group{gap:12px}.brand-tag{font-size:10px}
@@ -191,7 +248,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   <span class="brand-tag">핫딜 · 제휴 쇼핑 · 똑똑한 상품 탐색</span>
  </div>
  <nav class="nav" aria-label="주 메뉴">
-  <a href="#deals">추천 상품</a><a href="#toss-picks">토스쇼핑</a><a href="#about">안내</a>
+  <a href="/#shop-categories">카테고리</a><a href="#deals">추천 상품</a><a href="#toss-picks">토스쇼핑</a>
  </nav>
 </div></header>
 <main class="wrap">
@@ -215,6 +272,15 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   </div>
  </div>
 </section>
+<section id="shop-categories" class="category-hub" aria-labelledby="hub-title">
+ <div class="hub-heading"><div><h2 id="hub-title">카테고리로 둘러보기</h2><p>사고 싶은 물건이 정해지지 않아도, 품목부터 찾아보세요.</p></div><span class="hub-overline">EXPLORE DEPARTMENTS</span></div>
+ <div class="department-grid" id="department-grid" role="group" aria-label="카테고리 쇼핑관"><button type="button" class="department" data-department="간편식" aria-label="식품 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M5 4h14l-1.5 14H6.5z'/><path d='M9 4V2m6 2V2M8 9h8m-7 4h6'/></svg></span><span class="department-name">식품</span><span class="department-desc">생수 · 라면 · 간편식</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
+<button type="button" class="department" data-department="세제" aria-label="생활용품 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 4h6v3l2 2v12H7V9l2-2zM10 2h4v2h-4zM8 12h8v5H8z'/></svg></span><span class="department-name">생활용품</span><span class="department-desc">세제 · 주방세제 · 생활잡화</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
+<button type="button" class="department" data-department="이어폰" aria-label="디지털 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 13v-2a8 8 0 0 1 16 0v2M4 12h3v8H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm13 0h3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3z'/></svg></span><span class="department-name">디지털</span><span class="department-desc">이어폰 · 충전기 · 노트북</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
+<button type="button" class="department" data-department="화장품" aria-label="뷰티 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 2h6v3H9zM8 5h8v4l2 3v9H6v-9l2-3zM9 14h6m-3-3v6'/></svg></span><span class="department-name">뷰티</span><span class="department-desc">선크림 · 스킨케어 · 메이크업</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
+<button type="button" class="department" data-department="의류" aria-label="패션 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='m8 3-5 4 3 4 2-2v12h8V9l2 2 3-4-5-4-4 2z'/></svg></span><span class="department-name">패션</span><span class="department-desc">티셔츠 · 신발 · 가방</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
+<button type="button" class="department" data-department="주방용품" aria-label="주방 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 8h14v7a7 7 0 0 1-14 0zm14 2h3a2 2 0 0 1 0 4h-3M8 5h6M11 2v3'/></svg></span><span class="department-name">주방</span><span class="department-desc">프라이팬 · 냄비 · 보관용기</span><span class="department-arrow">쇼핑관 보기 ↗</span></button></div>
+</section>
 <section id="categories" class="category-section" aria-label="상품 카테고리">
  <div id="categories-buttons" class="category-list" role="group" aria-label="카테고리 선택">
   <button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button>
@@ -228,7 +294,13 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
  <div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
  <p class="category-caption">검색 결과는 연결된 제휴 쇼핑몰의 일부 상품입니다. 일부 카테고리는 관련 검색어를 함께 확인하며, 결과는 최대 30개까지 표시합니다.</p>
 </section>
+<div id="browse-layout" class="browse-layout">
+<aside id="category-aside" class="category-aside" aria-label="선택한 카테고리의 세부 품목">
+ <p class="side-head">세부 품목 탐색</p><div id="side-links" class="side-links"></div>
+ <p class="side-note">품목을 선택하면 새로운 상품을 조회해요.</p>
+</aside>
 <section id="deals" class="deals" aria-label="상품 목록">
+ <div id="category-intro" class="category-intro"><span class="breadcrumb" id="category-breadcrumb">홈 / 카테고리</span><h2 id="category-intro-title">카테고리 쇼핑관</h2><p id="category-intro-description">관련 상품을 살펴보세요.</p></div>
  <div class="section">
   <div><span class="overline">CURATED BY PARTNER FEEDS</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">제휴 쇼핑몰에서 제공한 상품을 살펴보세요.</p></div>
   <div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
@@ -241,6 +313,18 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   <div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div>
   <span class="aside">실제 구매 가격과 배송비는 판매처에서 확인</span>
  </div>
+ <div id="product-toolbar" class="product-toolbar" hidden>
+  <span class="toolbar-label" id="visible-count">현재 불러온 상품</span>
+  <div class="toolbar-controls">
+   <label for="merchant-filter">판매처</label>
+   <select id="merchant-filter" aria-label="현재 불러온 상품의 판매처 필터"><option value="">전체 판매처</option></select>
+   <label for="product-sort">정렬</label>
+   <select id="product-sort" aria-label="현재 불러온 상품 정렬">
+    <option value="default">기본순</option><option value="asc">낮은 가격순</option><option value="desc">높은 가격순</option>
+   </select>
+  </div>
+ </div>
+ <p id="sort-disclaimer" class="shop-disclaimer" hidden>정렬·판매처 필터는 현재 화면에 불러온 상품에만 적용됩니다. 가격 미제공 상품은 가격순 정렬 시 뒤에 표시됩니다.</p>
  <div id="products" class="grid"></div>
  <div id="more-area" class="more-area" hidden>
   <button id="more-products" type="button" class="more-button" aria-controls="products">관련 상품 더 보기 +</button>
@@ -251,6 +335,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   <div id="related-list" class="related-list"></div>
  </div>
 </section>
+</div><!-- /browse-layout -->
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
   <div><span class="overline">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
