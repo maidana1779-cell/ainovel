@@ -329,7 +329,18 @@ try{
 if(isToss)box.append(make("div","commission-detail","토스쇼핑 쉐어링크 제휴 상품 · 가격은 판매처에서 확인"));
 const label=allowed&&!isDemo?(isToss?"토스쇼핑에서 보기 ↗":"판매처에서 보기 ↗"):"판매처 확인 불가";
 const link=make("a","go"+(allowed&&!isDemo?"":" disabled"),label);
-if(allowed&&!isDemo){link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer"}else link.setAttribute("aria-disabled","true");
+if(allowed&&!isDemo){
+  link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer";
+  // Small aggregate-only telemetry. No personal IDs, cookies, URL or product title.
+  link.addEventListener("click",()=>{
+    const event=JSON.stringify({event:"product_click",merchant:String(p.cp_name||"제휴 쇼핑몰").slice(0,80)});
+    try{
+      const blob=new Blob([event],{type:"application/json"});
+      if(navigator.sendBeacon?.("/api/telemetry",blob))return;
+      fetch("/api/telemetry",{method:"POST",headers:{"Content-Type":"application/json"},body:event,keepalive:true}).catch(()=>{});
+    }catch{/* Affiliate link remains clickable if analytics fails. */}
+  });
+}else link.setAttribute("aria-disabled","true");
 box.append(link);card.append(box);target.append(card)})}
 const moreArea=document.getElementById("more-area"),moreButton=document.getElementById("more-products"),moreNote=document.getElementById("more-note");
 const relatedBrowse=document.getElementById("related-browse"),relatedList=document.getElementById("related-list");
