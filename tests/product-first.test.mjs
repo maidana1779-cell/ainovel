@@ -28,7 +28,7 @@ test('BIZ best remains customer-focused and does not show operator-commission pi
 test('Main today grid and distinct additional popular-product grid render live products',()=>{
  assert.match(script,/load\("\/api\/best\?area=today&limit=10"\)/);
  assert.match(script,/const area=step===0\?"popular":"pick"/);
- assert.match(script,/fetch\("\/api\/best\?area="\+area\+"&limit=10"/);
+ assert.match(script,/fetch\(API_ORIGIN\+"\/api\/best\?area="\+area\+"&limit=10"/);
  assert.match(script,/show\(visible,false,discoveryGrid\)/);
  assert.match(script,/const existing=new Set\(availableItems\.map\(productKey\)\)/);
  assert.match(script,/const seen=new Set\(\)/);
@@ -36,6 +36,8 @@ test('Main today grid and distinct additional popular-product grid render live p
  assert.match(script,/discoveryMore\.addEventListener\("click",loadDiscoveryStep\)/);
  assert.match(script,/if\(!document\.body\.classList\.contains\("category-active"\)\)ensureDiscovery\(\)/);
  assert.match(html,/category-active \.product-discovery\{display:none\}/);
+ assert.match(script,/const API_ORIGIN='https:\/\/alttulpick-preview\.onrender\.com'/);
+ assert.match(server,/Access-Control-Allow-Origin/);
 });
 test('Default browsing spends two BIZ requests, extra products require a user click',()=>{
  assert.match(script,/let discoveredProducts=\[\],discoveryLoaded=false,discoveryBusy=false,discoveryStep=0/);
