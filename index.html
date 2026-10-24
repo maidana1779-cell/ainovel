@@ -839,6 +839,55 @@ async function loadCuratedProducts(){
   }
 }
 loadCuratedProducts();
+const mallGrid=document.getElementById("partner-mall-grid");
+const mallMore=document.getElementById("partner-malls-more");
+let partnerMalls=[],expandedMalls=false;
+function renderPartnerMalls(){
+  mallGrid.replaceChildren();
+  const list=expandedMalls?partnerMalls:partnerMalls.slice(0,8);
+  if(!list.length){
+    mallGrid.append(make("div","empty","지금은 제휴몰을 표시할 수 없습니다. 잠시 후 다시 확인해 주세요."));
+    mallMore.hidden=true;return;
+  }
+  for(const mall of list){
+    const tile=make("a","mall-tile");
+    tile.href=mall.commissionlink;tile.target="_blank";tile.rel="sponsored nofollow noopener noreferrer";
+    tile.setAttribute("aria-label",mall.name+" 제휴몰 방문");
+    const icon=make("span","mall-icon",mall.name.slice(0,2));
+    if(typeof mall.icon==="string"&&mall.icon.startsWith("https://")){
+      const img=document.createElement("img");img.alt="";img.loading="lazy";
+      img.referrerPolicy="no-referrer";img.addEventListener("error",()=>img.remove());
+      img.src=mall.icon;icon.append(img);
+    }
+    const body=make("span","mall-body");
+    body.append(make("span","mall-name",mall.name),make("span","mall-desc",mall.title||"제휴 쇼핑몰 바로가기"));
+    tile.append(icon,body);mallGrid.append(tile);
+  }
+  mallMore.hidden=partnerMalls.length<=8;
+  mallMore.textContent=expandedMalls?"제휴몰 접기 −":"제휴몰 모두 보기 +";
+}
+mallMore.addEventListener("click",()=>{
+  expandedMalls=!expandedMalls;renderPartnerMalls();
+});
+async function loadPartnerMalls(){
+  try{
+    const response=await fetch("/api/malls",{cache:"no-store"});
+    const payload=await response.json();
+    if(!response.ok||payload.success!==true||!Array.isArray(payload.data))throw Error("bad response");
+    partnerMalls=payload.data.filter(m=>{
+      if(typeof m?.name!=="string"||typeof m?.commissionlink!=="string")return false;
+      try{
+        const u=new URL(m.commissionlink);
+        return u.protocol==="https:"&&(u.hostname==="link.adpick.co.kr"||u.hostname==="biz.adpick.co.kr");
+      }catch{return false}
+    });
+    renderPartnerMalls();
+  }catch{
+    mallGrid.replaceChildren(make("div","empty","제휴몰 목록을 불러올 수 없습니다. 상품 검색은 계속 이용할 수 있습니다."));
+    mallMore.hidden=true;
+  }
+}
+loadPartnerMalls();
 </script>
 </body>
 </html>
