@@ -393,6 +393,7 @@ body.category-active .category-caption{display:none}
 </div>
 
 <script>
+const API_ORIGIN='https://alttulpick-preview.onrender.com';
 const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
 const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
 function make(tag,klass,text){const el=document.createElement(tag);if(klass)el.className=klass;if(text!==undefined)el.textContent=String(text);return el}
@@ -472,8 +473,8 @@ if(allowed&&!isDemo){
     const event=JSON.stringify({event:"product_click",merchant:String(p.cp_name||"제휴 쇼핑몰").slice(0,80)});
     try{
       const blob=new Blob([event],{type:"application/json"});
-      if(navigator.sendBeacon?.("/api/telemetry",blob))return;
-      fetch("/api/telemetry",{method:"POST",headers:{"Content-Type":"application/json"},body:event,keepalive:true}).catch(()=>{});
+      if(navigator.sendBeacon?.(API_ORIGIN+"/api/telemetry",blob))return;
+      fetch(API_ORIGIN+"/api/telemetry",{method:"POST",headers:{"Content-Type":"application/json"},body:event,keepalive:true}).catch(()=>{});
     }catch{/* Affiliate link remains clickable if analytics fails. */}
   });
 }else link.setAttribute("aria-disabled","true");
@@ -576,7 +577,7 @@ relatedBrowse.hidden=true;relatedList.replaceChildren();
 statusEl.textContent="상품을 불러오는 중입니다...";
 grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
 try{
-  const res=await fetch(url,{cache:"no-store"});
+  const res=await fetch(API_ORIGIN+url,{cache:"no-store"});
   const payload=await res.json();
   if(id!==requestId)return;
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
@@ -627,7 +628,7 @@ moreButton.addEventListener("click",async()=>{
   moreBusy=true;moreNote.textContent="다른 관련 품목을 검색하고 있어요.";
   updateMoreControls(true);
   try{
-    const res=await fetch("/api/search?q="+encodeURIComponent(q)+"&batch="+batch+"&limit=30",{cache:"no-store"});
+    const res=await fetch(API_ORIGIN+"/api/search?q="+encodeURIComponent(q)+"&batch="+batch+"&limit=30",{cache:"no-store"});
     const payload=await res.json();
     if(id!==requestId)return;
     if(!res.ok||!payload.success){
@@ -836,7 +837,7 @@ async function loadCuratedProducts(){
   const panel=document.getElementById("toss-picks");
   const target=document.getElementById("toss-products");
   try{
-    const response=await fetch("/api/curated",{cache:"no-store"});
+    const response=await fetch(API_ORIGIN+"/api/curated",{cache:"no-store"});
     const payload=await response.json();
     if(!response.ok||payload.success!==true||!Array.isArray(payload.data)||!payload.data.length)return;
     show(payload.data,false,target);
@@ -881,7 +882,7 @@ async function loadDiscoveryStep(){
   discoveryStatus.textContent="새 상품을 확인하는 중입니다.";
   const area=step===0?"popular":"pick";
   try{
-    const response=await fetch("/api/best?area="+area+"&limit=10",{cache:"no-store"});
+    const response=await fetch(API_ORIGIN+"/api/best?area="+area+"&limit=10",{cache:"no-store"});
     const payload=await response.json();
     if(!response.ok||payload.success!==true)throw Error("best feed unavailable");
     const items=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
