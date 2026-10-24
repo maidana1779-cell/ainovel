@@ -180,6 +180,14 @@ body.category-active .category-caption{display:none}
 .related-list{display:flex;flex-wrap:wrap;gap:8px}
 .related-link{background:#f4f7fb;border:1px solid #e8edf5;border-radius:50px;font-weight:720;font-size:12px;padding:9px 14px;color:#46586f}
 .related-link:hover{background:#e9f2ff;border-color:#acc8f1;color:#1657cc}
+.shoppingmate-section{padding:21px 0 38px;margin:10px 0 27px;border-top:1px solid #e8edf3}
+.shoppingmate-section .section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:18px}
+.shoppingmate-section h2{font-size:25px;letter-spacing:-.8px;margin:7px 0 6px;font-weight:930}
+.shoppingmate-section p{font-size:12px;color:#79889c;line-height:1.7;margin:0}
+.shoppingmate-section .deal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:18px}
+.shoppingmate-section .note{font-size:11px;color:#8998aa;line-height:1.65}
+@media(min-width:731px) and (max-width:1030px){.shoppingmate-section .deal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:730px){.shoppingmate-section{padding-top:20px;margin-bottom:25px}.shoppingmate-section h2{font-size:22px}.shoppingmate-section .deal-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.shoppingmate-section .section-head{display:block}}
 .curated-section{margin:24px 0 52px;padding:28px 26px 22px;background:#eff5ff;border-radius:23px}
 .section-head{margin:0 0 18px;display:flex;justify-content:space-between;align-items:end;gap:18px}
 .section-head .overline{letter-spacing:1.35px}
@@ -346,6 +354,11 @@ body.category-active .category-caption{display:none}
  </div>
 </section>
 </div><!-- /browse-layout -->
+<section id="shoppingmate-offers" class="shoppingmate-section" aria-labelledby="shoppingmate-title" hidden>
+ <div class="section-head"><div><span class="overline">ADPICK / SHOPPINGMATE</span><h2 id="shoppingmate-title">제휴몰 할인 상품</h2><p>제휴사에서 제공한 정상가·할인가 기준으로 할인율을 계산했어요.</p></div><span class="section-count">제휴사 제공 참고가</span></div>
+ <div id="shoppingmate-products" class="deal-grid"></div>
+ <p class="note">가격·할인율은 제휴사 제공 시점의 참고 정보입니다. 재고, 쿠폰, 배송비 및 최종 결제 금액은 판매처에서 확인해 주세요. 제휴 구매 시 수수료가 지급될 수 있습니다.</p>
+</section>
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
   <div><span class="overline">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
@@ -432,8 +445,10 @@ const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=fa
 try{
   const url=new URL(href);
   const isAdpick=url.protocol==="https:"&&(/^(biz|link)\.adpick\.co\.kr$/).test(url.hostname);
+  const isShoppingMate=p.affiliate_source==="adpick_shoppingmate"&&url.protocol==="https:"&&
+    (url.hostname==="deg.kr"||url.hostname==="adpick.co.kr"||/^[a-z0-9-]+\.adpick\.co\.kr$/.test(url.hostname));
   isToss=p.affiliate_source==="toss_sharelink"&&url.protocol==="https:"&&url.hostname==="toss.shopping"&&/^\/_m\/[A-Za-z0-9]+$/.test(url.pathname);
-  allowed=isAdpick||isToss;
+  allowed=isAdpick||isToss||isShoppingMate;
 }catch{}
 if(isToss)box.append(make("div","commission-detail","토스쇼핑 쉐어링크 제휴 상품 · 가격은 판매처에서 확인"));
 const label=allowed&&!isDemo?(isToss?"토스쇼핑에서 보기 ↗":"판매처에서 보기 ↗"):"판매처 확인 불가";
@@ -814,6 +829,23 @@ async function loadCuratedProducts(){
   }
 }
 loadCuratedProducts();
+async function loadShoppingMateOffers(){
+  const panel=document.getElementById("shoppingmate-offers");
+  const target=document.getElementById("shoppingmate-products");
+  try{
+    const response=await fetch("/api/shoppingmate",{cache:"no-store"});
+    const payload=await response.json();
+    if(!response.ok||payload.success!==true||payload.configured!==true||
+       !Array.isArray(payload.data)||!payload.data.length)return;
+    const offers=payload.data.filter(item=>verifiedDiscount(item));
+    if(!offers.length)return;
+    show(offers.slice(0,12),false,target);
+    panel.hidden=false;
+  }catch{
+    // Never simulate discounts or expose incomplete campaign data.
+  }
+}
+loadShoppingMateOffers();
 
 </script>
 </body>
