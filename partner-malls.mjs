@@ -8,7 +8,7 @@ export function safeAffiliateLink(value){
  try{
   const u=new URL(value);
   return u.protocol==="https:"&&!u.username&&!u.password&&u.href.length<2048&&
-    (u.hostname==="link.adpick.co.kr"||u.hostname==="biz.adpick.co.kr");
+    (u.hostname==="link.adpick.co.kr"||(u.hostname==="biz.adpick.co.kr"&&!u.pathname.startsWith("/api/")));
  }catch{return false}
 }
 export function normalizePartnerMalls(raw){
