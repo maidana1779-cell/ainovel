@@ -15,13 +15,14 @@ test('Normalize only legitimate BIZ merchant sales links, never affiliate percen
  const list=normalizePartnerMalls({success:true,data:[
   goodMall('A'),goodMall('A','https://link.adpick.co.kr/def'),
   goodMall('B','https://biz.adpick.co.kr/r/abc'),
+  goodMall('LIVE','https://bitl.bz/provider-issued-link'),
   goodMall('C','https://evil.example/shopping'),
   goodMall('D','http://link.adpick.co.kr/abc'),
   goodMall('E','https://biz.adpick.co.kr/api/SECRET/search'),
   {...goodMall('F'),commissionlink:''},
  ]});
- assert.equal(list.length,2);
- assert.deepEqual(list.map(x=>x.cp_code),['A','B']);
+ assert.equal(list.length,3);
+ assert.deepEqual(list.map(x=>x.cp_code),['A','B','LIVE']);
  assert.ok(list.every(x=>x.commission_per===undefined));
  assert.equal(list[0].icon,'https://cdn.adpick.co.kr/icons/store.png');
  assert.equal(list[0].title,'제휴 쇼핑몰');
@@ -31,6 +32,7 @@ test('Referral links are host verified, not merely adpick substrings',()=>{
   assert.equal(safeAffiliateLink(u),false,u);
  }
  assert.equal(safeAffiliateLink('https://link.adpick.co.kr/abc'),true);
+ assert.equal(safeAffiliateLink('https://bitl.bz/provider-issued-link'),true);
  assert.equal(safeAffiliateLink('https://biz.adpick.co.kr/go/a'),true);
 });
 test('BIZ provider route is separate from search quota and never displays secret keys',()=>{
@@ -54,6 +56,7 @@ test('Live mall list includes provider icons, safe merchant links and expansion'
  assert.ok(script);assert.doesNotThrow(()=>new Script(script));
  for(const id of ['partner-malls','partner-mall-grid','partner-malls-more'])assert.equal(html.split('id="'+id+'"').length-1,1,id);
  assert.match(script,/fetch\("\/api\/malls"/);
+ assert.match(script,/u.hostname==="bitl.bz"/);
  assert.match(script,/renderPartnerMalls\(\)/);
  assert.match(script,/mallMore\.addEventListener\("click"/);
  assert.match(script,/tile\.rel="sponsored nofollow noopener noreferrer"/);
