@@ -21,8 +21,12 @@ test('Normalize only legitimate BIZ merchant sales links, never affiliate percen
   goodMall('E','https://biz.adpick.co.kr/api/SECRET/search'),
   {...goodMall('F'),commissionlink:''},
  ]});
- assert.equal(list.length,3);
- assert.deepEqual(list.map(x=>x.cp_code),['A','B','LIVE']);
+ assert.equal(list.length,7);
+ assert.deepEqual(list.map(x=>x.cp_code),['A','B','LIVE','C','D','E','F']);
+ assert.equal(list.find(x=>x.cp_code==='C').commissionlink,null);
+ assert.equal(list.find(x=>x.cp_code==='D').commissionlink,null);
+ assert.equal(list.find(x=>x.cp_code==='E').commissionlink,null);
+ assert.equal(list.find(x=>x.cp_code==='F').commissionlink,null);
  assert.ok(list.every(x=>x.commission_per===undefined));
  assert.equal(list[0].icon,'https://cdn.adpick.co.kr/icons/store.png');
  assert.equal(list[0].title,'제휴 쇼핑몰');
@@ -43,25 +47,29 @@ test('BIZ provider route is separate from search quota and never displays secret
  assert.match(server,/const mallHits=\[\]/);
  assert.match(server,/mallHits\.length>=30/);
  assert.match(server,/pathname==='\/api\/best'/);
- assert.match(server,/!?\['today','popular','pick','commission'\]\.includes\(area\)/);
+ assert.match(server,/!?\['today','popular','pick'\]\.includes\(area\)/);
+ assert.doesNotMatch(server,/\['today','popular','pick','commission'\]/);
 });
-test('All four exact BIZ console best areas are accessible from shop UI',()=>{
- for(const area of ['today','popular','pick','commission']){
+test('Customer site exposes three shopper-focused areas, excluding commission-ranked content',()=>{
+ for(const area of ['today','popular','pick']){
   assert.equal((html.match(new RegExp('<button[^>]*data-area="'+area+'"','g'))||[]).length,1,area);
  }
- assert.match(html,/최고 수익 상품/);
- assert.match(html,/운영자 수익 성과 기준이며 할인율이 아닙니다/);
+ assert.doesNotMatch(html,/data-area="commission"|최고 수익 상품/);
 });
-test('Live mall list includes provider icons, safe merchant links and expansion',()=>{
+test('Every returned mall is shown by default, including unlinked shops, with a name search',()=>{
  assert.ok(script);assert.doesNotThrow(()=>new Script(script));
- for(const id of ['partner-malls','partner-mall-grid','partner-malls-more'])assert.equal(html.split('id="'+id+'"').length-1,1,id);
+ for(const id of ['partner-malls','partner-mall-grid','partner-malls-search','partner-malls-count'])
+   assert.equal(html.split('id="'+id+'"').length-1,1,id);
  assert.match(script,/fetch\("\/api\/malls"/);
  assert.match(script,/u.hostname==="bitl.bz"/);
- assert.match(script,/renderPartnerMalls\(\)/);
- assert.match(script,/mallMore\.addEventListener\("click"/);
+ assert.match(script,/const visible=partnerMalls\.filter/);
+ assert.match(script,/mallSearch\.addEventListener\("input",renderPartnerMalls\)/);
+ assert.match(script,/const canVisit=Boolean\(mall\.commissionlink\)/);
+ assert.match(script,/canVisit\?"a":"div"/);
+ assert.match(script,/현재 제휴 링크 미제공/);
  assert.match(script,/tile\.rel="sponsored nofollow noopener noreferrer"/);
- assert.match(script,/m\.commissionlink/);
  assert.ok(html.indexOf('id="partner-malls"')>html.indexOf('id="deals"'));
  assert.ok(html.indexOf('id="partner-malls"')<html.indexOf('id="toss-picks"'));
+ assert.doesNotMatch(html,/data-area="commission"|partner-malls-more/);
  assert.doesNotMatch(html,/(\d+)% 할인 적용!/);
 });
