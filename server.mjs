@@ -12,7 +12,7 @@ function safeAffiliateLink(raw){
   try{
     const u=new URL(raw);
     const host=u.hostname.toLowerCase();
-    if(u.protocol==='https:'&&(host==='link.adpick.co.kr'||host==='biz.adpick.co.kr'))return u.href;
+    if(u.protocol==='https:'&&['link.adpick.co.kr','biz.adpick.co.kr','bitl.bz'].includes(host))return u.href;
   }catch{}
   return null;
 }
@@ -28,12 +28,6 @@ async function getTossLink(){
   const data=await response.json();
   const entry=Array.isArray(data?.data)?data.data.find(x=>String(x?.cp_code||'')===TOSS_CODE):null;
   const raw=entry?.commissionlink;
-  let linkHost='none';try{if(raw)linkHost=new URL(raw).hostname}catch{linkHost='malformed'}
-  console.log('[TOSS LINK DIAG] '+JSON.stringify({
-    found:Boolean(entry),linkProvided:typeof raw==='string'&&raw.length>0,
-    hostname:linkHost,code:String(entry?.cp_code||''),
-    responseStatus:response.status
-  }));
   const link=safeAffiliateLink(raw);
   const result={available:Boolean(link),name:'토스쇼핑',link:link||undefined};
   // In-memory mall metadata cache only (not product details/images); avoid frequent API calls.
