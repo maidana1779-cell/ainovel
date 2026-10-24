@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseMerchantOffer,verifyProductBatch} from '../merchant-offers.mjs';
+import {parseMerchantOffer,verifyProductBatch,verifyProductBatchWithMeta} from '../merchant-offers.mjs';
 const title='브랜드 무선 이어폰 2세대';
 const originalPrice=100000;
 function page(availability='InStock',regular=100000,sale=70000,product=title){
@@ -57,5 +57,23 @@ test('Without direct merchant product URL the affiliate link is never fetched',a
  try{
   const p={title,price:70000,commissionlink:'https://bitl.bz/test'};
   assert.deepEqual(await verifyProductBatch([p]),[p]);
+ }finally{globalThis.fetch=old}
+});
+
+test('Korean catalog price formats are accepted but mismatched prices stay unverified',()=>{
+ assert.equal(parseMerchantOffer(page(),title,'70,000원').discount.price_sale,70000);
+ assert.equal(parseMerchantOffer(page(),title,'69,900원').discount,null);
+ assert.equal(parseMerchantOffer(page(),title,'70,000원~').discount,null);
+});
+test('Coverage metadata distinguishes eligible, unknown and verified unavailable items',async()=>{
+ const old=globalThis.fetch;
+ globalThis.fetch=async()=>new Response(page('OutOfStock'),{status:200,headers:{'content-type':'text/html'}});
+ try{
+  const out=await verifyProductBatchWithMeta([
+   {title,price:'70,000원',product_url:'https://www.11st.co.kr/products/coverage-test'},
+   {title,price:'70,000원',commissionlink:'https://bitl.bz/unavailable'}
+  ]);
+  assert.equal(out.items.length,1);
+  assert.deepEqual(out.verification,{checked:1,eligible:1,unverified:1,sold_out_removed:1,discounts_verified:0});
  }finally{globalThis.fetch=old}
 });
