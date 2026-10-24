@@ -71,25 +71,33 @@ try{
 }catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
-// Temporary supplier diagnostics: four bounded API queries, no product titles or links
-// written to logs. Remove after collecting a baseline.
+// Temporary overlap diagnostic: compare candidate extra queries using in-memory
+// product IDs only; log counts, never product titles, URLs, or credentials.
 server.on('listening',async()=>{
  const key=process.env.ADPICK_API_KEY;
  if(!key)return;
- const selections=['주방세제','캡슐세제','액체세제','라면'];
- for(const q of selections){
-  const p=getSearchPlan(q),upstream=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
-  upstream.searchParams.set('q',q);
-  upstream.searchParams.set('limit','20');
-  if(p.codes)upstream.searchParams.set('cp_code',p.codes.join(','));
+ const queries=['세제','주방세제','캡슐세제'];
+ const data={};
+ for(const q of queries){
+  const plan=getSearchPlan(q);
+  const url=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/search');
+  url.searchParams.set('q',q);
+  url.searchParams.set('limit','20');
+  if(plan.codes)url.searchParams.set('cp_code',plan.codes.join(','));
   try{
-   const response=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+   const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
    const body=await response.json().catch(()=>null);
    const incoming=Array.isArray(body?.data)?body.data:(Array.isArray(body?.data?.list)?body.data.list:[]);
-   const scoped=p.codes?incoming.filter(item=>p.codes.includes(String(item?.cp_code||'').toLowerCase())):incoming;
-   const matched=selectRelevantProducts(q,scoped);
-   console.log('[SEARCH BASELINE] '+JSON.stringify({q,status:response.status,success:body?.success===true,received:incoming.length,allowed:scoped.length,relevant:matched.length,reason:body?.error_code||null}));
+   const allowed=plan.codes?incoming.filter(item=>plan.codes.includes(String(item?.cp_code||'').toLowerCase())):incoming;
+   data[q]=response.ok?selectRelevantProducts('세제',allowed):[];
+   console.log('[DETERGENT OVERLAP] '+JSON.stringify({q,status:response.status,received:incoming.length,relevant:data[q].length}));
    if(response.status===429)break;
-  }catch{console.log('[SEARCH BASELINE] '+JSON.stringify({q,error:'unavailable'}));}
+  }catch{console.log('[DETERGENT OVERLAP] '+JSON.stringify({q,status:'unavailable'}));}
+ }
+ const base=data['세제']||[];
+ for(const q of ['주방세제','캡슐세제']){
+  if(!data[q])continue;
+  const combined=uniqueProductResults([...base,...data[q]]);
+  console.log('[DETERGENT PAIR] '+JSON.stringify({secondary:q,base:base.length,extra:data[q].length,unique:combined.length,additional:combined.length-base.length}));
  }
 });
