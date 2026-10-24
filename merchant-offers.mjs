@@ -76,7 +76,9 @@ async function verifyOne(item){
    const chunks=[];let size=0;let tooLarge=false;
    while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>1600000){tooLarge=true;await reader.cancel();break}chunks.push(value)}
    if(tooLarge)break;
-   const html=new TextDecoder().decode(Buffer.concat(chunks.map(x=>Buffer.from(x))));
+   const bytes=new Uint8Array(size);let position=0;
+   for(const chunk of chunks){bytes.set(chunk,position);position+=chunk.byteLength}
+   const html=new TextDecoder().decode(bytes);
    result=parseMerchantOffer(html,item.title,item.price);
    break;
   }
