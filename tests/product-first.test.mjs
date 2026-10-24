@@ -29,7 +29,7 @@ test('Main today grid and distinct additional popular-product grid render live p
  assert.match(script,/load\("\/api\/best\?area=today&limit=10"\)/);
  assert.match(script,/const area=step===0\?"popular":"pick"/);
  assert.match(script,/const endpoint=step===0\?"\/api\/search\?q="/);
- assert.match(script,/fetch\(API_ORIGIN\+endpoint/);
+ assert.match(script,/fetchProducts\(endpoint\)/);
  assert.match(script,/timeZone:"Asia\/Seoul"/);
  assert.match(html,/상품의 재고와 판매 여부는 실시간으로 확인되지 않으며/);
  assert.doesNotMatch(script,/if\(!isDemo\)box\.append\(make\("div","price-reference","실시간 재고 확인 불가/);
@@ -41,7 +41,7 @@ test('Main today grid and distinct additional popular-product grid render live p
  assert.match(script,/observer\.observe\(discoverySection\)/);
  assert.match(script,/if\(primaryPending\|\|!discoveryInView/);
  assert.match(html,/category-active \.product-discovery\{display:none\}/);
- assert.match(script,/const API_ORIGIN='https:\/\/alttulpick-preview\.onrender\.com'/);
+ assert.match(script,/const API_ORIGIN='https:\/\/alttulpick-api\.maidana1779\.workers\.dev'/);
  assert.match(server,/Access-Control-Allow-Origin/);
 });
 test('Default browsing spends two BIZ requests, extra products require a user click',()=>{
