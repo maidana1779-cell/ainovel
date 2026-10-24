@@ -160,3 +160,19 @@ try{
 }catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
+
+async function oneTimeSchemaProbe(){
+ const key=process.env.ADPICK_API_KEY;
+ if(!key)return;
+ try{
+  const endpoint='https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/best?area=today&limit=10';
+  const response=await fetch(endpoint,{signal:AbortSignal.timeout(9000),headers:{Accept:'application/json'}});
+  if(!response.ok){console.log('BIZ_SCHEMA_PROBE_HTTP',response.status);return}
+  const json=await response.json();
+  const list=Array.isArray(json.data)?json.data:Array.isArray(json.data?.list)?json.data.list:[];
+  const fields=[...new Set(list.flatMap(x=>Object.keys(x||{})))].sort();
+  const n=list.filter(x=>x?.product_url||x?.productUrl||x?.item_url).length;
+  console.log('BIZ_SCHEMA_PROBE',JSON.stringify({count:list.length,fields,direct_url_count:n}));
+ }catch(err){console.log('BIZ_SCHEMA_PROBE_UNAVAILABLE',err?.name||'unknown')}
+}
+oneTimeSchemaProbe();
