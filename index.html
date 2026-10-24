@@ -180,31 +180,20 @@ body.category-active .category-caption{display:none}
 .related-list{display:flex;flex-wrap:wrap;gap:8px}
 .related-link{background:#f4f7fb;border:1px solid #e8edf5;border-radius:50px;font-weight:720;font-size:12px;padding:9px 14px;color:#46586f}
 .related-link:hover{background:#e9f2ff;border-color:#acc8f1;color:#1657cc}
-.partner-malls{margin:27px 0 40px;padding:26px 0 5px;border-top:1px solid #e6ebf3}
-.partner-malls .section-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin:0 0 17px}
-.partner-malls .section-head h2{font-size:24px;letter-spacing:-.8px;margin:7px 0 5px}
-.partner-malls .section-head p{font-size:12px;color:#8391a3;line-height:1.7;margin:0}
-.partner-mall-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
-.mall-tile{display:flex;align-items:center;gap:12px;border:1px solid #e3eaf4;background:#fff;border-radius:14px;padding:15px 13px;color:#1e344f;text-decoration:none;min-width:0;transition:box-shadow .2s,border-color .2s}
-.mall-tile:hover{box-shadow:0 7px 20px #17478212;border-color:#8eb4f1}
-.mall-tile:focus-visible{outline:2px solid #2468e8;outline-offset:2px}
-.mall-icon{position:relative;flex:0 0 41px;width:41px;height:41px;background:#eff4fb;border-radius:10px;display:grid;place-items:center;font-size:12px;font-weight:950;color:#567193;border:1px solid #e5eaf2;overflow:hidden}
-.mall-icon img{width:100%;height:100%;object-fit:contain;position:absolute;inset:0;padding:3px;background:#fff}
-.mall-body{display:flex;flex-direction:column;gap:4px;min-width:0}
-.mall-name{font-size:14px;font-weight:850;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mall-desc{font-size:11px;color:#8494a7;line-height:1.45;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mall-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 16px}
-.mall-controls label{font-size:12px;font-weight:850;color:#566984}
-.mall-controls input{min-height:41px;min-width:180px;border:1px solid #d7e0ee;border-radius:10px;background:#fff;color:#24364c;padding:9px 13px;font-size:13px}
-.mall-controls input:focus-visible{outline:2px solid #2468e8;outline-offset:1px}
-.mall-controls span{font-size:12px;color:#64758d}
-.mall-unavailable{opacity:.7;background:#f8fafc;border-style:dashed;cursor:default}
-.mall-unavailable .mall-desc{color:#8795a7}
-.mall-footer{display:flex;justify-content:center;margin:18px 0 9px}
-.mall-more{border:1px solid #cbdaf0;color:#215abb;background:#fff;border-radius:10px;font-size:13px;font-weight:800;padding:12px 24px;cursor:pointer}
-.mall-disclosure{margin:10px 0 2px;font-size:11px;line-height:1.7;color:#8a98ab}
-@media(min-width:731px) and (max-width:1030px){.partner-mall-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:730px){.partner-malls{margin:19px 0 30px;padding-top:19px}.partner-malls .section-head h2{font-size:21px}.partner-mall-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mall-tile{gap:8px;padding:11px 9px}.mall-icon{flex-basis:34px;width:34px;height:34px;border-radius:8px}.mall-name{font-size:12px}.mall-desc{font-size:10px}.mall-more{width:100%}.mall-controls{align-items:stretch}.mall-controls input{flex:1;min-width:140px}.mall-controls span{flex-basis:100%}}
+/* Additional products, not a list of partner merchants. */
+.product-discovery{margin:23px 0 38px;padding:27px 0 9px;border-top:1px solid #e6ebf3}
+.product-discovery .section-head{display:flex;align-items:end;justify-content:space-between;gap:13px;margin:0 0 18px}
+.product-discovery .section-head h2{font-size:25px;letter-spacing:-.9px;margin:7px 0 5px}
+.product-discovery .section-head p{font-size:12px;color:#7a899d;line-height:1.65;margin:0}
+.product-discovery .discovery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.product-discovery .discovery-foot{display:flex;flex-direction:column;align-items:center;gap:8px;margin:18px 0 7px}
+.product-discovery .discovery-more{border:1px solid #bfd1ee;border-radius:12px;background:#fff;color:#1f5abc;font-size:14px;font-weight:850;min-width:210px;padding:14px 23px;cursor:pointer}
+.product-discovery .discovery-more:hover:not(:disabled){background:#eef5ff}
+.product-discovery .discovery-more:disabled{opacity:.55;cursor:wait}
+.product-discovery .discovery-notice{font-size:11px;color:#7b8b9e;text-align:center;line-height:1.6}
+.category-active .product-discovery{display:none}
+@media(min-width:731px) and (max-width:1030px){.product-discovery .discovery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:730px){.product-discovery{padding-top:21px;margin:19px 0 30px}.product-discovery .section-head{display:block}.product-discovery .section-head h2{font-size:22px}.product-discovery .discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product-discovery .discovery-more{width:100%}}
 .curated-section{margin:24px 0 52px;padding:28px 26px 22px;background:#eff5ff;border-radius:23px}
 .section-head{margin:0 0 18px;display:flex;justify-content:space-between;align-items:end;gap:18px}
 .section-head .overline{letter-spacing:1.35px}
@@ -283,7 +272,7 @@ body.category-active .category-caption{display:none}
   <span class="brand-tag">핫딜 · 제휴 쇼핑 · 똑똑한 상품 탐색</span>
  </div>
  <nav class="nav" aria-label="주 메뉴">
-  <a href="/#shop-categories">카테고리</a><a href="#deals">베스트 상품</a><a href="#partner-malls">제휴몰</a><a href="#toss-picks">토스쇼핑</a>
+  <a href="/#shop-categories">카테고리</a><a href="#deals">베스트 상품</a><a href="#product-discovery">인기 상품</a><a href="#toss-picks">토스쇼핑</a>
  </nav>
 </div></header>
 <main class="wrap">
@@ -371,15 +360,18 @@ body.category-active .category-caption{display:none}
  </div>
 </section>
 </div><!-- /browse-layout -->
-<section id="partner-malls" class="partner-malls" aria-labelledby="partner-malls-heading">
- <div class="section-head"><div><span class="overline">ADPICK BIZ / PARTNER STORES</span><h2 id="partner-malls-heading">제휴몰 둘러보기</h2><p>애드픽 BIZ가 제공한 제휴몰 판매 링크로 이동합니다.</p></div></div>
- <div class="mall-controls">
-  <label for="partner-malls-search">쇼핑몰 찾기</label>
-  <input id="partner-malls-search" type="search" placeholder="쇼핑몰 이름 검색" autocomplete="off" aria-controls="partner-mall-grid">
-  <span id="partner-malls-count" role="status" aria-live="polite">제휴몰 목록 조회 중</span>
+<section id="product-discovery" class="product-discovery" aria-labelledby="discovery-title">
+ <div class="section-head">
+  <div><span class="overline">MORE PRODUCTS / BIZ PARTNER FEEDS</span><h2 id="discovery-title">다른 인기 상품도 둘러보세요</h2>
+  <p>제휴사에서 제공하는 인기 판매상품과 추천상품을 추가로 살펴보세요.</p></div>
  </div>
- <div id="partner-mall-grid" class="partner-mall-grid" aria-live="polite"><div class="empty">제휴몰을 불러오는 중입니다.</div></div>
- <p class="mall-disclosure">제휴몰 이동 시 수수료가 지급될 수 있습니다. 각 판매처의 실제 가격·배송 조건은 해당 사이트에서 확인해 주세요.</p>
+ <div id="discovery-products" class="discovery-grid" aria-live="polite">
+  <div class="empty">인기 상품을 불러오는 중입니다.</div>
+ </div>
+ <div class="discovery-foot">
+  <button type="button" id="discovery-more" class="discovery-more" hidden>추천 상품 더 보기 +</button>
+  <span id="discovery-status" class="discovery-notice" role="status" aria-live="polite">실제 제휴 상품을 불러오고 있습니다.</span>
+ </div>
 </section>
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
@@ -466,7 +458,7 @@ box.append(pricing);
 const href=typeof p.commissionlink==="string"?p.commissionlink:"";let allowed=false,isToss=false;
 try{
   const url=new URL(href);
-  const isAdpick=url.protocol==="https:"&&(/^(biz|link)\.adpick\.co\.kr$/).test(url.hostname);
+  const isAdpick=url.protocol==="https:"&&(/^(biz|link)\.adpick\.co\.kr$/.test(url.hostname)||url.hostname==="bitl.bz");
   isToss=p.affiliate_source==="toss_sharelink"&&url.protocol==="https:"&&url.hostname==="toss.shopping"&&/^\/_m\/[A-Za-z0-9]+$/.test(url.pathname);
   allowed=isAdpick||isToss;
 }catch{}
@@ -597,6 +589,7 @@ try{
     shownCount=initial.length;
     refreshMerchantOptions();
     renderListing();
+    if(!currentQuery&&discoveryLoaded)renderDiscovered();
     if(currentQuery) {
       nextBatch=1;
       updateMoreControls(payload.filter_meta?.has_more===true);
@@ -661,6 +654,8 @@ moreButton.addEventListener("click",async()=>{
 tabs.addEventListener("click",e=>{
   const b=e.target.closest("[data-area]");if(!b)return;
   leaveDepartment();
+  mainBestArea=b.dataset.area;
+  ensureDiscovery();
   activate(tabs,b);activate(categories,null);input.value="";
   heading.textContent=b.textContent+" 상품";
   load("/api/best?area="+encodeURIComponent(b.dataset.area)+"&limit=10");
@@ -823,6 +818,7 @@ if(Object.prototype.hasOwnProperty.call(departmentInfo,requestedDepartment)){
   changeDepartment(requestedDepartment,{navigate:false});
 }else{
   load("/api/best?area=today&limit=10");
+  ensureDiscovery();
 }
 window.addEventListener("popstate",()=>{
  const category=new URLSearchParams(location.search).get("category");
@@ -832,7 +828,9 @@ window.addEventListener("popstate",()=>{
   leaveDepartment({navigate:false});
   activate(tabs,tabs.querySelector('[data-area="today"]'));
   heading.textContent="오늘의 추천 상품";
+  mainBestArea="today";
   load("/api/best?area=today&limit=10");
+  ensureDiscovery();
  }
 });
 async function loadCuratedProducts(){
@@ -849,69 +847,65 @@ async function loadCuratedProducts(){
   }
 }
 loadCuratedProducts();
-const mallGrid=document.getElementById("partner-mall-grid");
-const mallSearch=document.getElementById("partner-malls-search");
-const mallCount=document.getElementById("partner-malls-count");
-let partnerMalls=[];
-function browserAffiliateLink(value){
-  if(typeof value!=="string")return null;
-  try{
-    const u=new URL(value);
-    const ok=u.protocol==="https:"&&!u.username&&!u.password&&u.href.length<2048&&(
-      u.hostname==="link.adpick.co.kr"||u.hostname==="bitl.bz"||
-      (u.hostname==="biz.adpick.co.kr"&&!u.pathname.startsWith("/api/"))
-    );
-    return ok?u.href:null;
-  }catch{return null}
+const discoveryGrid=document.getElementById("discovery-products");
+const discoveryMore=document.getElementById("discovery-more");
+const discoveryStatus=document.getElementById("discovery-status");
+const discoverySection=document.getElementById("product-discovery");
+let discoveredProducts=[],discoveryLoaded=false,discoveryBusy=false,discoveryStep=0;
+let mainBestArea="today";
+function discoveryUnique(items){
+  const existing=new Set(availableItems.map(productKey));
+  const seen=new Set();
+  return items.filter(p=>{
+    const key=productKey(p);
+    if(!p||typeof p.title!=="string"||!p.title.trim()||existing.has(key)||seen.has(key))return false;
+    seen.add(key);return true;
+  });
 }
-function renderPartnerMalls(){
-  mallGrid.replaceChildren();
-  const query=mallSearch.value.trim().toLocaleLowerCase("ko");
-  const visible=partnerMalls.filter(m=>(m.name+" "+(m.title||"")).toLocaleLowerCase("ko").includes(query));
-  const linked=partnerMalls.filter(m=>m.commissionlink).length;
-  mallCount.textContent=query?
-    ("검색 결과 "+visible.length+"개 / 전체 "+partnerMalls.length+"개"):
-    ("제휴몰 "+partnerMalls.length+"개 · 링크 제공 "+linked+"개");
+function renderDiscovered(){
+  const visible=discoveryUnique(discoveredProducts);
   if(!visible.length){
-    mallGrid.append(make("div","empty",query?"해당 이름의 제휴몰이 없습니다.":"표시할 제휴몰이 없습니다."));
-    return;
+    discoveryGrid.replaceChildren(make("div","empty",discoveryBusy?"관련 상품을 확인하는 중입니다.":"이번에는 추가로 보여줄 상품이 없습니다. 카테고리에서 더 찾아보세요."));
+  }else{
+    show(visible,false,discoveryGrid);
   }
-  for(const mall of visible){
-    const canVisit=Boolean(mall.commissionlink);
-    const tile=make(canVisit?"a":"div","mall-tile"+(canVisit?"":" mall-unavailable"));
-    if(canVisit){
-      tile.href=mall.commissionlink;tile.target="_blank";tile.rel="sponsored nofollow noopener noreferrer";
-      tile.setAttribute("aria-label",mall.name+" 제휴몰 방문");
-    }else{
-      tile.setAttribute("aria-label",mall.name+" 제휴몰 판매 링크 미제공");
-    }
-    const icon=make("span","mall-icon",mall.name.slice(0,2));
-    if(typeof mall.icon==="string"&&mall.icon.startsWith("https://")){
-      const img=document.createElement("img");img.alt="";img.loading="lazy";
-      img.referrerPolicy="no-referrer";img.addEventListener("error",()=>img.remove());
-      img.src=mall.icon;icon.append(img);
-    }
-    const body=make("span","mall-body");
-    body.append(make("span","mall-name",mall.name),make("span","mall-desc",canVisit?(mall.title||"제휴몰 방문 ↗"):"현재 제휴 링크 미제공"));
-    tile.append(icon,body);mallGrid.append(tile);
-  }
+  discoveryMore.hidden=discoveryStep>=2;
+  discoveryMore.disabled=discoveryBusy;
+  discoveryMore.textContent=discoveryBusy?"상품을 가져오는 중…":discoveryStep===0?"인기 상품 불러오기 +":"추천 상품 더 보기 +";
+  discoveryStatus.textContent="추가로 보는 서로 다른 상품 "+visible.length+"개 · 가격과 배송은 판매처에서 확인";
 }
-mallSearch.addEventListener("input",renderPartnerMalls);
-async function loadPartnerMalls(){
+async function loadDiscoveryStep(){
+  if(discoveryBusy||discoveryStep>=2||document.body.classList.contains("category-active"))return;
+  discoveryBusy=true;
+  const step=discoveryStep;
+  discoveryMore.hidden=false;discoveryMore.disabled=true;
+  discoveryStatus.textContent="새 상품을 확인하는 중입니다.";
+  const area=step===0?"popular":"pick";
   try{
-    const response=await fetch("/api/malls",{cache:"no-store"});
+    const response=await fetch("/api/best?area="+area+"&limit=10",{cache:"no-store"});
     const payload=await response.json();
-    if(!response.ok||payload.success!==true||!Array.isArray(payload.data))throw Error("bad response");
-    partnerMalls=payload.data.filter(m=>typeof m?.name==="string"&&m.name.length>0).map(m=>({
-      ...m,commissionlink:browserAffiliateLink(m.commissionlink)
-    }));
-    renderPartnerMalls();
+    if(!response.ok||payload.success!==true)throw Error("best feed unavailable");
+    const items=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
+    if(!items)throw Error("bad best response");
+    const known=new Set(discoveredProducts.map(productKey));
+    for(const p of items){
+      const key=productKey(p);
+      if(typeof p?.title==="string"&&p.title.trim()&&!known.has(key)){known.add(key);discoveredProducts.push(p)}
+    }
+    discoveryStep=step+1;
+    discoveryLoaded=true;
   }catch{
-    mallGrid.replaceChildren(make("div","empty","제휴몰 목록을 불러올 수 없습니다. 상품 검색은 계속 이용할 수 있습니다."));
-    mallCount.textContent="제휴몰 연결 확인 필요";
+    discoveryStatus.textContent="인기 상품 연결이 원활하지 않습니다. 아래 버튼으로 다시 시도할 수 있어요.";
+  }finally{
+    discoveryBusy=false;
+    renderDiscovered();
   }
 }
-loadPartnerMalls();
+discoveryMore.addEventListener("click",loadDiscoveryStep);
+function ensureDiscovery(){
+  if(!discoveryLoaded&&!discoveryBusy)loadDiscoveryStep();
+  else renderDiscovered();
+}
 </script>
 </body>
 </html>
