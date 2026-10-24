@@ -514,8 +514,8 @@ function show(items,isDemo,target=grid,append=false){
   let allowed=false,isToss=false;
   try{
    const url=new URL(href);
-   const isAdpick=url.protocol==="https:"&&(/^(biz|link)\\.adpick\\.co\\.kr$/.test(url.hostname)||url.hostname==="bitl.bz");
-   isToss=p.affiliate_source==="toss_sharelink"&&url.protocol==="https:"&&url.hostname==="toss.shopping"&&/^\\/_m\\/[A-Za-z0-9]+$/.test(url.pathname);
+   const isAdpick=url.protocol==="https:"&&(/^(biz|link)\.adpick\.co\.kr$/.test(url.hostname)||url.hostname==="bitl.bz");
+   isToss=p.affiliate_source==="toss_sharelink"&&url.protocol==="https:"&&url.hostname==="toss.shopping"&&/^\/_m\/[A-Za-z0-9]+$/.test(url.pathname);
    allowed=isAdpick||isToss;
   }catch{}
   const clickable=allowed&&!isDemo;
