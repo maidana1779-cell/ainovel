@@ -4,218 +4,238 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
-<title>알뜰픽 | 잘 찾는 쇼핑의 시작</title>
+<title>알뜰픽 | 상품을 더 간편하게</title>
 <meta name="description" content="여러 제휴 쇼핑몰의 상품과 직접 고른 추천 상품을 검색하고 둘러보는 알뜰픽">
 <meta name="robots" content="noindex,nofollow">
 <style>
-:root{--ink:#202422;--muted:#747978;--line:#e3e5e1;--paper:#fff;--wash:#f6f6f2;--accent:#d85236;--soft:#f7f2ea;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none}
+
+:root{
+ --ink:#192334;--ink-soft:#455469;--muted:#78869a;--soft:#f3f6fa;
+ --border:#e6eaf0;--line:#dfe6ef;--primary:#2468e8;--primary-dark:#1657cc;
+ --blue-light:#eff5ff;--surface:#fff;
+ font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+ color:var(--ink);background:#f5f7fa;font-synthesis:none
+}
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:88px}
+html{scroll-behavior:smooth;scroll-padding-top:98px}
 body{margin:0;min-width:320px}
 a{color:inherit;text-decoration:none}
 button,input{font:inherit}
 button{cursor:pointer}
-button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
 [hidden]{display:none!important}
-.wrap{max-width:1180px;margin-inline:auto;padding-inline:32px}
-.notice-bar{background:#202422;color:#f4f4f0;font-size:11px;letter-spacing:-.1px}
-.notice-inner{min-height:32px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.notice-inner span:last-child{color:#c5c9c4}
-.header{background:#fff;border-bottom:1px solid var(--line)}
-.headin{height:75px;display:flex;align-items:center;justify-content:space-between;gap:30px}
-.brand{font-size:27px;font-weight:900;letter-spacing:-1.9px;white-space:nowrap;line-height:1}
-.brand b{color:var(--accent);font-weight:900}
-.brand small{display:block;color:#808681;font-size:9px;font-weight:800;letter-spacing:1.9px;margin-top:7px}
-.nav{display:flex;align-items:center;gap:31px;color:#555d58;font-size:13px;font-weight:650}
-.nav a:hover{color:var(--accent)}
-.header-note{font-size:11px;font-weight:700;color:#6e756f;border:1px solid var(--line);padding:9px 11px}
-.hero{background:var(--wash);margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:54px 55px 55px}
-.eyebrow{font-size:12px;color:#626c64;font-weight:750;display:flex;align-items:center;gap:9px;margin:0 0 25px;letter-spacing:-.1px}
-.eyebrow-dot{width:7px;height:7px;display:inline-block;background:var(--accent)}
-.hero h1{font-size:clamp(37px,4vw,52px);line-height:1.28;letter-spacing:-2.7px;margin:0;font-weight:850;word-break:keep-all}
-.hero h1 strong{font-weight:850;color:var(--accent)}
-.hero-intro{color:#69716d;font-size:14px;line-height:1.85;margin:22px 0 26px;word-break:keep-all}
-.hero-foot{font-size:11px;color:#919691;padding-top:13px;border-top:1px solid #dadfd7}
-.search-surface{background:#fff;border:1px solid #e0e1dc;padding:28px 27px 27px}
-.search-meta{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#7d837d;letter-spacing:.4px;font-weight:700;border-bottom:1px solid var(--line);padding-bottom:15px}
-.search-title{padding:25px 0 20px}
-.search-title label{display:block;font-size:22px;font-weight:800;letter-spacing:-.8px}
-.search-title p{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.6}
-.bar{display:flex;align-items:stretch;min-height:54px;border:1px solid #cbd0c9;background:#fff}
-.bar:focus-within{border-color:#424a43}
-.search-mark{display:flex;align-items:center;justify-content:center;min-width:47px;color:#7c867d;font-size:23px;line-height:1}
-.bar input{border:0;outline:0;min-width:0;flex:1;font-size:14px;color:var(--ink);padding:10px 0;background:transparent}
-.bar input::placeholder{color:#a0a6a0}
-.primary{border:0;background:var(--ink);color:#fff;font-weight:760;padding:0 20px;font-size:13px;min-width:82px}
-.primary:hover{background:var(--accent)}
-.quick-searches{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:19px}
-.quick-title{font-size:11px;color:#858d85;margin-right:3px}
-.quick-searches button{border:1px solid #e6e8e4;background:#fff;color:#515b53;font-size:11px;padding:7px 11px}
-.quick-searches button:hover{background:#f1f3ed;border-color:#abb4a8}
-.category-section{margin:52px 0 18px}
-.category-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:20px}
-.overline{display:block;color:#9a9f97;font-size:10px;font-weight:800;letter-spacing:1.45px}
-.category-heading h2{font-size:21px;letter-spacing:-.8px;font-weight:850;margin:6px 0 0}
-.category-helper{font-size:12px;color:#818781}
-.category-list{display:flex;align-items:stretch;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);gap:0;overflow-x:auto;scrollbar-width:none}
+.site{max-width:1280px;min-height:100vh;margin:0 auto;background:#fff;box-shadow:0 0 80px #1b365209}
+.wrap{max-width:1150px;margin:0 auto;padding-inline:32px}
+.header{background:#fff;border-bottom:1px solid var(--border)}
+.headin{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:30px}
+.brand-group{display:flex;align-items:center;gap:25px;min-width:0}
+.brand{font-size:31px;font-weight:950;letter-spacing:-2.1px;white-space:nowrap;line-height:1}
+.brand b{color:var(--primary);font-size:34px;line-height:.5}
+.brand-tag{font-size:12px;font-weight:600;color:#66758a;white-space:nowrap}
+.nav{display:flex;gap:25px;font-size:13px;font-weight:730;color:#455369;white-space:nowrap}
+.nav a:hover{color:var(--primary)}
+.header-chip{font-size:10px;letter-spacing:.8px;border:1px solid var(--border);border-radius:100px;padding:9px 12px;color:#728098;white-space:nowrap}
+.hero{padding:43px 0 20px}
+.hero-top{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:21px}
+.eyebrow{color:var(--primary);letter-spacing:2px;font-size:10px;font-weight:900;margin:0 0 9px}
+.hero h1{font-size:clamp(27px,3.5vw,38px);line-height:1.3;letter-spacing:-1.6px;margin:0;font-weight:900;word-break:keep-all}
+.hero h1 span{color:var(--primary)}
+.hero-intro{margin:0 0 2px;color:var(--muted);font-size:12px;line-height:1.7;max-width:300px;text-align:right}
+.search-surface{display:block}
+.bar{display:flex;align-items:center;min-height:66px;background:#f3f5f9;border:1px solid #edf0f5;border-radius:15px;padding:7px 7px 7px 21px;transition:background .2s,border-color .2s}
+.bar:focus-within{background:#fff;border-color:var(--primary);box-shadow:0 0 0 3px #2568e710}
+.search-mark{width:22px;height:22px;display:inline-grid;place-items:center;flex-shrink:0;margin-right:15px;color:#66758b}
+.search-mark svg{display:block;width:21px;height:21px}
+.bar input{border:0;outline:0;min-width:0;flex:1;background:transparent;color:var(--ink);font-size:14px;padding:12px 0}
+.bar input::placeholder{color:#929eb0}
+.primary{border:0;border-radius:11px;background:var(--ink);color:#fff;padding:15px 24px;min-height:49px;font-size:13px;font-weight:850}
+.primary:hover{background:var(--primary)}
+.quick-searches{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.quick-title{font-size:11px;color:#98a3b1;margin-right:3px}
+.quick-searches button{background:none;border:0;border-bottom:1px solid transparent;padding:7px 5px;color:#64748b;font-size:11px;font-weight:650}
+.quick-searches button:hover{color:var(--primary);border-bottom-color:var(--primary)}
+.category-section{margin:17px 0 42px}
+.category-heading{display:none}
+.category-list{display:flex;gap:10px;align-items:center;overflow-x:auto;padding:0 0 3px;scrollbar-width:none}
 .category-list::-webkit-scrollbar{display:none}
-.catbtn{border:0;background:none;color:#686e69;font-size:14px;white-space:nowrap;font-weight:660;padding:18px 22px 17px;position:relative}
-.catbtn:first-child{padding-left:4px}
-.catbtn.active{color:var(--ink);font-weight:850}
-.catbtn.active::after{position:absolute;bottom:0;left:17px;right:17px;height:3px;background:var(--accent);content:""}
-.catbtn:first-child.active::after{left:0}
-.catbtn:hover{color:var(--accent)}
-.subcat-panel{padding:15px 0 0}
-.subcat-panel .note{display:inline-block;font-size:11px;color:#979e96;margin:0 14px 12px 0}
-.subcat-list{display:inline-flex;flex-wrap:wrap;gap:6px}
-.subbtn{background:var(--wash);border:1px solid transparent;color:#626a62;font-size:12px;font-weight:600;padding:9px 14px}
-.subbtn.active{background:var(--ink);color:#fff}
-.subbtn:hover:not(.active){border-color:#c6ccc3}
-.category-caption{font-size:11px;color:#989e97;margin:14px 0 0;line-height:1.6}
-.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:23px}
-.section-head h2{font-size:28px;line-height:1.3;letter-spacing:-1.05px;margin:7px 0 6px;font-weight:850}
-.section-head p{font-size:13px;line-height:1.7;color:var(--muted);margin:0}
-.section-count{font-weight:800;font-size:11px;letter-spacing:1.8px;color:#9a9f99}
-.curated-section{padding-top:44px;margin:47px 0 58px;border-top:1px solid var(--line)}
-.curated-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
-.curated-grid .card{display:grid;grid-template-columns:minmax(230px,36%) minmax(0,1fr);border:1px solid var(--line);background:#fff;overflow:hidden}
-.curated-grid .picture{aspect-ratio:auto;height:100%;min-height:270px;border:0;border-right:1px solid var(--line);background:#f1f3ef}
-.curated-grid .content{padding:28px 33px 25px}
-.curated-grid .merchant{font-size:12px}
-.curated-grid .product{font-size:21px;line-height:1.4;min-height:0;letter-spacing:-.45px;max-width:520px;margin:12px 0 9px}
-.curated-grid .price{font-size:19px;margin:12px 0 10px}
-.curated-grid .go{max-width:300px}
-.curated-disclosure{font-size:11px;color:#878d86;line-height:1.7;margin:16px 0 0}
-.commission-detail{font-size:11px;color:#858b85;line-height:1.7;margin:0 0 10px}
-.deals{padding-top:33px;border-top:1px solid var(--ink);margin-top:35px}
-.section{display:flex;align-items:end;justify-content:space-between;gap:25px;margin:0 0 20px}
-.section h2{font-size:28px;letter-spacing:-1.1px;line-height:1.3;margin:7px 0 0;font-weight:850}
-.tabs{display:flex;gap:21px;flex-wrap:wrap}
-.tab{border:0;border-bottom:2px solid transparent;padding:12px 0;color:#7a8078;background:none;font-size:12px;font-weight:700;white-space:nowrap}
-.tab.active{color:var(--ink);border-bottom-color:var(--ink)}
-.tab:hover{color:var(--accent)}
-.results-meta{display:flex;justify-content:space-between;gap:20px;align-items:center;border-top:1px solid var(--line);padding:14px 0 23px}
-.muted{font-size:12px;color:#737b73;line-height:1.7}
-.results-meta .aside{font-size:11px;color:#a0a6a0}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px 19px;margin:0 0 55px}
-.card{display:flex;flex-direction:column;min-width:0}
-.picture{width:100%;aspect-ratio:1/1;position:relative;display:grid;place-items:center;background:#f5f5f2;border:1px solid #efefea;overflow:hidden}
-.picture img{width:100%;height:100%;object-fit:contain;transition:transform .24s ease}
-.card:hover .picture img{transform:scale(1.035)}
-.picture.has-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px}
-.fallback-no{font-size:10px;color:#a3aaa3;font-weight:850;letter-spacing:2px}
-.fallback-wordmark{font-size:12px;color:#778881;font-weight:850;letter-spacing:3px}
-.fallback-size{font-size:clamp(24px,3.2vw,41px);font-weight:850;color:#405b50;letter-spacing:-1.6px;line-height:1}
-.fallback-caption{font-size:11px;line-height:1.6;color:#929991}
-.content{padding:13px 2px 0;display:flex;flex-direction:column;flex:1}
-.merchant{font-size:11px;font-weight:750;color:#6a736a}
-.product{font-size:14px;font-weight:680;line-height:1.55;letter-spacing:-.25px;margin:8px 0 10px;min-height:44px;word-break:keep-all;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.price{font-size:20px;font-weight:850;letter-spacing:-.9px;line-height:1.35;margin:0 0 18px}
-.go{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding:11px 0;border-top:1px solid #d5d9d3;color:#2c352e;font-size:12px;font-weight:800;transition:color .15s ease}
-.go:hover{color:var(--accent)}
-.go.disabled{color:#a2aaa3;pointer-events:none}
-.empty{grid-column:1/-1;border:1px solid var(--line);padding:50px 22px;text-align:center;color:#737c73;background:#fafbf9;font-size:13px;line-height:1.8}
-.policy-strip{margin:58px 0 0;padding:25px 27px;background:#f7f8f5;display:flex;gap:24px;align-items:start;justify-content:space-between}
-.policy-strip strong{font-size:13px}
-.policy-strip p{font-size:12px;line-height:1.8;color:#777e76;margin:5px 0 0;max-width:780px}
-.policy-strip .policy-mark{font-size:10px;color:#9fa89e;letter-spacing:1px;white-space:nowrap}
-.footer{border-top:1px solid var(--line);margin-top:60px;padding:33px 0 55px}
-.footerin{display:flex;align-items:start;justify-content:space-between;gap:30px}
-.foothead{font-size:22px;font-weight:900;letter-spacing:-1.4px}
-.foothead b{color:var(--accent)}
-.footer-meta{font-size:11px;color:#8a918a;line-height:1.95;margin-top:10px}
-.footer-note{font-size:11px;line-height:1.8;color:#8b918a;max-width:460px;text-align:right}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.picture img{transition:none}}
-@media(max-width:990px){.hero{grid-template-columns:1fr;gap:25px;padding:36px}.hero-intro{margin-bottom:10px}.hero-foot{display:none}.search-surface{max-width:none}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:680px){
- .wrap{padding-inline:17px}.notice-inner{font-size:10px;justify-content:center}.notice-inner span:last-child{display:none}
- .headin{height:67px;gap:13px}.brand{font-size:25px}.brand small{font-size:8px;margin-top:5px}.nav{gap:15px;font-size:12px}.nav a:last-child{display:none}.header-note{display:none}
- .hero{margin:0 -17px;padding:35px 17px 27px;gap:23px}.eyebrow{font-size:11px;margin-bottom:18px}.hero h1{font-size:38px;letter-spacing:-2px;line-height:1.25}.hero-intro{font-size:13px;margin:16px 0 0}
- .search-surface{padding:21px 17px 22px}.search-title{padding:21px 0 17px}.search-title label{font-size:19px}.search-meta{font-size:9px}.bar{min-height:50px}.search-mark{min-width:38px;font-size:20px}.bar input{font-size:13px}.primary{min-width:65px;padding-inline:11px}.quick-searches{margin-top:15px;gap:6px}.quick-title{width:100%;margin-bottom:2px}
- .category-section{margin:35px 0 8px}.category-heading{margin-bottom:14px}.category-heading h2{font-size:20px}.category-helper{display:none}.category-list{margin-right:-17px}.catbtn{font-size:13px;padding:15px 17px}.catbtn:first-child{padding-left:2px}.catbtn.active::after{left:13px;right:13px}.catbtn:first-child.active::after{left:0}.category-caption{font-size:10px}
- .section-head h2,.section h2{font-size:23px}.section-head p{font-size:12px}.curated-section{margin:32px 0 43px;padding-top:30px}
- .curated-grid .card{grid-template-columns:42% minmax(0,1fr);min-height:205px}.curated-grid .picture{min-height:200px}.curated-grid .content{padding:14px 12px}.curated-grid .product{font-size:14px;line-height:1.5;letter-spacing:-.2px;margin:8px 0 7px}.curated-grid .price{font-size:13px;letter-spacing:-.25px;margin:5px 0 8px}.curated-grid .merchant{font-size:11px}.curated-grid .go{font-size:11px}.fallback-size{font-size:23px}.fallback-wordmark{font-size:9px}.fallback-caption{font-size:9px}
- .deals{padding-top:26px}.section{display:block}.tabs{gap:22px;margin-top:12px;overflow:auto;flex-wrap:nowrap}.results-meta{padding:13px 0 19px}.results-meta .aside{display:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 12px;margin-bottom:36px}
- .product{font-size:13px;line-height:1.48;min-height:56px;-webkit-line-clamp:3}.price{font-size:18px;letter-spacing:-.5px;margin-bottom:15px}.merchant{font-size:10px}.go{font-size:11px;padding:10px 0}.content{padding-top:11px}
- .policy-strip{margin-top:42px;padding:20px;display:block}.policy-strip .policy-mark{display:none}.footer{margin-top:40px;padding:28px 0 42px}.footerin{display:block}.footer-note{text-align:left;margin-top:18px}
+.catbtn{border:1px solid transparent;border-radius:28px;background:#f2f4f8;color:#4d5b6e;padding:11px 20px;white-space:nowrap;font-size:13px;font-weight:750;transition:background .18s,color .18s}
+.catbtn:first-child{padding-inline:21px}
+.catbtn.active{color:#fff;background:#192334;box-shadow:0 3px 9px #17274118}
+.catbtn:hover:not(.active){background:#e7eefb;color:#1e62d4}
+.subcat-panel{margin-top:13px;padding:13px 0 0;border-top:1px solid var(--border)}
+.subcat-panel .note{font-size:11px;color:#8995a8;margin-right:11px}
+.subcat-list{display:inline-flex;gap:8px;flex-wrap:wrap;vertical-align:middle}
+.subbtn{border:1px solid var(--border);border-radius:20px;background:#fff;color:#647388;font-size:12px;font-weight:650;padding:8px 13px}
+.subbtn.active{background:var(--blue-light);border-color:#b7cef9;color:var(--primary);font-weight:800}
+.category-caption{color:#99a4b1;font-size:10px;line-height:1.6;margin:12px 0 0}
+.deals{padding:1px 0 26px}
+.section{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:16px}
+.overline{display:block;color:var(--primary);font-size:10px;font-weight:850;letter-spacing:1.8px}
+.section h2,.section-head h2{font-size:28px;font-weight:900;letter-spacing:-1.2px;line-height:1.3;margin:7px 0 5px}
+.section-sub{font-size:12px;color:#8490a2;margin:0;line-height:1.7}
+.tabs{display:flex;gap:4px;align-items:center;border:1px solid var(--border);padding:4px;border-radius:12px;background:#f8fafc}
+.tab{border:0;background:transparent;color:#778498;border-radius:8px;font-size:12px;font-weight:800;white-space:nowrap;padding:10px 13px}
+.tab.active{color:var(--ink);background:#fff;box-shadow:0 1px 6px #24324c12}
+.tab:hover:not(.active){color:var(--primary)}
+.results-meta{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px}
+.muted{color:#8190a3;font-size:12px;line-height:1.65}
+.results-meta .aside{color:#a0aab8;font-size:10px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:34px}
+.card{display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid #edf0f4;border-radius:14px;overflow:hidden;box-shadow:0 3px 13px #1b304b08;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 9px 24px #1b304b12}
+.picture{width:100%;aspect-ratio:1.06;display:grid;place-items:center;position:relative;background:#f4f6f8;overflow:hidden}
+.picture img{height:100%;width:100%;object-fit:contain;transition:transform .3s}
+.card:hover .picture img{transform:scale(1.02)}
+.picture.has-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:18px}
+.fallback-no{font-size:10px;font-weight:850;letter-spacing:1.8px;color:#b1bac8}
+.fallback-wordmark{font-size:13px;font-weight:900;letter-spacing:3px;color:#5579bb}
+.fallback-size{font-size:clamp(24px,3vw,36px);font-weight:900;letter-spacing:-1.8px;color:#244c88}
+.fallback-caption{font-size:11px;color:#8d9bad;line-height:1.55}
+.content{padding:14px 15px 15px;display:flex;flex-direction:column;flex:1}
+.merchant{color:#5e718a;font-size:11px;font-weight:770}
+.product{font-size:13px;font-weight:760;line-height:1.55;min-height:62px;margin:8px 0 10px;letter-spacing:-.2px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.price{font-size:22px;font-weight:930;letter-spacing:-1px;line-height:1.3;margin:0 0 15px}
+.go{margin-top:auto;text-align:center;display:flex;align-items:center;justify-content:center;background:#f2f6ff;color:#235ccd;font-size:12px;font-weight:830;padding:12px 8px;border-radius:9px;min-height:41px}
+.go:hover{background:#e5eeff;color:#1547a7}
+.go.disabled{background:#f4f5f7;color:#9da6b1;pointer-events:none}
+.commission-detail{color:#8290a1;font-size:10px;line-height:1.65;margin:0 0 13px}
+.empty{grid-column:1/-1;background:#f9fafc;border:1px dashed #d9e1eb;border-radius:14px;color:#7b8ba0;font-size:13px;line-height:1.8;padding:55px 25px;text-align:center}
+.curated-section{margin:24px 0 52px;padding:28px 26px 22px;background:#eff5ff;border-radius:23px}
+.section-head{margin:0 0 18px;display:flex;justify-content:space-between;align-items:end;gap:18px}
+.section-head .overline{letter-spacing:1.35px}
+.section-head h2{font-size:25px;margin:7px 0 5px}
+.section-head p{color:#788eac;font-size:12px;margin:0;line-height:1.65}
+.section-count{font-size:11px;color:#7792bf;font-weight:850;letter-spacing:1px;white-space:nowrap}
+.curated-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:15px}
+.curated-grid .card{display:grid;grid-template-columns:minmax(240px,38%) minmax(0,1fr);border:0;border-radius:16px;box-shadow:none;transform:none}
+.curated-grid .picture{min-height:265px;aspect-ratio:auto;background:linear-gradient(150deg,#f4f8ff,#e7f0ff)}
+.curated-grid .picture.has-fallback{gap:17px}
+.curated-grid .fallback-size{font-size:37px}
+.curated-grid .content{padding:27px 29px 22px;justify-content:center}
+.curated-grid .merchant{font-size:12px;color:var(--primary)}
+.curated-grid .product{font-size:21px;font-weight:870;letter-spacing:-.6px;min-height:auto;margin:12px 0 12px;-webkit-line-clamp:3}
+.curated-grid .price{font-size:15px;background:#f1f5fd;color:var(--primary-dark);padding:12px 14px;border-radius:9px;margin:3px 0 12px;letter-spacing:-.3px}
+.curated-grid .go{background:var(--primary);color:#fff;font-size:14px;min-height:48px;border-radius:10px}
+.curated-grid .go:hover{background:var(--primary-dark)}
+.curated-disclosure{font-size:11px;color:#60789e;margin:15px 3px 0;line-height:1.75}
+.policy-strip{margin:49px 0 0;padding:25px 27px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:30px}
+.policy-strip strong{font-size:15px}
+.policy-strip p{font-size:12px;color:#8491a1;line-height:1.8;max-width:760px;margin:7px 0 0}
+.policy-mark{font-size:10px;letter-spacing:1px;color:#a3afbc;white-space:nowrap}
+.footer{margin-top:30px;border-top:1px solid var(--border);padding:27px 0 45px}
+.footerin{display:flex;justify-content:space-between;gap:30px}
+.foothead{font-size:24px;font-weight:950;letter-spacing:-1.5px}
+.foothead b{color:var(--primary)}
+.footer-meta,.footer-note{font-size:11px;color:#95a0ae;line-height:1.8;margin-top:8px}
+.footer-note{text-align:right;max-width:460px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card,.picture img{transition:none}}
+@media(max-width:980px){.headin{min-height:75px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:730px){
+ .wrap{padding-inline:17px}
+ .headin{min-height:65px;gap:10px}.brand{font-size:26px;letter-spacing:-1.7px}.brand b{font-size:28px}
+ .brand-group{gap:12px}.brand-tag{font-size:10px}
+ .nav{gap:12px;font-size:11px}.nav a:nth-child(2){display:none}.header-chip{display:none}
+ .hero{padding:25px 0 12px}.hero-top{margin-bottom:17px}.hero h1{font-size:25px;letter-spacing:-1px}.hero-intro{display:none}
+ .bar{min-height:57px;padding:5px 5px 5px 15px;border-radius:13px}.search-mark{margin-right:10px}.bar input{font-size:13px;padding:8px 0}.primary{min-height:45px;padding:11px 16px}
+ .quick-searches{gap:4px;margin-top:8px}.quick-title{font-size:10px}.quick-searches button{font-size:11px}
+ .category-section{margin:13px 0 31px}.category-list{margin-right:-17px;padding-right:17px;gap:8px}.catbtn{font-size:12px;padding:10px 15px}.catbtn:first-child{padding-inline:15px}
+ .subcat-panel{padding-top:11px}.subcat-list{gap:6px}.subbtn{font-size:11px;padding:7px 11px}.category-caption{font-size:10px}
+ .section{display:block;margin-bottom:12px}.section h2{font-size:24px}.section-sub{font-size:11px}
+ .tabs{margin-top:14px;width:fit-content;max-width:100%;overflow-x:auto}.tab{font-size:11px;padding:9px 12px}
+ .results-meta{margin-bottom:14px}.results-meta .aside{display:none}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:24px}
+ .content{padding:11px}.product{font-size:12px;min-height:58px;line-height:1.5;margin:7px 0}.merchant{font-size:10px}.price{font-size:18px;margin:0 0 12px}
+ .go{font-size:11px;padding:11px 4px}.picture{aspect-ratio:1.05}
+ .curated-section{margin:19px -17px 42px;border-radius:0;padding:25px 17px 22px}.section-head h2{font-size:23px}.section-head p{font-size:11px}.section-count{display:none}
+ .curated-grid .card{grid-template-columns:40% minmax(0,1fr);min-height:210px}.curated-grid .picture{min-height:210px}
+ .curated-grid .content{padding:15px 12px}.curated-grid .product{font-size:14px;margin:8px 0}.curated-grid .price{font-size:11px;padding:9px 8px}.curated-grid .go{font-size:11px;min-height:42px;padding:9px 5px}.curated-grid .merchant{font-size:11px}.curated-grid .fallback-size{font-size:25px}
+ .curated-grid .fallback-wordmark{font-size:10px}.curated-grid .fallback-caption{font-size:9px}
+ .policy-strip{padding:22px 0;display:block;margin:30px 0 0}.policy-mark{display:none}.footer{margin-top:16px}.footerin{display:block}.footer-note{text-align:left;margin-top:14px}
 }
-@media(max-width:380px){.hero h1{font-size:34px}.nav a:nth-child(2){display:none}.curated-grid .card{grid-template-columns:39% minmax(0,1fr)}.curated-grid .content{padding:12px 10px}.curated-grid .price{font-size:12px}}
+@media(max-width:390px){.brand-tag{display:none}.nav a:last-child{display:none}.curated-grid .card{grid-template-columns:38% minmax(0,1fr)}.curated-grid .content{padding:11px 10px}.curated-grid .fallback-size{font-size:21px}}
+
 </style>
 </head>
 <body>
-<div class="notice-bar"><div class="wrap notice-inner"><span>알뜰픽은 상품을 직접 판매하지 않는 제휴 상품 안내 서비스입니다.</span><span>가격·배송 정보는 판매처에서 확인하세요.</span></div></div>
+
+<div class="site">
 <header class="header"><div class="wrap headin">
-<a href="/" class="brand" aria-label="알뜰픽 홈">알뜰<b>픽.</b><small>ALTTUL PICK</small></a>
-<nav class="nav" aria-label="주 메뉴"><a href="#categories">카테고리</a><a href="#deals">상품 보기</a><a href="#about">서비스 안내</a></nav>
-<span class="header-note">SHOPPING EDIT · BETA</span>
+ <div class="brand-group">
+  <a href="/" class="brand" aria-label="알뜰픽 홈">알뜰픽<b>·</b></a>
+  <span class="brand-tag">핫딜 · 제휴 쇼핑 · 똑똑한 상품 탐색</span>
+ </div>
+ <nav class="nav" aria-label="주 메뉴">
+  <a href="#deals">추천 상품</a><a href="#toss-picks">토스쇼핑</a><a href="#about">안내</a>
+ </nav>
 </div></header>
 <main class="wrap">
 <section class="hero" aria-labelledby="hero-heading">
-<div class="hero-copy">
-<p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> 흩어진 쇼핑을 간결하게</p>
-<h1 id="hero-heading">좋은 소비는<br><strong>잘 찾는 것부터.</strong></h1>
-<p class="hero-intro">여러 쇼핑몰의 제휴 추천 상품을 한곳에서 살펴보세요.<br>필요한 상품을 찾고, 가격과 구매 조건은 판매처에서 확인하세요.</p>
-<div class="hero-foot">상품을 직접 판매하거나 최저가를 보장하지 않습니다.</div>
-</div>
-<div class="search-surface">
-<div class="search-meta"><span>01 / 상품 찾기</span><span>한 번에 최대 20개 결과</span></div>
-<div class="search-title"><label for="q">무엇을 찾고 있나요?</label><p>구체적인 상품명으로 검색하면 더 정확해요.</p></div>
-<form id="searchform" class="bar" role="search">
-<span class="search-mark" aria-hidden="true">⌕</span>
-<input id="q" aria-label="상품 검색어" placeholder="예: 라면, 무선이어폰, 생수" minlength="2" maxlength="60" autocomplete="off">
-<button class="primary" type="submit">검색 →</button>
-</form>
-<div class="quick-searches" id="quick-searches" aria-label="빠른 검색">
-<span class="quick-title">바로 검색</span>
-<button type="button" data-quick="라면">라면</button>
-<button type="button" data-quick="생수">생수</button>
-<button type="button" data-quick="세탁세제">세탁세제</button>
-<button type="button" data-quick="무선이어폰">무선이어폰</button>
-</div>
-</div>
+ <div class="hero-top">
+  <div><p class="eyebrow">ALTTUL PICK / SHOP SMARTER</p><h1 id="hero-heading">찾는 상품, <span>더 간편하게.</span></h1></div>
+  <p class="hero-intro">여러 제휴 쇼핑몰 상품을 모아 보여드려요.<br>가격과 구매 조건은 판매처에서 확인하세요.</p>
+ </div>
+ <div class="search-surface">
+  <form id="searchform" class="bar" role="search">
+   <span class="search-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.7" cy="10.7" r="7.3"/><path d="m16.2 16.2 5.2 5.2"/></svg></span>
+   <input id="q" aria-label="상품 검색어" placeholder="찾는 상품이나 브랜드를 검색해 보세요" minlength="2" maxlength="60" autocomplete="off">
+   <button class="primary" type="submit">검색</button>
+  </form>
+  <div class="quick-searches" id="quick-searches" aria-label="빠른 검색">
+   <span class="quick-title">자주 찾는 상품</span>
+   <button type="button" data-quick="생수">생수</button>
+   <button type="button" data-quick="커피">커피</button>
+   <button type="button" data-quick="라면">라면</button>
+   <button type="button" data-quick="세탁세제">세탁세제</button>
+  </div>
+ </div>
 </section>
-
 <section id="categories" class="category-section" aria-label="상품 카테고리">
-<div class="category-heading"><div><span class="overline">SHOP BY CATEGORY</span><h2>카테고리</h2></div><span class="category-helper">관심 있는 품목을 선택해 바로 찾아보세요.</span></div>
-<div id="categories-buttons" class="category-list" role="group" aria-label="카테고리 선택">
-<button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button>
-<button type="button" class="catbtn" aria-pressed="false" data-query="세제">생활용품</button>
-<button type="button" class="catbtn" aria-pressed="false" data-query="간편식">식품</button>
-<button type="button" class="catbtn" aria-pressed="false" data-query="이어폰">디지털</button>
-<button type="button" class="catbtn" aria-pressed="false" data-query="화장품">뷰티</button>
-<button type="button" class="catbtn" aria-pressed="false" data-query="의류">패션</button>
-<button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">주방</button>
-</div>
-<div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
-<p class="category-caption">검색 결과는 연결된 제휴 쇼핑몰의 일부 상품입니다. 전체 쇼핑몰 상품 목록과 다를 수 있습니다.</p>
+ <div id="categories-buttons" class="category-list" role="group" aria-label="카테고리 선택">
+  <button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="간편식">식품</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="세제">생활용품</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="이어폰">디지털</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="화장품">뷰티</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="의류">패션</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">주방</button>
+ </div>
+ <div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
+ <p class="category-caption">검색 결과는 연결된 제휴 쇼핑몰의 일부 상품입니다. 검색어당 최대 20개의 제휴 상품을 조회합니다.</p>
 </section>
-
-<section id="toss-picks" class="curated-section" aria-label="토스쇼핑 개별 추천 상품" hidden>
-<div class="section-head"><div><span class="overline">HANDPICKED / PARTNER</span><h2>직접 골라둔 상품</h2><p>별도로 등록한 토스쇼핑 제휴 상품입니다. 최신 가격은 판매처에서 확인해 주세요.</p></div><span class="section-count">SELECTED 01</span></div>
-<div id="toss-products" class="curated-grid"></div>
-<p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
-</section>
-
 <section id="deals" class="deals" aria-label="상품 목록">
-<div class="section"><div><span class="overline">PRODUCTS / DISCOVER</span><h2 id="product-heading">오늘의 추천 상품</h2></div>
-<div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
-<button type="button" class="tab active" data-area="today" aria-pressed="true">실시간 베스트</button>
-<button type="button" class="tab" data-area="popular" aria-pressed="false">인기상품</button>
-<button type="button" class="tab" data-area="pick" aria-pressed="false">추천상품</button>
-</div></div>
-<div class="results-meta"><div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div><span class="aside">상품별 실제 가격과 배송비는 판매처에서 확인해 주세요.</span></div>
-<div id="products" class="grid"></div>
+ <div class="section">
+  <div><span class="overline">CURATED BY PARTNER FEEDS</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">제휴 쇼핑몰에서 제공한 상품을 살펴보세요.</p></div>
+  <div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
+   <button type="button" class="tab active" data-area="today" aria-pressed="true">실시간 베스트</button>
+   <button type="button" class="tab" data-area="popular" aria-pressed="false">인기상품</button>
+   <button type="button" class="tab" data-area="pick" aria-pressed="false">추천상품</button>
+  </div>
+ </div>
+ <div class="results-meta">
+  <div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div>
+  <span class="aside">실제 구매 가격과 배송비는 판매처에서 확인</span>
+ </div>
+ <div id="products" class="grid"></div>
 </section>
-
+<section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
+ <div class="section-head">
+  <div><span class="overline">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
+  <span class="section-count">SHARELINK</span>
+ </div>
+ <div id="toss-products" class="curated-grid"></div>
+ <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+</section>
 <section id="about" class="policy-strip">
-<div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 제휴 쇼핑몰의 추천 상품을 안내합니다. 표시된 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 상품 이미지와 정보는 각 제공처의 권한 및 정책에 따릅니다. 일부 링크를 통한 구매 시 운영자에게 수수료가 지급될 수 있습니다.</p></div>
-<span class="policy-mark">ABOUT ALTTULPICK</span>
+ <div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 상품을 직접 판매하지 않는 제휴 상품 안내 서비스입니다. 표시 가격은 최종 결제 금액과 다를 수 있으며, 할인율·최저가·배송 조건을 보장하지 않습니다. 제휴 링크를 통한 구매 시 운영자에게 수수료가 지급될 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p></div>
+ <span class="policy-mark">ALTTUL PICK / GUIDE</span>
 </section>
 </main>
 <footer class="footer"><div class="wrap footerin">
-<div><div class="foothead">알뜰<b>픽.</b></div><div class="footer-meta">알뜰픽 테스트 버전 · 문의 및 운영자 정보는 정식 출시 전에 추가됩니다.<br>© Alttulpick. 제휴사 및 판매처의 공식 쇼핑몰이 아닙니다.</div></div>
-<p class="footer-note">이 사이트에는 광고·제휴 링크가 포함되어 있으며, 링크를 통한 구매 시 운영자에게 일정 수수료가 지급될 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p>
+ <div><div class="foothead">알뜰픽<b>·</b></div><div class="footer-meta">제휴 상품을 조금 더 편하게 찾는 곳<br>알뜰픽 베타 서비스</div></div>
+ <div class="footer-note">각 상품의 판매·배송·환불 및 최종 가격은 해당 판매처의 정책을 따릅니다.<br>알뜰픽은 제휴사 및 쇼핑몰의 공식 사이트가 아닙니다.</div>
 </div></footer>
+</div>
+
 <script>
 const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
 const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
