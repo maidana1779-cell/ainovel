@@ -748,6 +748,18 @@ body.category-active .category-section{
  </div>
 </section>
 </div><!-- /browse-layout -->
+<section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
+ <div class="section-head">
+  <div><span class="overline">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
+  <div class="toss-slider-tools" aria-label="토스쇼핑 상품 탐색">
+   <span id="toss-slide-count" class="toss-slide-count" aria-live="off">1 / 7</span>
+   <button id="toss-prev" class="toss-slider-button" type="button" aria-label="이전 토스쇼핑 상품">‹</button>
+   <button id="toss-next" class="toss-slider-button" type="button" aria-label="다음 토스쇼핑 상품">›</button>
+  </div>
+ </div>
+ <div id="toss-products" class="curated-grid" tabindex="0" role="region" aria-label="토스쇼핑 상품 슬라이더, 좌우로 스크롤 가능"></div>
+ <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+</section>
 <section id="product-discovery" class="product-discovery" aria-labelledby="discovery-title">
  <div class="section-head">
   <div><span class="overline">MORE PRODUCTS / BIZ PARTNER FEEDS</span><h2 id="discovery-title">오늘 새롭게 둘러볼 상품</h2>
@@ -761,18 +773,7 @@ body.category-active .category-section{
   <span id="discovery-status" class="discovery-notice" role="status" aria-live="polite">실제 제휴 상품을 불러오고 있습니다.</span>
  </div>
 </section>
-<section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
- <div class="section-head">
-  <div><span class="overline">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
-  <div class="toss-slider-tools" aria-label="토스쇼핑 상품 탐색">
-   <span id="toss-slide-count" class="toss-slide-count" aria-live="off">1 / 7</span>
-   <button id="toss-prev" class="toss-slider-button" type="button" aria-label="이전 토스쇼핑 상품">‹</button>
-   <button id="toss-next" class="toss-slider-button" type="button" aria-label="다음 토스쇼핑 상품">›</button>
-  </div>
- </div>
- <div id="toss-products" class="curated-grid" tabindex="0" role="region" aria-label="토스쇼핑 상품 슬라이더, 좌우로 스크롤 가능"></div>
- <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
-</section>
+
 <section id="about" class="policy-strip">
  <div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 상품을 직접 판매하지 않는 제휴 상품 안내 서비스입니다. 표시 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 상품의 재고와 판매 여부는 실시간으로 확인되지 않으며, 표시된 가격과 구매 가능 여부는 판매처에서 달라질 수 있습니다. 배송 조건 역시 판매처에서 확인해 주세요. 제휴 링크를 통한 구매 시 운영자에게 수수료가 지급될 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p></div>
  <span class="policy-mark">ALTTUL PICK / GUIDE</span>
@@ -787,21 +788,34 @@ body.category-active .category-section{
 <script>
 const API_ORIGIN='https://alttulpick-api.maidana1779.workers.dev';
 const BACKUP_API_ORIGIN='https://alttulpick-preview.onrender.com';
-async function fetchProducts(path){
+async function fetchProducts(path,onBackupStart){
  const primary=new AbortController();
- const timer=setTimeout(()=>primary.abort(),7500);
+ const timer=setTimeout(()=>primary.abort(),6500);
  let needsFallback=false;
  try{
   const response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:primary.signal});
-  if(response.ok||![502,503,504].includes(response.status))return response;
+  const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
+  if(jsonResponse&&(response.ok||![502,503,504].includes(response.status)))return response;
   needsFallback=true;
  }catch{needsFallback=true}
  finally{clearTimeout(timer)}
  if(!needsFallback)throw Error("상품 연결 오류");
- const backup=new AbortController();
- const backupTimer=setTimeout(()=>backup.abort(),4500);
- try{return await fetch(BACKUP_API_ORIGIN+path,{cache:"no-store",signal:backup.signal})}
- finally{clearTimeout(backupTimer)}
+ onBackupStart?.();
+ // Render Free may sleep after idle and can take nearly a minute to wake.
+ // Retry only temporary gateway / spinning-up responses, not upstream JSON errors.
+ for(let attempt=0;attempt<4;attempt++){
+  const backup=new AbortController();
+  const timeout=setTimeout(()=>backup.abort(),22000);
+  try{
+   const response=await fetch(BACKUP_API_ORIGIN+path,{cache:"no-store",signal:backup.signal});
+   const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
+   if(jsonResponse)return response;
+   // Render may return an HTML warm-up page while the free service starts.
+  }catch{/* Wake-up may abort while the free instance is starting. */}
+  finally{clearTimeout(timeout)}
+  if(attempt<3)await new Promise(resolve=>setTimeout(resolve,4000));
+ }
+ throw Error("백업 API를 사용할 수 없습니다");
 }
 const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
 const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
@@ -1033,7 +1047,9 @@ if(cachedItems){
  grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
 }
 try{
-  const res=await fetchProducts(url);
+  const res=await fetchProducts(url,()=>{
+   if(id===requestId)statusEl.textContent=cachedItems?"최근 조회 상품 표시 중 · 애드픽 연결 재시도 중":"애드픽 연결이 지연되어 백업 서버를 준비하고 있습니다. 아래 토스쇼핑 상품은 먼저 확인할 수 있어요.";
+  });
   const payload=await res.json();
   if(id!==requestId)return;
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
@@ -1411,7 +1427,8 @@ function discoveryUnique(items){
 function renderDiscovered(){
   const visible=discoveryUnique(discoveredProducts);
   if(!visible.length){
-    discoveryGrid.replaceChildren(make("div","empty",discoveryBusy?"관련 상품을 확인하는 중입니다.":"이번에는 추가로 보여줄 상품이 없습니다. 카테고리에서 더 찾아보세요."));
+    const notice=discoveryBusy?"관련 상품을 확인하는 중입니다.":discoveryError?"애드픽 추가 상품 연결이 지연되고 있습니다. 아래 버튼으로 다시 불러올 수 있어요.":"이번에는 추가로 보여줄 상품이 없습니다. 카테고리에서 더 찾아보세요.";
+    discoveryGrid.replaceChildren(make("div","empty",notice));
   }else{
     show(visible,false,discoveryGrid);
   }
