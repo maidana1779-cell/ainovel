@@ -555,6 +555,58 @@ body.category-active .category-section{
  .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
+/* Toss Sharelink: responsive horizontally scrolling recommendation rail. */
+.curated-section{margin-top:32px;background:#f5f8ff;border-radius:22px;padding:25px 24px 19px}
+.curated-section .section-head{align-items:center;gap:15px}
+.toss-slider-tools{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.toss-slide-count{font-size:12px;color:#748198;font-weight:650;margin-right:5px;font-variant-numeric:tabular-nums}
+.toss-slider-button{width:36px;height:36px;border:1px solid #d7e1f1;background:#fff;color:#3268ac;border-radius:50%;font-size:25px;line-height:1;display:grid;place-items:center}
+.toss-slider-button:hover:not(:disabled){border-color:#91b7ee;background:#e8f1ff}
+.toss-slider-button:disabled{opacity:.35;cursor:default}
+.curated-grid{
+ display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;
+ scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;
+ padding:4px 2px 14px;outline-offset:2px
+}
+.curated-grid::-webkit-scrollbar{display:none}
+.curated-grid .card{
+ flex:0 0 calc((100% - 32px)/3);min-width:0;display:flex;
+ border-radius:15px;background:#fff;overflow:hidden;box-shadow:0 2px 10px #2d466012;
+ scroll-snap-align:start
+}
+.curated-grid .product-card-link{display:flex;flex-direction:column;min-height:100%;width:100%}
+.curated-grid .product-card-link .picture{width:100%;height:auto;aspect-ratio:1.3;min-height:0;border-radius:15px 15px 0 0;background:#eef4fe}
+.curated-grid .picture.has-fallback{gap:8px}
+.curated-grid .picture.toss-product-fallback{gap:10px;background:linear-gradient(145deg,#e8f2ff,#f8faff);padding:16px}
+.toss-fallback-icon{font-size:clamp(32px,4.3vw,52px);line-height:1.2}
+.toss-fallback-note{font-size:11px;color:#6f85a6;line-height:1.5}
+.curated-grid .product-card-link .content{padding:14px 15px 17px;justify-content:flex-start}
+.curated-grid .product-card-link .product{font-size:15px;font-weight:650;line-height:1.48;min-height:44px;margin:0 0 9px;-webkit-line-clamp:2}
+.curated-grid .product-card-link .price-unavailable{font-size:12px!important;line-height:1.5!important}
+.curated-grid .product-card-link .merchant-badge{margin-top:auto}
+.curated-grid .product-card-link .price{font-size:21px}
+.curated-disclosure{margin:6px 2px 0;line-height:1.6}
+@media(min-width:731px) and (max-width:1030px){
+ .curated-grid .card{flex-basis:calc((100% - 16px)/2)}
+}
+@media(max-width:730px){
+ .curated-section{margin:18px -17px 32px;padding:21px 17px 17px;border-radius:0}
+ .curated-section .section-head{align-items:center}
+ .curated-section .section-head h2{font-size:21px}
+ .curated-section .section-head p{font-size:11px}
+ .toss-slider-button{height:31px;width:31px;font-size:21px}
+ .toss-slide-count{font-size:11px;margin-right:2px}
+ .curated-grid{gap:12px;margin-right:-17px;padding-right:17px}
+ .curated-grid .card{flex:0 0 min(75vw,300px)}
+ .curated-grid .product-card-link{display:flex}
+ .curated-grid .product-card-link .picture{min-height:0;aspect-ratio:1.28;border-radius:14px 14px 0 0}
+ .curated-grid .product-card-link .content{padding:13px 14px 16px}
+ .curated-grid .product-card-link .product{font-size:15px;min-height:44px}
+ .curated-grid .product-card-link .price{font-size:20px}
+ .toss-fallback-icon{font-size:47px}
+}
+@media(prefers-reduced-motion:reduce){.curated-grid{scroll-behavior:auto}}
+
 </style>
 </head>
 <body data-design-version="storefront-v3-20261025">
@@ -711,9 +763,13 @@ body.category-active .category-section{
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
   <div><span class="overline">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
-  <span class="section-count">SHARELINK</span>
+  <div class="toss-slider-tools" aria-label="토스쇼핑 상품 탐색">
+   <span id="toss-slide-count" class="toss-slide-count" aria-live="off">1 / 7</span>
+   <button id="toss-prev" class="toss-slider-button" type="button" aria-label="이전 토스쇼핑 상품">‹</button>
+   <button id="toss-next" class="toss-slider-button" type="button" aria-label="다음 토스쇼핑 상품">›</button>
+  </div>
  </div>
- <div id="toss-products" class="curated-grid"></div>
+ <div id="toss-products" class="curated-grid" tabindex="0" role="region" aria-label="토스쇼핑 상품 슬라이더, 좌우로 스크롤 가능"></div>
  <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
 </section>
 <section id="about" class="policy-strip">
@@ -750,6 +806,10 @@ function imageFallback(pic,isDemo=false,product=null){
   pic.classList.add("has-fallback");
   if(product?.id==="toss-sparkle-water-500ml-80"){
     pic.replaceChildren(make("span","fallback-wordmark","SPARKLE"),make("span","fallback-size","500 mL × 80"),make("span","fallback-caption","상품 사진은 판매처에서 확인"));
+  }else if(product?.affiliate_source==="toss_sharelink"){
+    pic.classList.add("toss-product-fallback");
+    pic.replaceChildren(make("span","toss-fallback-icon",product.icon||"🛍️"),
+      make("span","toss-fallback-note","상품 사진은 토스쇼핑에서 확인"));
   }else{
     pic.replaceChildren(make("span","fallback-no","NO IMAGE"),make("span","fallback-caption",isDemo?"예시 상품":"이미지 미제공"));
   }
@@ -1229,6 +1289,60 @@ window.addEventListener("popstate",()=>{
   ensureDiscovery();
  }
 });
+let tossSliderInitialized=false;
+function initTossSlider(panel,target){
+ if(tossSliderInitialized)return;
+ tossSliderInitialized=true;
+ const prev=document.getElementById("toss-prev"),next=document.getElementById("toss-next");
+ const counter=document.getElementById("toss-slide-count");
+ const cards=()=>Array.from(target.children);
+ const index=()=>{
+  const items=cards();
+  if(!items.length)return 0;
+  let nearest=0,distance=Infinity;
+  items.forEach((card,i)=>{
+   const delta=Math.abs(card.offsetLeft-target.offsetLeft-target.scrollLeft);
+   if(delta<distance){distance=delta;nearest=i}
+  });
+  return nearest;
+ };
+ const update=()=>{
+  const items=cards();
+  const current=items.length?index()+1:0;
+  counter.textContent=current+" / "+items.length;
+  prev.disabled=items.length<2;
+  next.disabled=items.length<2;
+ };
+ const go=(step)=>{
+  const items=cards();if(items.length<2)return;
+  const current=index();
+  const targetIndex=(current+step+items.length)%items.length;
+  target.scrollTo({left:items[targetIndex].offsetLeft-target.offsetLeft,behavior:"smooth"});
+  counter.textContent=(targetIndex+1)+" / "+items.length;
+ };
+ let paused=false;
+ prev.addEventListener("click",()=>{go(-1);paused=true});
+ next.addEventListener("click",()=>{go(1);paused=true});
+ target.addEventListener("scroll",update,{passive:true});
+ target.addEventListener("mouseenter",()=>{paused=true});
+ target.addEventListener("mouseleave",()=>{paused=false});
+ panel.addEventListener("focusin",()=>{paused=true});
+ panel.addEventListener("focusout",e=>{if(!panel.contains(e.relatedTarget))paused=false});
+ target.addEventListener("touchstart",()=>{paused=true},{passive:true});
+ target.addEventListener("touchend",()=>{paused=false},{passive:true});
+ const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)");
+ if(!reduced?.matches){
+  const timer=window.setInterval(()=>{
+   if(paused||document.hidden||panel.hidden||!panel.getClientRects().length)return;
+   const rect=panel.getBoundingClientRect();
+   if(rect.bottom<=0||rect.top>=window.innerHeight)return;
+   go(1);
+  },4800);
+  window.addEventListener("pagehide",()=>window.clearInterval(timer),{once:true});
+ }
+ update();
+}
+
 async function loadCuratedProducts(){
   const panel=document.getElementById("toss-picks");
   const target=document.getElementById("toss-products");
@@ -1238,6 +1352,7 @@ async function loadCuratedProducts(){
     if(!response.ok||payload.success!==true||!Array.isArray(payload.data)||!payload.data.length)return;
     show(payload.data,false,target);
     panel.hidden=false;
+    initTossSlider(panel,target);
   }catch{
     // Keep the section hidden if curated product data cannot be loaded.
   }
