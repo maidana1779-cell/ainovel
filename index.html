@@ -1007,6 +1007,12 @@ const productToolbar=document.getElementById("product-toolbar"),merchantFilter=d
 const sortSelect=document.getElementById("product-sort"),visibleCount=document.getElementById("visible-count");
 const sortDisclaimer=document.getElementById("sort-disclaimer");
 let availableItems=[],currentDepartment="",currentCategoryTerm="";
+function storefrontEligible(p){
+ const merchant=String(p?.cp_name||"").normalize("NFKC").toLowerCase().replace(/[\s._-]+/g,"");
+ if(/(?:yes24|예스24|예스이십사|교보문고|알라딘|리디북스|밀리의서재|마이리얼트립|myrealtrip|클룩|klook|와그|여기어때|야놀자|트립닷컴|tripcom|아고다|agoda|익스피디아|expedia|클래스101|class101|인프런|패스트캠퍼스|탈잉|유데미|udemy)/.test(merchant))return false;
+ return typeof p?.title==="string"&&!!p.title.trim()&&!/(?:전자책|e-?book|온라인\s*(?:강의|강좌|수업)|인강|수강권|학습지|(?:^|[\s[(])(?:도서|교재|서적|문제집|참고서)(?=\s|$)|항공권|숙박권|호텔\s*(?:예약|숙박)|펜션\s*(?:예약|숙박)|여행\s*(?:상품|패키지|투어|일정)|관광\s*(?:투어|입장권)|(?:콘서트|뮤지컬|공연|전시)\s*(?:티켓|관람권)|체험\s*(?:예약|입장권|프로그램))/i.test(p.title);
+}
+
 function displayPrice(p){
  const raw=(typeof p?.price==="number"||typeof p?.price==="string")?String(p.price):"";
  const value=Number(raw.replace(/[^0-9]/g,""));
@@ -1106,7 +1112,7 @@ function productKey(p){
 function uniqueNew(items){
   const added=[];
   for(const item of items){
-    if(!item||typeof item.title!=="string")continue;
+    if(!storefrontEligible(item))continue;
     const key=productKey(item);
     if(seenProductKeys.has(key))continue;
     seenProductKeys.add(key);added.push(item);
@@ -1119,12 +1125,12 @@ function updateMoreControls(hasMore){
   moreButton.textContent=moreBusy?"새 상품 찾는 중…":"관련 상품 더 보기 +";
 }
 function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
-const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v1:";
+const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v2:";
 function recentFeed(url){
  try{
   const value=JSON.parse(sessionStorage.getItem(RECENT_FEED_PREFIX+url)||"null");
   if(!value||!Array.isArray(value.items)||Date.now()-value.at>RECENT_FEED_MS)return null;
-  const items=value.items.filter(p=>p&&typeof p.title==="string").slice(0,30);
+  const items=value.items.filter(storefrontEligible).slice(0,30);
   return items.length?items:null;
  }catch{return null}
 }
@@ -1584,7 +1590,7 @@ function discoveryUnique(items){
   const seen=new Set();
   return items.filter(p=>{
     const key=productKey(p);
-    if(!p||typeof p.title!=="string"||!p.title.trim()||existing.has(key)||seen.has(key))return false;
+    if(!storefrontEligible(p)||existing.has(key)||seen.has(key))return false;
     seen.add(key);return true;
   });
 }
@@ -1618,7 +1624,7 @@ async function loadDiscoveryStep(){
     const known=new Set(discoveredProducts.map(productKey));
     for(const p of items){
       const key=productKey(p);
-      if(typeof p?.title==="string"&&p.title.trim()&&!known.has(key)){known.add(key);discoveredProducts.push(p)}
+      if(storefrontEligible(p)&&!known.has(key)){known.add(key);discoveredProducts.push(p)}
     }
     discoveryStep=step+1;
     discoveryLoaded=true;
