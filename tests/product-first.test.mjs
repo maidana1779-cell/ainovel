@@ -58,7 +58,7 @@ test('Default browsing spends two BIZ requests, extra products require a user cl
  assert.match(server,/const TIME_WINDOW=60000, MAX_CALLS=8/);
 });
 test('Provider product referral links include BIZ short URL but not fake discounts',()=>{
- assert.match(script,/url\.hostname==="bitl\.bz"/);
+ assert.match(script,/\["biz\.adpick\.co\.kr","link\.adpick\.co\.kr","bitl\.bz"\]\.includes\(url\.hostname\)/);
  assert.match(script,/url\.hostname==="toss\.shopping"/);
  assert.match(script,/link\.rel="sponsored nofollow noopener noreferrer"/);
  assert.match(script,/verifiedDiscount\(p\)/);

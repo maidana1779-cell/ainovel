@@ -14,7 +14,8 @@ test('Product image, name and price share one affiliate-card link without a purc
  assert.match(show,/link\.append\(box\);card\.append\(link\)/);
  assert.doesNotMatch(show,/make\("a","go"|make\("a","go"\+/);
  assert.match(show,/link\.rel="sponsored nofollow noopener noreferrer"/);
- assert.match(show,/url\.hostname==="toss\.shopping"/);
+ assert.match(script,/function validAffiliateLink\(raw,product\)/);
+ assert.match(script,/url\.hostname==="toss\.shopping"/);
  assert.match(html,/\.product-card-link\{display:flex/);
  assert.match(html,/\.product-card-link:focus-visible/);
 });
