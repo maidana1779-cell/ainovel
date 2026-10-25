@@ -7,13 +7,15 @@
 <title>알뜰픽 | 상품을 더 간편하게</title>
 <meta name="description" content="여러 제휴 쇼핑몰의 상품과 직접 고른 추천 상품을 검색하고 둘러보는 알뜰픽">
 <meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 
 :root{
  --ink:#192334;--ink-soft:#455469;--muted:#78869a;--soft:#f3f6fa;
  --border:#e6eaf0;--line:#dfe6ef;--primary:#2468e8;--primary-dark:#1657cc;
  --blue-light:#eff5ff;--surface:#fff;
- font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+ font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
  color:var(--ink);background:#f5f7fa;font-synthesis:none
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -316,58 +318,104 @@ body.category-active .category-caption{display:none}
 }
 
 
-/* Product-detail inspired typography: neutral names, pronounced figures and compact won unit.
-   Never simulate a markdown without a merchant-verified original price. */
-.product-card-link .product{
- font-size:15px;font-weight:560;line-height:1.48;letter-spacing:-.35px;
- color:#3c4048;word-break:keep-all;margin-bottom:8px
+/* Storefront v3 — actual loaded font, larger product-focused layout, no tool-like button. */
+.site{max-width:1380px}
+.wrap{max-width:1250px}
+.grid,.product-discovery .discovery-grid{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ column-gap:24px;row-gap:39px
 }
-.product-card-link .pricing{gap:5px;min-height:36px;margin-bottom:7px}
+.card{background:#fff;border:0;border-radius:0;box-shadow:none;overflow:visible}
+.card:hover{transform:none;box-shadow:none}
+.product-card-link{font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif}
+.picture{aspect-ratio:1.16;border-radius:16px;background:#f7f8fa;box-shadow:inset 0 0 0 1px #edf0f4}
+.picture img{border-radius:16px}
+.product-card-link .content{padding:16px 3px 8px;gap:0}
+.product-card-link .product{
+ order:1;font-size:17px;font-weight:560;line-height:1.52;letter-spacing:-.35px;
+ min-height:52px;margin:0 0 10px;color:#353b45;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all
+}
+.product-card-link .pricing{order:2;display:flex;flex-direction:column;align-items:flex-start;min-height:42px;gap:6px;margin:0 0 10px}
 .product-card-link .price{
  display:inline-flex;align-items:baseline;gap:1px;white-space:nowrap;
- font-size:25px;font-weight:850;line-height:1.24;letter-spacing:-1.05px;color:#111827
+ font-size:31px;font-weight:820;line-height:1.22;letter-spacing:-1.45px;color:#101722;
+ background:none;border:0;padding:0
 }
 .product-card-link .price-number{
- font-family:Arial,"Helvetica Neue",Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;
+ font-family:"Pretendard Variable",Pretendard,Arial,sans-serif;
  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
- font-weight:800;letter-spacing:-1.15px
+ font-weight:830;letter-spacing:-1.25px
 }
 .product-card-link .price-unit{
- font-size:.60em;font-weight:680;letter-spacing:-.35px;margin-left:1px
+ font-size:.60em;font-weight:600;letter-spacing:-.5px;margin-left:2px
 }
 .product-card-link .regular-price{
- display:block;font-size:12px;font-weight:450;color:#a0a5b0;
- line-height:1.3;text-decoration:line-through;text-decoration-color:#a4a9b1
+ display:block;font-size:13px;font-weight:450;color:#a0a5ad;line-height:1.4;
+ text-decoration:line-through;text-decoration-color:#a0a5ad
 }
-.product-card-link .price-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;row-gap:1px}
+.product-card-link .price-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;row-gap:3px}
 .product-card-link .discount-rate{
- font-size:24px;font-weight:740;color:#f04438;letter-spacing:-1px;white-space:nowrap
+ font-size:29px;font-weight:680;color:#f04438;line-height:1.2;letter-spacing:-1.1px;white-space:nowrap
 }
-.product-card-link .sale-price{color:#0f172a}
 .product-card-link .price-reference{font-size:10px;color:#9399a3;line-height:1.45}
 .product-card-link .price-unavailable{
- font-size:14px!important;font-weight:600!important;letter-spacing:-.1px!important;
+ font-size:15px!important;font-weight:560!important;letter-spacing:-.2px!important;
  color:#818b99!important;white-space:normal
 }
-.curated-grid .product-card-link .product{font-size:19px;font-weight:620;line-height:1.43}
-.curated-grid .product-card-link .price{font-size:27px;background:none;padding:0;margin:0}
-.curated-grid .product-card-link .discount-rate{font-size:25px}
+.product-card-link .merchant-badge{
+ order:3;display:inline-flex;align-items:center;gap:6px;margin:4px 0 0;color:#8b929e
+}
+.product-card-link .merchant-name{font-size:12px;font-weight:470;letter-spacing:-.2px}
+.product-card-link .merchant-logo{width:19px;height:19px;flex-basis:19px;border-radius:5px}
+.product-card-link .card-foot{display:none}
+.curated-grid .card{border-radius:17px;overflow:hidden}
+.curated-grid .product-card-link .picture{border-radius:17px 0 0 17px}
+.curated-grid .product-card-link .content{padding:30px 35px;justify-content:center}
+.curated-grid .product-card-link .product{
+ font-size:23px;min-height:0;line-height:1.42;font-weight:620;margin-bottom:17px
+}
+.curated-grid .product-card-link .price{font-size:34px}
+.curated-grid .product-card-link .discount-rate{font-size:30px}
+@media(min-width:731px) and (max-width:1030px){
+ .grid,.product-discovery .discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:1031px){
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media(max-width:730px){
- .product-card-link .product{font-size:13px;font-weight:540;line-height:1.48;letter-spacing:-.25px}
- .product-card-link .price{font-size:20px;letter-spacing:-.8px}
- .product-card-link .price-number{letter-spacing:-.8px}
- .product-card-link .price-unit{font-size:.62em}
- .product-card-link .discount-rate{font-size:20px}
+ .grid,.product-discovery .discovery-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:26px
+ }
+ .picture{aspect-ratio:1.04;border-radius:12px}
+ .picture img{border-radius:12px}
+ .product-card-link .content{padding:11px 1px 7px}
+ .product-card-link .product{
+  font-size:14px;font-weight:540;line-height:1.48;min-height:42px;letter-spacing:-.25px;margin-bottom:8px
+ }
+ .product-card-link .pricing{min-height:30px;gap:4px;margin-bottom:7px}
+ .product-card-link .price{font-size:23px;line-height:1.2;letter-spacing:-.8px}
+ .product-card-link .price-number{letter-spacing:-.9px}
+ .product-card-link .price-unit{font-size:.60em;margin-left:1px}
  .product-card-link .regular-price{font-size:11px}
- .product-card-link .price-row{gap:7px}
- .curated-grid .product-card-link .product{font-size:14px}
- .curated-grid .product-card-link .price{font-size:18px}
+ .product-card-link .discount-rate{font-size:21px}
+ .product-card-link .price-row{gap:6px}
+ .product-card-link .price-reference{font-size:9px}
+ .product-card-link .merchant-name{font-size:10px}
+ .product-card-link .merchant-logo{width:16px;height:16px;flex-basis:16px}
+ .product-card-link .price-unavailable{font-size:12px!important}
+ .curated-grid .product-card-link{grid-template-columns:40% minmax(0,1fr)}
+ .curated-grid .product-card-link .picture{min-height:195px;border-radius:13px 0 0 13px}
+ .curated-grid .product-card-link .content{padding:15px 13px}
+ .curated-grid .product-card-link .product{font-size:15px;min-height:0;line-height:1.42;margin-bottom:10px}
+ .curated-grid .product-card-link .price{font-size:20px}
  .curated-grid .product-card-link .discount-rate{font-size:18px}
 }
 
 </style>
 </head>
-<body>
+<body data-design-version="storefront-v3-20261025">
 
 <div class="site">
 <header class="header"><div class="wrap headin">
@@ -590,7 +638,6 @@ function show(items,isDemo,target=grid,append=false){
   }else imageFallback(pic,isDemo,p);
   link.append(pic);
   const box=make("div","content");
-  box.append(merchantBadge(p));
   box.append(make("div","product",p.title||"상품명 없음"));
   const pricing=make("div","pricing");
   const discount=verifiedDiscount(p);
@@ -607,10 +654,7 @@ function show(items,isDemo,target=grid,append=false){
     priceLabel(price));
   }
   box.append(pricing);
-  const foot=make("div","card-foot");
-  foot.append(make("span","shop-hint",clickable?"상품 자세히 보기":"판매처 링크 확인 불가"));
-  if(clickable)foot.append(make("span","external-arrow","↗"));
-  box.append(foot);
+  box.append(merchantBadge(p));
   link.append(box);card.append(link);target.append(card);
  })
 }
