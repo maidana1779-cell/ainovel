@@ -413,6 +413,148 @@ body.category-active .category-caption{display:none}
  .curated-grid .product-card-link .discount-rate{font-size:18px}
 }
 
+/* Category shop v4 — merchandised six-department hub and functional category rails. */
+.category-hub{margin:30px 0 45px;padding:0}
+.hub-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 21px}
+.hub-eyebrow{display:block;color:#2468e8;font-size:11px;font-weight:760;letter-spacing:1.35px;margin:0 0 8px}
+.hub-heading h2{font-size:29px;line-height:1.25;letter-spacing:-1.25px;font-weight:790;margin:0 0 8px;color:#141e2e}
+.hub-heading p{font-size:13px;line-height:1.6;color:#7a8899;margin:0}
+.hub-count{color:#8090a5;font-size:12px;font-weight:600;white-space:nowrap;padding-bottom:4px}
+.department-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.department{
+ display:flex;flex-direction:row;align-items:center;gap:17px;min-width:0;min-height:121px;
+ padding:17px 20px;border:1px solid #e9edf2;background:#fff;border-radius:18px;
+ cursor:pointer;text-align:left;transition:border-color .15s,transform .15s,box-shadow .15s
+}
+.department:hover{border-color:#a3bfee;transform:translateY(-2px);box-shadow:0 9px 26px #2345690d}
+.department:focus-visible{outline:3px solid #2c70e9;outline-offset:3px}
+.department-art{
+ width:83px;height:83px;flex:0 0 83px;display:grid;place-items:center;
+ border-radius:17px;position:relative;overflow:hidden;background:#f0f6ff;color:#3162a8
+}
+.department-icon{display:grid;place-items:center;width:100%;height:100%;background:transparent;color:inherit;border-radius:0}
+.department-icon svg{width:39px;height:39px;stroke-width:1.6}
+.department--food .department-art{background:#fff3df;color:#b66b19}
+.department--living .department-art{background:#e8f7f3;color:#168678}
+.department--digital .department-art{background:#eaf0ff;color:#5572cb}
+.department--beauty .department-art{background:#fcebf4;color:#bf5d89}
+.department--fashion .department-art{background:#f2ecfa;color:#7b60b0}
+.department--kitchen .department-art{background:#e8f3fb;color:#377eaf}
+.department-text{display:flex;flex-direction:column;gap:6px;align-items:flex-start;min-width:0;flex:1}
+.department-name{font-size:19px;font-weight:790;line-height:1.3;color:#1d2939;letter-spacing:-.65px}
+.department-desc{font-size:12px;color:#8592a3;line-height:1.4;min-height:0;word-break:keep-all}
+.department-arrow{font-size:17px;font-weight:650;color:#7c96be;align-self:flex-start;margin:2px 0 0 1px}
+.hub-shortcuts{
+ display:flex;align-items:flex-start;gap:18px;padding:19px 0 0;margin:22px 0 0;
+ border-top:1px solid #eff1f4
+}
+.hub-shortcuts-heading{flex:0 0 auto;font-size:12px;font-weight:760;color:#596779;margin-top:9px}
+.hub-quicklinks{display:flex;gap:8px;flex-wrap:wrap;min-width:0}
+.hub-quick{
+ display:inline-flex;align-items:center;gap:7px;border:1px solid #e5eaf1;
+ background:#f8fafc;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:610;
+ color:#45566c;white-space:nowrap;transition:background .16s,border-color .16s
+}
+.hub-quick span{font-size:12px;color:#7596c6}
+.hub-quick:hover{background:#eef5ff;border-color:#a6c5fa;color:#185dd2}
+
+/* Category search surface: clear active state + visible subcategory navigation. */
+body.category-active .category-section{
+ display:block;margin:13px 0 24px;padding:19px 21px 17px;background:#fafbfd;
+ border:1px solid #e9edf3;border-radius:17px
+}
+.category-heading{display:flex;align-items:center;gap:9px;margin-bottom:14px;color:#152b47;font-size:15px;font-weight:780}
+.category-heading-mark{display:grid;place-items:center;width:25px;height:25px;background:#e8f1ff;border-radius:7px;color:#2468e8;font-size:18px}
+.category-heading-tip{font-size:11px;color:#97a3b3;font-weight:480;margin-left:auto}
+.category-list{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 0 4px;scroll-snap-type:x proximity}
+.catbtn{
+ border:1px solid #e5eaf1;border-radius:10px;background:#fff;color:#4b5e74;
+ padding:12px 17px;font-size:13px;font-weight:660;flex-shrink:0;scroll-snap-align:start
+}
+.catbtn.active{background:#1f62d3;border-color:#1f62d3;color:#fff;box-shadow:none}
+.catbtn:hover:not(.active){background:#eff5ff;border-color:#c7dbf9}
+.subcat-panel{margin-top:15px;padding:13px 0 0;border-top:1px solid #e8edf4}
+.subcat-panel .note{display:block;margin-bottom:9px;color:#8390a1;font-size:11px;font-weight:660}
+.subcat-list{display:flex;gap:7px;flex-wrap:wrap}
+.subbtn{
+ border:1px solid #e3eaf3;border-radius:100px;background:#fff;
+ color:#5e7085;padding:9px 14px;font-size:12px;font-weight:580
+}
+.subbtn.active{background:#e7f1ff;color:#155bc4;border-color:#bed4fb;font-weight:750}
+.subbtn:hover:not(.active){border-color:#b6cff3;background:#f3f8ff}
+.browse-layout.category-open{grid-template-columns:205px minmax(0,1fr);gap:26px}
+.category-aside{position:sticky;top:20px;border:1px solid #e8edf4;border-radius:16px;padding:20px 11px}
+.side-head{font-size:13px;letter-spacing:-.1px;font-weight:760;color:#1c304b;margin:1px 12px 14px}
+.side-links{gap:4px}
+.side-link{padding:12px 13px;border-radius:10px;font-size:13px;color:#687589;font-weight:590}
+.side-link.active{background:#eaf2ff;color:#195dbe;font-weight:760}
+.side-link:hover:not(.active){background:#f5f8fc;color:#254772}
+.side-note{margin:14px 12px 2px;font-size:10px;color:#a5afbc;line-height:1.6}
+.category-intro{
+ display:none;align-items:center;justify-content:space-between;min-height:176px;
+ gap:26px;padding:28px 32px;margin-bottom:27px;border:1px solid #e3ecf9;border-radius:20px;
+ background:linear-gradient(115deg,#f1f6ff 0%,#f9fbff 70%,#f6f9ff 100%);
+}
+.browse-layout.category-open .category-intro{display:flex}
+.category-intro-copy{min-width:0;flex:1}
+.breadcrumb{font-size:11px;color:#7f8fa5;font-weight:590;margin:0 0 15px}
+.category-intro-overline{display:block;color:#4c82cf;font-size:10px;font-weight:760;letter-spacing:1.1px;margin-bottom:7px}
+.category-intro h2{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.18;margin:0 0 8px}
+.category-intro p{font-size:13px;color:#6c7e96;line-height:1.55;word-break:keep-all;margin:0}
+.category-intro-stamp{
+ width:94px;height:94px;flex:0 0 94px;border-radius:25px;
+ display:grid;place-items:center;background:#e6efff;color:#3975cc;
+ font-size:17px;font-weight:850;letter-spacing:.7px;transform:rotate(-6deg)
+}
+.browse-layout.category-open .section h2{font-size:25px}
+.browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1050px) and (min-width:731px){
+ .department-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .department{min-height:110px}
+ .browse-layout.category-open{grid-template-columns:170px minmax(0,1fr);gap:20px}
+}
+@media(max-width:730px){
+ .category-hub{margin:24px 0 34px}
+ .hub-heading{margin:0 0 15px}
+ .hub-heading h2{font-size:23px;margin-bottom:6px}
+ .hub-heading p{font-size:11px}
+ .hub-count{font-size:10px}
+ .department-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .department{
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  padding:12px 12px 13px;min-height:154px;border-radius:14px;position:relative
+ }
+ .department-art{width:58px;height:58px;flex-basis:58px;border-radius:13px}
+ .department-icon svg{width:29px;height:29px}
+ .department-text{gap:4px;flex:0 0 auto}
+ .department-name{font-size:16px}
+ .department-desc{font-size:11px;line-height:1.4}
+ .department-arrow{position:absolute;top:14px;right:13px;font-size:15px}
+ .hub-shortcuts{display:block;margin-top:16px;padding-top:15px}
+ .hub-shortcuts-heading{display:block;margin:0 0 10px;font-size:11px}
+ .hub-quicklinks{gap:7px}
+ .hub-quick{font-size:11px;padding:8px 10px}
+ body.category-active .category-section{margin:10px 0 18px;padding:13px 11px 12px;border-radius:12px}
+ .category-heading{margin-bottom:11px;font-size:13px}
+ .category-heading-tip{display:none}
+ .catbtn{padding:10px 13px;font-size:12px;border-radius:9px}
+ .category-list{margin:0;padding-bottom:7px}
+ .subcat-panel{margin-top:10px;padding-top:10px}
+ .subcat-list{flex-wrap:nowrap;overflow-x:auto;padding:0 1px 5px;scrollbar-width:none}
+ .subcat-list::-webkit-scrollbar{display:none}
+ .subbtn{flex:0 0 auto;font-size:12px;padding:9px 12px}
+ .browse-layout.category-open{display:block}
+ .browse-layout.category-open .category-aside{display:none}
+ .category-intro{min-height:0;padding:19px 17px;margin-bottom:19px;border-radius:14px;gap:8px}
+ .category-intro h2{font-size:24px;margin-bottom:6px}
+ .category-intro p{font-size:11px;line-height:1.55}
+ .category-intro-stamp{width:53px;height:53px;flex-basis:53px;border-radius:15px;font-size:11px}
+ .breadcrumb{margin-bottom:8px;font-size:10px}
+ .category-intro-overline{font-size:9px;margin-bottom:5px}
+ .browse-layout.category-open .section h2{font-size:22px}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 </style>
 </head>
 <body data-design-version="storefront-v3-20261025">
@@ -449,15 +591,56 @@ body.category-active .category-caption{display:none}
  </div>
 </section>
 <section id="shop-categories" class="category-hub" aria-labelledby="hub-title">
- <div class="hub-heading"><div><h2 id="hub-title">카테고리로 둘러보기</h2><p>사고 싶은 물건이 정해지지 않아도, 품목부터 찾아보세요.</p></div><span class="hub-overline">EXPLORE DEPARTMENTS</span></div>
- <div class="department-grid" id="department-grid" role="group" aria-label="카테고리 쇼핑관"><button type="button" class="department" data-department="간편식" aria-label="식품 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M5 4h14l-1.5 14H6.5z'/><path d='M9 4V2m6 2V2M8 9h8m-7 4h6'/></svg></span><span class="department-name">식품</span><span class="department-desc">생수 · 라면 · 간편식</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
-<button type="button" class="department" data-department="세제" aria-label="생활용품 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 4h6v3l2 2v12H7V9l2-2zM10 2h4v2h-4zM8 12h8v5H8z'/></svg></span><span class="department-name">생활용품</span><span class="department-desc">세제 · 주방세제 · 생활잡화</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
-<button type="button" class="department" data-department="이어폰" aria-label="디지털 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 13v-2a8 8 0 0 1 16 0v2M4 12h3v8H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm13 0h3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3z'/></svg></span><span class="department-name">디지털</span><span class="department-desc">이어폰 · 충전기 · 노트북</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
-<button type="button" class="department" data-department="화장품" aria-label="뷰티 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 2h6v3H9zM8 5h8v4l2 3v9H6v-9l2-3zM9 14h6m-3-3v6'/></svg></span><span class="department-name">뷰티</span><span class="department-desc">선크림 · 스킨케어 · 메이크업</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
-<button type="button" class="department" data-department="의류" aria-label="패션 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='m8 3-5 4 3 4 2-2v12h8V9l2 2 3-4-5-4-4 2z'/></svg></span><span class="department-name">패션</span><span class="department-desc">티셔츠 · 신발 · 가방</span><span class="department-arrow">쇼핑관 보기 ↗</span></button>
-<button type="button" class="department" data-department="주방용품" aria-label="주방 쇼핑관 열기"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 8h14v7a7 7 0 0 1-14 0zm14 2h3a2 2 0 0 1 0 4h-3M8 5h6M11 2v3'/></svg></span><span class="department-name">주방</span><span class="department-desc">프라이팬 · 냄비 · 보관용기</span><span class="department-arrow">쇼핑관 보기 ↗</span></button></div>
+ <div class="hub-heading">
+  <div><span class="hub-eyebrow">SHOP BY CATEGORY</span><h2 id="hub-title">어떤 상품을 찾으세요?</h2><p>필요한 상품을 카테고리에서 빠르게 찾아보세요.</p></div>
+  <span class="hub-count">6개 카테고리</span>
+ </div>
+ <div class="department-grid" id="department-grid" role="group" aria-label="카테고리 쇼핑관">
+ <button type="button" class="department department--food" data-department="간편식" aria-label="식품 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M5 4h14l-1.5 14H6.5z'/><path d='M9 4V2m6 2V2M8 9h8m-7 4h6'/></svg></span></span>
+  <span class="department-text"><span class="department-name">식품</span><span class="department-desc">간편식 · 생수 · 커피</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--living" data-department="세제" aria-label="생활용품 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 4h6v3l2 2v12H7V9l2-2zM10 2h4v2h-4zM8 12h8v5H8z'/></svg></span></span>
+  <span class="department-text"><span class="department-name">생활용품</span><span class="department-desc">세제 · 청소 · 위생</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--digital" data-department="이어폰" aria-label="디지털 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 13v-2a8 8 0 0 1 16 0v2M4 12h3v8H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm13 0h3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3z'/></svg></span></span>
+  <span class="department-text"><span class="department-name">디지털</span><span class="department-desc">이어폰 · 충전기 · 가전</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--beauty" data-department="화장품" aria-label="뷰티 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 2h6v3H9zM8 5h8v4l2 3v9H6v-9l2-3zM9 14h6m-3-3v6'/></svg></span></span>
+  <span class="department-text"><span class="department-name">뷰티</span><span class="department-desc">스킨케어 · 메이크업</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--fashion" data-department="의류" aria-label="패션 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='m8 3-5 4 3 4 2-2v12h8V9l2 2 3-4-5-4-4 2z'/></svg></span></span>
+  <span class="department-text"><span class="department-name">패션</span><span class="department-desc">의류 · 신발 · 가방</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--kitchen" data-department="주방용품" aria-label="주방 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 8h14v7a7 7 0 0 1-14 0zm14 2h3a2 2 0 0 1 0 4h-3M8 5h6M11 2v3'/></svg></span></span>
+  <span class="department-text"><span class="department-name">주방</span><span class="department-desc">조리도구 · 식기 · 수납</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ </div>
+ <div class="hub-shortcuts" aria-label="자주 찾는 품목">
+  <span class="hub-shortcuts-heading">자주 찾는 품목</span>
+  <div id="hub-quicklinks" class="hub-quicklinks" role="group" aria-label="인기 품목 바로 검색">
+   <button type="button" class="hub-quick" data-department="간편식" data-term="생수">생수 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="간편식" data-term="라면">라면 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="간편식" data-term="커피">커피 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="세제" data-term="세탁세제">세탁세제 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="이어폰" data-term="무선이어폰">무선이어폰 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="화장품" data-term="선크림">선크림 <span aria-hidden="true">↗</span></button>
+  </div>
+ </div>
 </section>
 <section id="categories" class="category-section" aria-label="상품 카테고리">
+ <div class="category-heading"><span class="category-heading-mark" aria-hidden="true">▦</span><span>카테고리 탐색</span><span class="category-heading-tip">원하는 카테고리를 골라보세요</span></div>
  <div id="categories-buttons" class="category-list" role="group" aria-label="카테고리 선택">
   <button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button>
   <button type="button" class="catbtn" aria-pressed="false" data-query="간편식">식품</button>
@@ -476,7 +659,7 @@ body.category-active .category-caption{display:none}
  <p class="side-note">품목을 선택하면 새로운 상품을 조회해요.</p>
 </aside>
 <section id="deals" class="deals" aria-label="상품 목록">
- <div id="category-intro" class="category-intro"><span class="breadcrumb" id="category-breadcrumb">홈 / 카테고리</span><h2 id="category-intro-title">카테고리 쇼핑관</h2><p id="category-intro-description">관련 상품을 살펴보세요.</p></div>
+ <div id="category-intro" class="category-intro"><div class="category-intro-copy"><span class="breadcrumb" id="category-breadcrumb">홈 / 카테고리</span><span class="category-intro-overline">EXPLORE COLLECTION</span><h2 id="category-intro-title">카테고리 쇼핑관</h2><p id="category-intro-description">관련 상품을 살펴보세요.</p></div><span id="category-intro-stamp" class="category-intro-stamp" aria-hidden="true">PICK</span></div>
  <div class="section">
   <div><span class="overline">CURATED BY PARTNER FEEDS</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">제휴 쇼핑몰에서 제공한 상품을 살펴보세요.</p></div>
   <div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
@@ -661,11 +844,11 @@ function show(items,isDemo,target=grid,append=false){
 
 const browseLayout=document.getElementById("browse-layout"),departmentGrid=document.getElementById("department-grid");
 const sideLinks=document.getElementById("side-links"),categoryTitle=document.getElementById("category-intro-title");
-const categoryDescription=document.getElementById("category-intro-description"),categoryCrumb=document.getElementById("category-breadcrumb");
+const categoryDescription=document.getElementById("category-intro-description"),categoryCrumb=document.getElementById("category-breadcrumb"),categoryStamp=document.getElementById("category-intro-stamp");
 const productToolbar=document.getElementById("product-toolbar"),merchantFilter=document.getElementById("merchant-filter");
 const sortSelect=document.getElementById("product-sort"),visibleCount=document.getElementById("visible-count");
 const sortDisclaimer=document.getElementById("sort-disclaimer");
-let availableItems=[],currentDepartment="";
+let availableItems=[],currentDepartment="",currentCategoryTerm="";
 function displayPrice(p){
  const raw=(typeof p?.price==="number"||typeof p?.price==="string")?String(p.price):"";
  const value=Number(raw.replace(/[^0-9]/g,""));
@@ -862,12 +1045,12 @@ const subQueries={
   "주방용품":["프라이팬","냄비","밀폐용기","그릇","주방세제","수세미"]
 };
 const departmentInfo={
- "간편식":{name:"식품",description:"간편식부터 생수·커피·라면까지, 필요한 먹거리를 품목별로 살펴보세요."},
- "세제":{name:"생활용품",description:"세탁·주방용 세제와 생활 잡화를 목적에 맞게 찾아보세요."},
- "이어폰":{name:"디지털",description:"이어폰·충전기·노트북 등 디지털 제품을 세부 품목부터 탐색하세요."},
- "화장품":{name:"뷰티",description:"스킨케어와 색조 제품을 원하는 종류별로 찾아보세요."},
- "의류":{name:"패션",description:"의류와 패션잡화를 품목 중심으로 둘러보세요."},
- "주방용품":{name:"주방",description:"프라이팬·냄비·도마·보관용기를 종류별로 확인하세요."}
+ "간편식":{name:"식품",badge:"FOOD",description:"간편식부터 생수·커피·라면까지, 필요한 먹거리를 품목별로 살펴보세요."},
+ "세제":{name:"생활용품",badge:"LIVING",description:"세탁·주방용 세제와 생활 잡화를 목적에 맞게 찾아보세요."},
+ "이어폰":{name:"디지털",badge:"TECH",description:"이어폰·충전기·노트북 등 디지털 제품을 세부 품목부터 탐색하세요."},
+ "화장품":{name:"뷰티",badge:"BEAUTY",description:"스킨케어와 색조 제품을 원하는 종류별로 찾아보세요."},
+ "의류":{name:"패션",badge:"STYLE",description:"의류와 패션잡화를 품목 중심으로 둘러보세요."},
+ "주방용품":{name:"주방",badge:"KITCHEN",description:"프라이팬·냄비·도마·보관용기를 종류별로 확인하세요."}
 };
 function markSideSelected(term){
  sideLinks.querySelectorAll("button").forEach(b=>{
@@ -884,29 +1067,38 @@ function renderSideNav(department,term){
  }
  markSideSelected(term||department);
 }
+function validatedDepartmentTerm(department,term){
+ return term===department||(subQueries[department]||[]).includes(term)?term:department;
+}
+function departmentUrl(department,term){
+ return "/?category="+encodeURIComponent(department)+(term!==department?"&item="+encodeURIComponent(term):"");
+}
 function setDepartmentMode(department,term=department){
- currentDepartment=department;
  const info=departmentInfo[department];
  const active=Boolean(info);
+ currentDepartment=active?department:"";
+ currentCategoryTerm=active?validatedDepartmentTerm(department,term):"";
  document.body.classList.toggle("category-active",active);
  browseLayout.classList.toggle("category-open",active);
  if(active){
-   categoryTitle.textContent=info.name+" 쇼핑관";
-   categoryCrumb.textContent="홈 / 카테고리 / "+info.name;
+   categoryTitle.textContent=info.name;
+   categoryCrumb.textContent="홈 / 카테고리 / "+info.name+(currentCategoryTerm!==department?" / "+currentCategoryTerm:"");
    categoryDescription.textContent=info.description;
-   renderSideNav(department,term);
+   categoryStamp.textContent=info.badge;
+   renderSideNav(department,currentCategoryTerm);
  }else{
    sideLinks.replaceChildren();
  }
 }
-function changeDepartment(q,{navigate=true,scroll=false}={}){
+function changeDepartment(q,{navigate=true,scroll=false,term=q}={}){
  const info=departmentInfo[q];
  if(!info)return;
- setDepartmentMode(q);
+ const selectedTerm=validatedDepartmentTerm(q,term);
+ setDepartmentMode(q,selectedTerm);
  activate(categories,categories.querySelector('[data-query="'+q+'"]'));
- renderSubcategories(q);
- searchProducts(q,info.name);
- if(navigate)history.pushState({category:q},"","/?category="+encodeURIComponent(q));
+ renderSubcategories(q,selectedTerm);
+ searchProducts(selectedTerm,selectedTerm===q?info.name:selectedTerm);
+ if(navigate)history.pushState({category:q,item:selectedTerm},"",departmentUrl(q,selectedTerm));
  if(scroll)document.getElementById("categories").scrollIntoView({block:"start"});
 }
 function leaveDepartment({navigate=true}={}){
@@ -915,13 +1107,17 @@ function leaveDepartment({navigate=true}={}){
  renderSubcategories("");
  activate(categories,categories.querySelector('[data-query=""]'));
 }
-function selectCategoryTerm(term){
+function selectCategoryTerm(term,{navigate=true}={}){
  if(!currentDepartment)return;
+ if(term!==currentDepartment&&!(subQueries[currentDepartment]||[]).includes(term))return;
+ currentCategoryTerm=term;
+ categoryCrumb.textContent="홈 / 카테고리 / "+departmentInfo[currentDepartment].name+(term!==currentDepartment?" / "+term:"");
  markSideSelected(term);
  subcatlist.querySelectorAll("button").forEach(b=>{
   const active=b.dataset.subquery===term;
   b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));
  });
+ if(navigate)history.pushState({category:currentDepartment,item:term},"",departmentUrl(currentDepartment,term));
  searchProducts(term,term===currentDepartment?departmentInfo[currentDepartment].name:term);
 }
 sideLinks.addEventListener("click",e=>{
@@ -932,6 +1128,11 @@ sideLinks.addEventListener("click",e=>{
 departmentGrid.addEventListener("click",e=>{
  const btn=e.target.closest("[data-department]");
  if(btn)changeDepartment(btn.dataset.department,{scroll:true});
+});
+document.getElementById("hub-quicklinks").addEventListener("click",e=>{
+ const btn=e.target.closest("[data-department][data-term]");
+ if(!btn)return;
+ changeDepartment(btn.dataset.department,{term:btn.dataset.term,scroll:true});
 });
 
 function searchProducts(q,label){
@@ -949,14 +1150,18 @@ function showRelatedBrowse(q){
     b.type="button";b.dataset.related=term;relatedList.append(b);
   }
 }
-function renderSubcategories(q){
-  subcatlist.replaceChildren();
-  const keywords=subQueries[q]||[];
-  subcategories.hidden=!keywords.length;
-  for(const word of [q,...keywords]){
-    const btn=make("button","subbtn"+(word===q?" active":""),word);
-    btn.type="button";btn.dataset.subquery=word;btn.setAttribute("aria-pressed",String(word===q));subcatlist.append(btn);
-  }
+function renderSubcategories(q,selected=q){
+ subcatlist.replaceChildren();
+ const keywords=subQueries[q]||[];
+ subcategories.hidden=!keywords.length;
+ if(!keywords.length)return;
+ for(const word of [q,...keywords]){
+   const label=word===q?"전체 "+departmentInfo[q].name:word;
+   const btn=make("button","subbtn"+(word===selected?" active":""),label);
+   btn.type="button";btn.dataset.subquery=word;
+   btn.setAttribute("aria-pressed",String(word===selected));
+   subcatlist.append(btn);
+ }
 }
 categories.addEventListener("click",e=>{
   const b=e.target.closest("[data-query]");if(!b)return;
@@ -1003,16 +1208,18 @@ document.getElementById("quick-searches").addEventListener("click",e=>{
   heading.textContent=q+" 검색 결과";
   load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
 });
-const requestedDepartment=new URLSearchParams(location.search).get("category");
+const requestedParams=new URLSearchParams(location.search);
+const requestedDepartment=requestedParams.get("category");
 if(Object.prototype.hasOwnProperty.call(departmentInfo,requestedDepartment)){
-  changeDepartment(requestedDepartment,{navigate:false});
+  changeDepartment(requestedDepartment,{navigate:false,term:requestedParams.get("item")||requestedDepartment});
 }else{
   load("/api/best?area=today&limit=10");
 }
 window.addEventListener("popstate",()=>{
- const category=new URLSearchParams(location.search).get("category");
+ const params=new URLSearchParams(location.search);
+ const category=params.get("category");
  if(Object.prototype.hasOwnProperty.call(departmentInfo,category)){
-  changeDepartment(category,{navigate:false});
+  changeDepartment(category,{navigate:false,term:params.get("item")||category});
  }else{
   leaveDepartment({navigate:false});
   activate(tabs,tabs.querySelector('[data-area="today"]'));
