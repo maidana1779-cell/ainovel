@@ -59,3 +59,51 @@ test('Repeated public best feed is served from short-lived Worker cache without 
   assert.equal(second.headers.get('access-control-allow-origin'),HOME);
  }finally{globalThis.fetch=old}
 });
+
+test('Free Edge cache serves stale best products immediately and refreshes in the background',async()=>{
+ const previousFetch=globalThis.fetch;
+ const previousNow=Date.now;
+ let current=previousNow(),upstream=0;
+ Date.now=()=>current;
+ globalThis.fetch=async()=>{
+  upstream++;
+  return new Response(JSON.stringify({success:true,data:[
+   {title:'상품 버전 '+upstream,price:10000,commissionlink:'https://bitl.bz/real-affiliate'}
+  ]}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const requestUrl='/api/best?area=popular&limit=4';
+  const first=await workerFetch(request(requestUrl,{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  assert.equal((await first.json()).data[0].title,'상품 버전 1');
+  current+=181000;
+  const pending=[],ctx={waitUntil(promise){pending.push(promise)}};
+  const stale=await workerFetch(request(requestUrl,{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'},ctx);
+  const staleData=await stale.json();
+  assert.equal(staleData.data[0].title,'상품 버전 1');
+  assert.equal(staleData.filter_meta.cache_status,'stale');
+  assert.ok(staleData.filter_meta.cache_age_seconds>=180);
+  assert.equal(pending.length,1);
+  await Promise.all(pending);
+  const refreshed=await workerFetch(request(requestUrl,{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  assert.equal((await refreshed.json()).data[0].title,'상품 버전 2');
+  assert.equal(upstream,2);
+ }finally{globalThis.fetch=previousFetch;Date.now=previousNow}
+});
+test('Failed Adpick response is not stored in the successful public cache',async()=>{
+ const previous=globalThis.fetch;let count=0;
+ globalThis.fetch=async()=>{
+  count++;
+  if(count===1)return new Response('unavailable',{status:503});
+  return new Response(JSON.stringify({success:true,data:[{title:'복구된 상품',price:11000}]}),
+   {status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const path='/api/best?area=pick&limit=9';
+  const failed=await workerFetch(request(path,{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  assert.equal(failed.status,502);
+  const good=await workerFetch(request(path,{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  assert.equal(good.status,200);
+  assert.equal((await good.json()).data[0].title,'복구된 상품');
+  assert.equal(count,2);
+ }finally{globalThis.fetch=previous}
+});
