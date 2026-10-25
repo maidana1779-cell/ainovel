@@ -790,7 +790,7 @@ const API_ORIGIN='https://alttulpick-api.maidana1779.workers.dev';
 const BACKUP_API_ORIGIN='https://alttulpick-preview.onrender.com';
 async function fetchProducts(path,onBackupStart){
  const primary=new AbortController();
- const timer=setTimeout(()=>primary.abort(),6500);
+ const timer=setTimeout(()=>primary.abort(),11000);
  let needsFallback=false;
  try{
   const response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:primary.signal});
@@ -1073,7 +1073,8 @@ try{
       grid.replaceChildren(make("div","empty","검색어와 맞는 상품이 없어요. 무관한 상품은 표시하지 않습니다. 다른 키워드를 선택해 주세요."));
       statusEl.textContent=excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음";
     }else{
-      statusEl.textContent="관련 상품 "+shownCount+"개"+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+" · 가격은 판매처에서 확인";
+      const staleFeed=payload.filter_meta?.cache_status==="stale";
+      statusEl.textContent=(staleFeed?"최근 조회 상품 ":"관련 상품 ")+shownCount+"개"+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+(staleFeed?" · 새 정보 확인 중":"")+" · 가격은 판매처에서 확인";
     }
     return;
   }
@@ -1469,6 +1470,15 @@ async function loadDiscoveryStep(){
 discoveryMore.addEventListener("click",loadDiscoveryStep);
 function ensureDiscovery(){
   if(primaryPending||!discoveryInView||document.body.classList.contains("category-active"))return;
+  // Do not hammer the same upstream when the initial recommendation feed failed.
+  // Shoppers may explicitly retry the additional feed; manually curated Toss picks remain available.
+  if(!availableItems.length){
+   discoveryGrid.replaceChildren(make("div","empty","애드픽 추천 상품 연결이 지연되고 있어요. 아래 버튼을 눌러 다시 조회할 수 있습니다."));
+   discoveryMore.hidden=false;discoveryMore.disabled=false;
+   discoveryMore.textContent="인기 상품 다시 불러오기";
+   discoveryStatus.textContent="토스쇼핑 추천 상품은 위에서 바로 확인할 수 있어요.";
+   return;
+  }
   if(!discoveryLoaded&&!discoveryBusy)loadDiscoveryStep();
   else renderDiscovered();
 }
