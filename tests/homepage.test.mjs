@@ -18,9 +18,12 @@ test('Homepage script parses and retains affiliate search endpoints',()=>{
   const matches=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
   assert.equal(matches.length,1);
   assert.doesNotThrow(()=>new Script(matches[0][1]));
-  for(const endpoint of ['/api/search','/api/best','/api/curated']) {
+  for(const endpoint of ['/api/search','/api/best']) {
     assert.ok(html.includes(endpoint),endpoint);
   }
+  // Curated Sharelinks are intentionally rendered locally, without a second API call.
+  assert.match(html,/const featuredTossProducts=/);
+  assert.match(html,/show\(featuredTossProducts,false,target\)/);
 });
 test('Product feed precedes Toss product feature, as in new mockup',()=>{
   assert.ok(html.indexOf('id="deals"')<html.indexOf('id="toss-picks"'));
