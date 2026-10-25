@@ -163,5 +163,16 @@ try{
  send(res,200,{...data,data:result,filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}});
 }catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
-server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('알뜰픽 서버가 시작됐습니다'));
+server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>{
+ console.log('알뜰픽 서버가 시작됐습니다');
+ // One nonblocking health probe per cold start; no affiliate requests or user data.
+ // This tells us whether the free Cloudflare origin has actually deployed the edge cache.
+ void fetch('https://alttulpick-api.maidana1779.workers.dev/health',{
+  signal:AbortSignal.timeout(4500)
+ }).then(async response=>{
+  const data=await response.json().catch(()=>null);
+  console.log('[edge-health] status='+response.status+
+   ' revision='+String(data?.revision||'unidentified').slice(0,80));
+ }).catch(err=>console.log('[edge-health] unavailable '+String(err?.name||'error').slice(0,60)));
+});
 
