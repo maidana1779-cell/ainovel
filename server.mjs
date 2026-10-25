@@ -8,6 +8,7 @@ import {verifyProductBatchWithMeta} from './merchant-offers.mjs';
 import {removeClearlyUnavailable} from './availability-labels.mjs';
 import {createBestFeedCache} from './best-feed-cache.mjs';
 import {interleaveSearchMerchants,merchantCount} from './merchant-diversity.mjs';
+import {filterCatalogProducts} from './catalog-policy.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
 const analytics=createAnalytics();
@@ -126,9 +127,10 @@ async function loadBestPayload(){
  const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
  if(!list)throw Error('UPSTREAM_SHAPE');
  const sourceFiltered=removeClearlyUnavailable(list);
- const {items:checked,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
+ const catalog=filterCatalogProducts(sourceFiltered.items);
+ const {items:checked,verification}=await verifyProductBatchWithMeta(catalog.items);
  const result=Array.isArray(data.data)?checked:{...data.data,list:checked};
- return {...data,data:result,filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}};
+ return {...data,data:result,filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed,out_of_catalog_removed:catalog.removed}};
 }
 const cacheKey=endpoint==='best'?params.area+'|'+params.limit:null;
 const cached=cacheKey?bestFeedCache.peek(cacheKey):null;
@@ -167,7 +169,8 @@ try{
    const distinct=uniqueProductResults(matched);
    const curated=plan.batch===0?matchingCuratedProducts(params.q):[];
    const sourceFiltered=removeClearlyUnavailable(uniqueProductResults([...curated,...distinct]));
-   const balanced=interleaveSearchMerchants(sourceFiltered.items);
+   const catalog=filterCatalogProducts(sourceFiltered.items);
+   const balanced=interleaveSearchMerchants(catalog.items);
    const {items:combined,verification}=await verifyProductBatchWithMeta(balanced.slice(0,requested));
    analytics.search(params.q,combined.length);
    const original=successes[0];
@@ -180,7 +183,8 @@ try{
      batch:plan.batch,total_batches:plan.totalBatches,
      has_more:plan.batch+1<plan.totalBatches,
      quota_limited:activeTerms.length<plan.terms.length,verification,
-     explicitly_unavailable_removed:sourceFiltered.removed
+     explicitly_unavailable_removed:sourceFiltered.removed,
+     out_of_catalog_removed:catalog.removed
    }});
    return;
  }
