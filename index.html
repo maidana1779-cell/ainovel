@@ -6,7 +6,19 @@
 <meta name="theme-color" content="#ffffff">
 <title>알뜰픽 | 상품을 더 간편하게</title>
 <meta name="description" content="여러 제휴 쇼핑몰의 상품과 직접 고른 추천 상품을 검색하고 둘러보는 알뜰픽">
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://alttulpick-shop.onrender.com/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="알뜰픽">
+<meta property="og:title" content="알뜰픽 | 찾는 상품, 더 간편하게">
+<meta property="og:description" content="식품부터 디지털까지. 제휴 쇼핑몰 상품을 검색하고 판매처에서 직접 확인하세요.">
+<meta property="og:url" content="https://alttulpick-shop.onrender.com/">
+<meta property="og:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
+<meta name="twitter:title" content="알뜰픽 | 제휴 쇼핑 상품 둘러보기">
+<meta name="twitter:description" content="상품 검색·카테고리·추천 상품을 한곳에서 확인하세요.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
@@ -608,6 +620,34 @@ body.category-active .category-section{
 }
 @media(prefers-reduced-motion:reduce){.curated-grid{scroll-behavior:auto}}
 
+
+/* Public review readiness: obvious sponsorship, working site information and mobile navigation */
+.affiliate-banner{display:flex;align-items:center;gap:12px;margin:8px 0 23px;padding:15px 17px;background:#f5f8ff;border:1px solid #e3eafb;border-radius:13px;color:#5e7390;font-size:12px;line-height:1.6}
+.affiliate-banner strong{color:#2d4a73;font-weight:800}
+.affiliate-banner-icon{width:24px;height:24px;flex:0 0 24px;border-radius:50%;background:#dceafe;color:#2468e8;display:grid;place-items:center;font-size:13px;font-weight:900}
+.affiliate-banner>a{margin-left:auto;color:#1c5dbc;white-space:nowrap;font-size:12px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.affiliate-banner>a:hover{color:#174887}
+.status-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.retry-main{border:1px solid #b2cafa;background:#edf4ff;color:#205fc2;border-radius:9px;font-size:12px;font-weight:800;padding:8px 11px}
+.retry-main:hover{background:#e0edff}
+.footerin{align-items:start;gap:26px}
+.footer-brand{flex:1;min-width:220px;max-width:460px}
+.footer-meta{max-width:410px;line-height:1.8}
+.footer-disclosure{color:#586b82;line-height:1.8;font-size:11px;margin:12px 0 0;max-width:420px}
+.footer-links{display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:450px}
+.footer-links nav{display:flex;align-items:center;justify-content:flex-end;gap:11px 14px;flex-wrap:wrap}
+.footer-links nav a{font-size:12px;font-weight:750;color:#3d5877;text-decoration:underline;text-underline-offset:3px}
+.footer-links nav a:hover{color:var(--primary)}
+.footer-links .footer-note{margin-top:7px}
+@media(max-width:730px){
+ .affiliate-banner{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:9px 10px;margin-top:2px;padding:12px 13px;font-size:11px}
+ .affiliate-banner>a{grid-column:2;justify-self:start;margin-left:0}
+ .footerin{display:flex;flex-direction:column;gap:19px}
+ .footer-links{align-items:flex-start;max-width:100%}
+ .footer-links nav{justify-content:flex-start}
+ .footer-links .footer-note{text-align:left}
+}
+
 </style>
 </head>
 <body data-design-version="storefront-v3-20261025">
@@ -616,10 +656,10 @@ body.category-active .category-section{
 <header class="header"><div class="wrap headin">
  <div class="brand-group">
   <a href="/" class="brand" aria-label="알뜰픽 홈">알뜰픽<b>·</b></a>
-  <span class="brand-tag">핫딜 · 제휴 쇼핑 · 똑똑한 상품 탐색</span>
+  <span class="brand-tag">상품 탐색 · 제휴 쇼핑 · 판매처 연결</span>
  </div>
  <nav class="nav" aria-label="주 메뉴">
-  <a href="/#shop-categories">카테고리</a><a href="#deals">베스트 상품</a><a href="#product-discovery">인기 상품</a><a href="#toss-picks">토스쇼핑</a>
+  <a href="/#shop-categories">카테고리</a><a href="#deals">베스트 상품</a><a href="#product-discovery">인기 상품</a><a href="#toss-picks">토스쇼핑</a><a href="/about.html">서비스 안내</a>
  </nav>
 </div></header>
 <main class="wrap">
@@ -643,6 +683,11 @@ body.category-active .category-section{
   </div>
  </div>
 </section>
+<aside class="affiliate-banner" aria-label="제휴 링크 안내">
+  <span class="affiliate-banner-icon" aria-hidden="true">i</span>
+  <span><strong>제휴 상품 안내 서비스</strong> · 구매 등 제휴 프로그램에서 인정하는 활동으로 운영자가 수수료를 받을 수 있습니다. 주문·결제는 각 판매처에서 진행됩니다.</span>
+  <a href="/guide.html">이용안내 확인 <span aria-hidden="true">↗</span></a>
+</aside>
 <section id="shop-categories" class="category-hub" aria-labelledby="hub-title">
  <div class="hub-heading">
   <div><span class="hub-eyebrow">SHOP BY CATEGORY</span><h2 id="hub-title">어떤 상품을 찾으세요?</h2><p>필요한 상품을 카테고리에서 빠르게 찾아보세요.</p></div>
@@ -716,13 +761,13 @@ body.category-active .category-section{
  <div class="section">
   <div><span class="overline">CURATED BY PARTNER FEEDS</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">제휴 쇼핑몰에서 제공한 상품을 살펴보세요.</p></div>
   <div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
-   <button type="button" class="tab active" data-area="today" aria-pressed="true">실시간 베스트</button>
+   <button type="button" class="tab active" data-area="today" aria-pressed="true">오늘의 베스트</button>
    <button type="button" class="tab" data-area="popular" aria-pressed="false">인기상품</button>
    <button type="button" class="tab" data-area="pick" aria-pressed="false">추천상품</button>
   </div>
  </div>
  <div class="results-meta">
-  <div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div>
+  <div class="status-row"><div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div><button id="retry-main" type="button" class="retry-main" hidden>상품 다시 불러오기</button></div>
   <span class="aside">실제 구매 가격과 배송비는 판매처에서 확인</span>
  </div>
  <div id="product-toolbar" class="product-toolbar" hidden>
@@ -780,8 +825,11 @@ body.category-active .category-section{
 </section>
 </main>
 <footer class="footer"><div class="wrap footerin">
- <div><div class="foothead">알뜰픽<b>·</b></div><div class="footer-meta">제휴 상품을 조금 더 편하게 찾는 곳<br>알뜰픽 베타 서비스</div></div>
- <div class="footer-note">각 상품의 판매·배송·환불 및 최종 가격은 해당 판매처의 정책을 따릅니다.<br>알뜰픽은 제휴사 및 쇼핑몰의 공식 사이트가 아닙니다.</div>
+ <div class="footer-brand"><div class="foothead">알뜰픽<b>·</b></div><div class="footer-meta">여러 제휴 쇼핑몰의 상품을 찾아보고 판매처로 연결하는 독립 상품 안내 서비스</div><p class="footer-disclosure">이 사이트에는 제휴 마케팅 링크가 포함되어 있으며, 구매 등으로 운영자가 수수료를 받을 수 있습니다.</p></div>
+ <div class="footer-links">
+  <nav aria-label="서비스 및 정책 안내"><a href="/about.html">서비스 소개</a><a href="/guide.html">상품 이용안내</a><a href="/privacy.html">개인정보 처리 안내</a><a href="/contact.html">운영·문의 안내</a></nav>
+  <div class="footer-note">상품 판매·결제·배송·취소·환불은 실제 판매처에서 처리합니다.<br>알뜰픽은 각 제휴사와 쇼핑몰의 공식 고객센터가 아닙니다.</div>
+ </div>
 </div></footer>
 </div>
 
@@ -1028,7 +1076,12 @@ function keepRecentFeed(url,items){
   else sessionStorage.removeItem(RECENT_FEED_PREFIX+url);
  }catch{/* Storage is optional; the live feed still works. */}
 }
+const retryMain=document.getElementById("retry-main");
+let lastLoadedUrl="/api/best?area=today&limit=10";
+retryMain.addEventListener("click",()=>load(lastLoadedUrl));
 async function load(url){
+lastLoadedUrl=url;
+retryMain.hidden=true;
 const id=++requestId;
 primaryPending=true;
 const u=new URL(url,location.href);
@@ -1079,14 +1132,16 @@ try{
     return;
   }
   if(payload.code==="API_NOT_CONFIGURED"){
-    show(demo,true);
-    statusEl.textContent="데모 모드 · API 키 등록 후 실제 상품으로 전환됩니다";
+    if(!cachedItems)grid.replaceChildren(make("div","empty","제휴 상품 연결이 일시적으로 지연되고 있어요. 아래 토스쇼핑 추천 상품은 바로 둘러볼 수 있습니다."));
+    statusEl.textContent="제휴 상품 연결 준비 중 · 잠시 후 다시 시도해 주세요";
+    retryMain.hidden=false;
     return;
   }
   if(res.status===429){
     if(cachedItems){statusEl.textContent="최근 조회 상품 표시 중 · 새 조회는 잠시 후 가능합니다";return}
     grid.replaceChildren(make("div","empty","조회 요청이 많습니다. 잠시 후 다시 선택해 주세요."));
     statusEl.textContent="API 요청량 보호 중";
+    retryMain.hidden=false;
     return;
   }
   throw Error(payload.message||"상품을 불러오지 못했습니다");
@@ -1096,7 +1151,8 @@ try{
   statusEl.textContent="최근 조회 상품 표시 중 · 최신 연결이 지연됩니다 · 가격은 판매처에서 확인";
  }else{
   grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
-  statusEl.textContent="상품 연결 오류";
+  statusEl.textContent="제휴 상품 연결 지연";
+  retryMain.hidden=false;
  }
 }finally{
  if(id===requestId){primaryPending=false;if(discoveryInView)ensureDiscovery()}
