@@ -4,6 +4,7 @@ import {getSearchPlan,uniqueProductResults} from '../search-plan.mjs';
 import {removeClearlyUnavailable} from '../availability-labels.mjs';
 import {verifyProductBatchWithMeta} from '../merchant-offers.mjs';
 import {interleaveSearchMerchants,merchantCount} from '../merchant-diversity.mjs';
+import {filterCatalogProducts,restrictCatalogPayload} from '../catalog-policy.mjs';
 
 const ORIGINS=new Set(['https://alttulpick-shop.onrender.com']);
 const RENDER_AFFILIATE_API='https://alttulpick-preview.onrender.com';
@@ -19,7 +20,7 @@ function adpickBindingState(env){
  return env.ADPICK_API_KEY.trim()?'ready':'empty';
 }
 function productCacheKey(url){
- return "https://alttulpick-api.maidana1779.workers.dev/__response_cache"+url.pathname+url.search;
+ return "https://alttulpick-api.maidana1779.workers.dev/__response_cache_v2"+url.pathname+url.search;
 }
 function hasValidProductList(payload){
  return payload?.success===true&&(Array.isArray(payload.data)||Array.isArray(payload.data?.list));
@@ -95,9 +96,10 @@ async function bestPayload(key,area,n){
  const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
  if(!list)throw Error('UPSTREAM_SHAPE');
  const sourceFiltered=removeClearlyUnavailable(list);
- const {items,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
+ const catalog=filterCatalogProducts(sourceFiltered.items);
+ const {items,verification}=await verifyProductBatchWithMeta(catalog.items);
  return {...data,data:Array.isArray(data.data)?items:{...data.data,list:items},
-  filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}};
+  filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed,out_of_catalog_removed:catalog.removed}};
 }
 // Keep the verified Adpick affiliate feed available even when Cloudflare has only
 // the build-time secret (which is NOT a runtime binding). Never follow affiliate links.
@@ -129,7 +131,7 @@ async function fetchRenderFeed(u,timeoutMs=9500){
   if(!(response.headers.get('content-type')||'').includes('application/json')){
    return {status:502,payload:{success:false,message:'상품 서버 준비 중'}};
   }
-  const payload=await response.json();
+  const payload=restrictCatalogPayload(await response.json());
   return {status:response.status,payload};
  }catch{
   return {status:502,payload:{success:false,message:'상품 서버 연결 지연'}};
@@ -264,7 +266,8 @@ async function handleWorkerFetch(request,env={},ctx={}){
   const distinct=uniqueProductResults(matched);
   const curated=plan.batch===0?matchingCuratedProducts(q):[];
   const sourceFiltered=removeClearlyUnavailable(uniqueProductResults([...curated,...distinct]));
-  const balanced=interleaveSearchMerchants(sourceFiltered.items);
+  const catalog=filterCatalogProducts(sourceFiltered.items);
+  const balanced=interleaveSearchMerchants(catalog.items);
   const {items,verification}=await verifyProductBatchWithMeta(balanced.slice(0,n));
   const original=successes[0];
   const payload={...original,data:Array.isArray(original.data)?items:{...original.data,list:items},filter_meta:{
@@ -274,7 +277,8 @@ async function handleWorkerFetch(request,env={},ctx={}){
    queries_checked:successes.length,queries_requested:active.length,batch:plan.batch,
    total_batches:plan.totalBatches,has_more:plan.batch+1<plan.totalBatches,
    quota_limited:active.length<plan.terms.length,verification,
-   explicitly_unavailable_removed:sourceFiltered.removed
+   explicitly_unavailable_removed:sourceFiltered.removed,
+   out_of_catalog_removed:catalog.removed
   }};
   rememberCached(u,payload,SEARCH_CACHE_SECONDS,ctx);
   return json(payload,200,origin);
