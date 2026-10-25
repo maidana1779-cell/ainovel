@@ -11,6 +11,11 @@ let hits=[];
 // 15-minute stale fallback while background refresh runs. Never cache errors or secrets.
 const productCache=new Map(), refreshing=new Set(), MAX_CACHE=120;
 const BEST_FRESH_SECONDS=180, BEST_STALE_SECONDS=900, SEARCH_CACHE_SECONDS=60;
+function adpickBindingState(env){
+ if(!Object.prototype.hasOwnProperty.call(env||{},'ADPICK_API_KEY'))return 'not_bound';
+ if(typeof env.ADPICK_API_KEY!=='string')return 'invalid_type';
+ return env.ADPICK_API_KEY.trim()?'ready':'empty';
+}
 function productCacheKey(url){
  return "https://alttulpick-api.maidana1779.workers.dev/__response_cache"+url.pathname+url.search;
 }
@@ -99,7 +104,7 @@ export async function workerFetch(request,env={},ctx={}){
    'access-control-allow-headers':'Content-Type','access-control-max-age':'600','vary':'Origin'
   }});
  }
- if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker',revision:'edge-best-cache-v2-20261025',best_fresh_seconds:BEST_FRESH_SECONDS,best_stale_seconds:BEST_STALE_SECONDS},200,origin);
+ if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker',revision:'binding-diagnostic-v3-20261025',adpick_binding:adpickBindingState(env),best_fresh_seconds:BEST_FRESH_SECONDS,best_stale_seconds:BEST_STALE_SECONDS},200,origin);
  if(path==='/api/telemetry'&&request.method==='POST'){
   if(!ORIGINS.has(origin)||!(request.headers.get('content-type')||'').startsWith('application/json'))return json({success:false},403,origin);
   try{
