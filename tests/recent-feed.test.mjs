@@ -13,7 +13,7 @@ test('Recently successful listings show before the asynchronous live fetch witho
  assert.match(js,/statusEl\.textContent="최근 조회 상품 "/);
  assert.match(js,/keepRecentFeed\(url,initial\)/);
  const loader=js.slice(js.indexOf('async function load(url){'),js.indexOf('// Progressive category discovery'));
- assert.ok(loader.indexOf('recentFeed(url)')<loader.indexOf('await fetchProducts(url)'));
+ assert.ok(loader.indexOf('recentFeed(url)')<loader.indexOf('await fetchProducts(url,'));
  assert.match(loader,/if\(cachedItems\)\{[\s\S]*?최근 조회 상품 표시 중/);
  assert.match(loader,/가격은 판매처에서 확인/);
  assert.match(js,/const RECENT_FEED_MS=90000/);
