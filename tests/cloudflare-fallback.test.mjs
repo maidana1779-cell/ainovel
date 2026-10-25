@@ -9,7 +9,8 @@ test('Cloudflare primary API retries cold Render backup without accepting HTML s
  assert.doesNotThrow(()=>new Script(js));
  assert.match(js,/const API_ORIGIN='https:\/\/alttulpick-api\.maidana1779\.workers\.dev'/);
  assert.match(js,/const BACKUP_API_ORIGIN='https:\/\/alttulpick-preview\.onrender\.com'/);
- assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),6500\)/);
+ assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),11000\)/);
+ assert.match(js,/애드픽 추천 상품 연결이 지연되고 있어요/);
  assert.match(js,/setTimeout\(\(\)=>backup\.abort\(\),22000\)/);
  assert.match(js,/for\(let attempt=0;attempt<4;attempt\+\+\)/);
  assert.match(js,/jsonResponse=\(response\.headers\.get\("content-type"\)/);
