@@ -955,19 +955,24 @@ function merchantBadge(product){
   badge.append(logo,make("span","merchant-name",name));
   return badge;
 }
+function validAffiliateLink(raw,product){
+ try{
+  if(typeof raw!=="string"||raw.length>2048)return false;
+  const url=new URL(raw);
+  if(url.protocol!=="https:"||url.username||url.password||url.port||url.hash||url.pathname==="/")return false;
+  const adpick=["biz.adpick.co.kr","link.adpick.co.kr","bitl.bz"].includes(url.hostname);
+  const toss=product?.affiliate_source==="toss_sharelink"&&url.hostname==="toss.shopping"&&/^\/_m\/[A-Za-z0-9]+$/.test(url.pathname);
+  return adpick||toss;
+ }catch{return false}
+}
 function show(items,isDemo,target=grid,append=false){
  if(!append)target.replaceChildren();
  if(!items.length){if(!append)target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
  items.forEach((p,index)=>{
   const href=typeof p.commissionlink==="string"?p.commissionlink:"";
-  let allowed=false,isToss=false;
-  try{
-   const url=new URL(href);
-   const isAdpick=url.protocol==="https:"&&(/^(biz|link)\.adpick\.co\.kr$/.test(url.hostname)||url.hostname==="bitl.bz");
-   isToss=p.affiliate_source==="toss_sharelink"&&url.protocol==="https:"&&url.hostname==="toss.shopping"&&/^\/_m\/[A-Za-z0-9]+$/.test(url.pathname);
-   allowed=isAdpick||isToss;
-  }catch{}
-  const clickable=allowed&&!isDemo;
+  const allowed=validAffiliateLink(href,p);
+ const isToss=p.affiliate_source==="toss_sharelink";
+ const clickable=allowed&&!isDemo;
   const card=make("article","card"+(clickable?" card--clickable":" card--unavailable"));
   const link=make(clickable?"a":"div","product-card-link");
   if(clickable){
