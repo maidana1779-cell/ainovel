@@ -8,7 +8,8 @@
 <meta name="description" content="여러 제휴 쇼핑몰의 상품과 직접 고른 추천 상품을 검색하고 둘러보는 알뜰픽">
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 <style>
 
 :root{
@@ -787,17 +788,20 @@ body.category-active .category-section{
 const API_ORIGIN='https://alttulpick-api.maidana1779.workers.dev';
 const BACKUP_API_ORIGIN='https://alttulpick-preview.onrender.com';
 async function fetchProducts(path){
-  try{
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),3500);
-    let response;
-    try{response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:controller.signal})}
-    finally{clearTimeout(timer)}
-    if(response.ok)return response;
-    // When Cloudflare has no secret or transient problems, keep shopping usable.
-    if(response.status!==502&&response.status!==503&&response.status!==504&&response.status!==429) return response;
-  }catch{}
-  return fetch(BACKUP_API_ORIGIN+path,{cache:"no-store"});
+ const primary=new AbortController();
+ const timer=setTimeout(()=>primary.abort(),7500);
+ let needsFallback=false;
+ try{
+  const response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:primary.signal});
+  if(response.ok||![502,503,504].includes(response.status))return response;
+  needsFallback=true;
+ }catch{needsFallback=true}
+ finally{clearTimeout(timer)}
+ if(!needsFallback)throw Error("상품 연결 오류");
+ const backup=new AbortController();
+ const backupTimer=setTimeout(()=>backup.abort(),4500);
+ try{return await fetch(BACKUP_API_ORIGIN+path,{cache:"no-store",signal:backup.signal})}
+ finally{clearTimeout(backupTimer)}
 }
 const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
 const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
@@ -1343,19 +1347,13 @@ function initTossSlider(panel,target){
  update();
 }
 
-async function loadCuratedProducts(){
-  const panel=document.getElementById("toss-picks");
-  const target=document.getElementById("toss-products");
-  try{
-    const response=await fetchProducts("/api/curated");
-    const payload=await response.json();
-    if(!response.ok||payload.success!==true||!Array.isArray(payload.data)||!payload.data.length)return;
-    show(payload.data,false,target);
-    panel.hidden=false;
-    initTossSlider(panel,target);
-  }catch{
-    // Keep the section hidden if curated product data cannot be loaded.
-  }
+const featuredTossProducts=[{"title":"스파클 생수, 무라벨, 500ml, 80개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/fEfXH2Dz","affiliate_source":"toss_sharelink","icon":"💧"},{"title":"EMS 스마트 발 마사지기, 리모컨 포함, 블랙, 1개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/T3YXM88A","affiliate_source":"toss_sharelink","icon":"🦶"},{"title":"썬리지 호주산 네이블 오렌지, 중과, 3.5kg, 1박스","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/vUfumnfn","affiliate_source":"toss_sharelink","icon":"🍊"},{"title":"명식품 파래김, 100매, 1개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/9DX0e7mh","affiliate_source":"toss_sharelink","icon":"🍙"},{"title":"대식가 일키로 부대찌개, 1kg, 3팩","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/b8L8owyC","affiliate_source":"toss_sharelink","icon":"🍲"},{"title":"포레스티 국내제조 땅콩버터, 무첨가, 무가당, 무설탕, 450g, 2개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/vd1C807g","affiliate_source":"toss_sharelink","icon":"🥜"},{"title":"코주부 밀가루 없는 3분 어묵탕, 210g, 4팩","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/73U6YhQD","affiliate_source":"toss_sharelink","icon":"🍢"}];
+function loadCuratedProducts(){
+ const panel=document.getElementById("toss-picks");
+ const target=document.getElementById("toss-products");
+ show(featuredTossProducts,false,target);
+ panel.hidden=false;
+ initTossSlider(panel,target);
 }
 // Curated feed is requested when the lower sections approach the viewport.
 const discoveryGrid=document.getElementById("discovery-products");
@@ -1436,16 +1434,15 @@ if("IntersectionObserver" in window){
     discoveryInView=true;
     observer.disconnect();
     ensureDiscovery();
-    loadCuratedProducts();
   },{rootMargin:"120px"});
   observer.observe(discoverySection);
 }else{
   window.addEventListener("load",()=>{
     discoveryInView=true;
     ensureDiscovery();
-    loadCuratedProducts();
   },{once:true});
 }
+loadCuratedProducts();
 </script>
 </body>
 </html>
