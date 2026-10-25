@@ -40,3 +40,22 @@ test('Worker does not expose API secrets or accept fabricated telemetry events',
  const valid=await workerFetch(request('/api/telemetry',{method:'POST',headers:{origin:HOME,'content-type':'application/json'},body:JSON.stringify({event:'product_click',merchant:'shop'})}));
  assert.equal(valid.status,200);
 });
+
+test('Repeated public best feed is served from short-lived Worker cache without another BIZ call',async()=>{
+ const old=globalThis.fetch;let upstream=0;
+ globalThis.fetch=async()=>{
+  upstream++;
+  return new Response(JSON.stringify({success:true,data:[
+   {title:'캐시 테스트 상품',price:14900,cp_name:'판매처',commissionlink:'https://bitl.bz/test123'}
+  ]}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const first=await workerFetch(request('/api/best?area=pick&limit=7',{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  const second=await workerFetch(request('/api/best?area=pick&limit=7',{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  assert.equal(first.status,200);
+  assert.equal(second.status,200);
+  assert.equal(upstream,1);
+  assert.deepEqual(await first.json(),await second.json());
+  assert.equal(second.headers.get('access-control-allow-origin'),HOME);
+ }finally{globalThis.fetch=old}
+});
