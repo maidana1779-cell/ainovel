@@ -999,6 +999,21 @@ function updateMoreControls(hasMore){
   moreButton.textContent=moreBusy?"새 상품 찾는 중…":"관련 상품 더 보기 +";
 }
 function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
+const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v1:";
+function recentFeed(url){
+ try{
+  const value=JSON.parse(sessionStorage.getItem(RECENT_FEED_PREFIX+url)||"null");
+  if(!value||!Array.isArray(value.items)||Date.now()-value.at>RECENT_FEED_MS)return null;
+  const items=value.items.filter(p=>p&&typeof p.title==="string").slice(0,30);
+  return items.length?items:null;
+ }catch{return null}
+}
+function keepRecentFeed(url,items){
+ try{
+  if(items.length)sessionStorage.setItem(RECENT_FEED_PREFIX+url,JSON.stringify({at:Date.now(),items:items.slice(0,30)}));
+  else sessionStorage.removeItem(RECENT_FEED_PREFIX+url);
+ }catch{/* Storage is optional; the live feed still works. */}
+}
 async function load(url){
 const id=++requestId;
 primaryPending=true;
@@ -1008,8 +1023,15 @@ nextBatch=0;moreBusy=false;seenProductKeys=new Set();shownCount=0;
 resetProductFilters();
 updateMoreControls(false);
 relatedBrowse.hidden=true;relatedList.replaceChildren();
-statusEl.textContent="상품을 불러오는 중입니다...";
-grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
+const cachedItems=recentFeed(url);
+if(cachedItems){
+ availableItems=cachedItems;shownCount=cachedItems.length;
+ refreshMerchantOptions();renderListing();
+ statusEl.textContent="최근 조회 상품 "+shownCount+"개 · 최신 정보 확인 중 · 가격은 판매처에서 확인";
+}else{
+ statusEl.textContent="상품을 불러오는 중입니다...";
+ grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
+}
 try{
   const res=await fetchProducts(url);
   const payload=await res.json();
@@ -1022,6 +1044,7 @@ try{
     const initial=uniqueNew(list);
     availableItems=initial;
     shownCount=initial.length;
+    keepRecentFeed(url,initial);
     refreshMerchantOptions();
     renderListing();
     if(!currentQuery&&discoveryLoaded)renderDiscovered();
@@ -1044,6 +1067,7 @@ try{
     return;
   }
   if(res.status===429){
+    if(cachedItems){statusEl.textContent="최근 조회 상품 표시 중 · 새 조회는 잠시 후 가능합니다";return}
     grid.replaceChildren(make("div","empty","조회 요청이 많습니다. 잠시 후 다시 선택해 주세요."));
     statusEl.textContent="API 요청량 보호 중";
     return;
@@ -1051,8 +1075,12 @@ try{
   throw Error(payload.message||"상품을 불러오지 못했습니다");
 }catch(err){
  if(id!==requestId)return;
- grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
- statusEl.textContent="상품 연결 오류";
+ if(cachedItems){
+  statusEl.textContent="최근 조회 상품 표시 중 · 최신 연결이 지연됩니다 · 가격은 판매처에서 확인";
+ }else{
+  grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
+  statusEl.textContent="상품 연결 오류";
+ }
 }finally{
  if(id===requestId){primaryPending=false;if(discoveryInView)ensureDiscovery()}
 }}
