@@ -641,6 +641,13 @@ body.category-active .category-section{
  .recommendation-explore{flex-direction:column;align-items:stretch;gap:13px;padding:14px 13px}
  .recommendation-explore-button{width:100%;min-height:44px}
 }
+.product-category-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.product-category-chip{border:1px solid #cfdbee;border-radius:999px;background:#fff;color:#435b7c;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;min-height:38px}
+.product-category-chip:hover{border-color:#7fa4db}
+.product-category-chip.active,.product-category-chip[aria-pressed="true"]{background:#225dab;border-color:#225dab;color:#fff}
+.product-category-chip:focus-visible{outline:3px solid #2c70e9;outline-offset:2px}
+.product-category-chip:disabled{opacity:.56;cursor:wait}
+@media(max-width:730px){.product-category-tabs{gap:7px}.product-category-chip{min-height:42px}}
 /* Public review readiness: obvious sponsorship, working site information and mobile navigation */
 .affiliate-banner{display:flex;align-items:center;gap:12px;margin:8px 0 23px;padding:15px 17px;background:#f5f8ff;border:1px solid #e3eafb;border-radius:13px;color:#5e7390;font-size:12px;line-height:1.6}
 .affiliate-banner strong{color:#2d4a73;font-weight:800}
@@ -804,11 +811,18 @@ body.category-active .category-section{
  <p id="sort-disclaimer" class="shop-disclaimer" hidden>정렬·판매처 필터는 현재 화면에 불러온 상품에만 적용됩니다. 가격 미제공 상품은 가격순 정렬 시 뒤에 표시됩니다.</p>
  <div id="recommendation-explore" class="recommendation-explore" hidden>
   <div class="recommendation-explore-copy">
-   <strong>다른 제휴 쇼핑몰 상품도 찾아보세요</strong>
-   <p>이 추천 목록은 애드픽에서 받은 최대 10개 상품입니다. 판매처 메뉴에는 현재 가져온 판매처만 표시됩니다. 아래 버튼으로 실제 제휴 상품을 추가 검색할 수 있습니다.</p>
-   <p id="recommendation-explore-note" role="status" aria-live="polite">원본 추천상품과 추가 검색 상품은 구분해서 표시합니다.</p>
+   <strong>상품 더 찾아보기</strong>
+   <p>베스트·추천 목록은 애드픽에서 제공한 최대 10개 상품입니다. 관심 카테고리를 선택하면 실제 제휴 상품을 더 조회해 목록에 추가합니다.</p>
+   <div id="product-category-tabs" class="product-category-tabs" role="group" aria-label="추가 상품 카테고리">
+    <button type="button" class="product-category-chip active" data-product-category="food" aria-pressed="true">식품</button>
+    <button type="button" class="product-category-chip" data-product-category="living" aria-pressed="false">리빙·주방</button>
+    <button type="button" class="product-category-chip" data-product-category="digital" aria-pressed="false">가전·디지털</button>
+    <button type="button" class="product-category-chip" data-product-category="beauty" aria-pressed="false">뷰티</button>
+    <button type="button" class="product-category-chip" data-product-category="fashion" aria-pressed="false">패션</button>
+   </div>
+   <p id="recommendation-explore-note" role="status" aria-live="polite">실제 검색된 상품만 추가하고 동일 상품은 중복 표시하지 않습니다.</p>
   </div>
-  <button type="button" id="recommendation-explore-button" class="recommendation-explore-button">다른 판매처 상품 찾아보기 +</button>
+  <button type="button" id="recommendation-explore-button" class="recommendation-explore-button">식품 상품 더 보기 +</button>
  </div>
  <div id="products" class="grid"></div>
  <div id="more-area" class="more-area" hidden>
@@ -995,7 +1009,7 @@ function show(items,isDemo,target=grid,append=false){
   }
   box.append(pricing);
   box.append(merchantBadge(p));
-  if(p.recommendation_discovered===true)box.append(make("span","product-discovery-tag","추가 검색 상품"));
+  if(p.recommendation_discovered===true)box.append(make("span","product-discovery-tag","추가 탐색 상품"));
   link.append(box);card.append(link);target.append(card);
  })
 }
@@ -1088,23 +1102,47 @@ let primaryPending=false,discoveryInView=false;
 const recommendationExplore=document.getElementById("recommendation-explore");
 const recommendationExploreButton=document.getElementById("recommendation-explore-button");
 const recommendationExploreNote=document.getElementById("recommendation-explore-note");
-// One actual supplier search per explicit click; no automated catalog crawling.
-const RECOMMENDATION_EXPLORE_TERMS=["의류","이어폰","화장품","주방용품","간편식"];
-let recommendationExploreStep=0,recommendationExploreBusy=false;
-function recommendationMerchantNames(items){
- return new Set(items.map(p=>String(p?.cp_name||"").trim()).filter(Boolean));
-}
+// One user-requested real supplier search per click; no supplier catalog crawling.
+const PRODUCT_CATEGORY_TERMS=Object.freeze({
+ food:["간편식","라면","생수","커피","과자","백미","즉석밥"],
+ living:["세제","주방용품","물티슈","화장지","청소용품","수건","프라이팬"],
+ digital:["이어폰","노트북","충전기","키보드","청소기","보조배터리","전기포트"],
+ beauty:["화장품","선크림","스킨케어","샴푸","쿠션","핸드크림"],
+ fashion:["의류","운동화","티셔츠","가방","양말"]
+});
+const PRODUCT_CATEGORY_NAMES={food:"식품",living:"리빙·주방",digital:"가전·디지털",beauty:"뷰티",fashion:"패션"};
+const productCategoryTabs=document.getElementById("product-category-tabs");
+let selectedProductCategory="food",recommendationExploreProgress={},recommendationExploreBusy=false;
 function recommendationExploreVisible(url){
- const parsed=new URL(url,location.href);
- return parsed.pathname==="/api/best"&&parsed.searchParams.get("area")==="pick";
+ const u=new URL(url,location.href);
+ return u.pathname==="/api/best"&&["today","popular","pick"].includes(u.searchParams.get("area"));
+}
+function updateRecommendationExploreButton(){
+ const category=selectedProductCategory,done=(recommendationExploreProgress[category]||0)>=PRODUCT_CATEGORY_TERMS[category].length;
+ recommendationExploreButton.disabled=recommendationExploreBusy||recommendationExplore.hidden||done||primaryPending;
+ recommendationExploreButton.hidden=done;
+ recommendationExploreButton.textContent=done?"":PRODUCT_CATEGORY_NAMES[category]+" 상품 더 보기 +";
+ productCategoryTabs.querySelectorAll("[data-product-category]").forEach(b=>{
+  const key=b.dataset.productCategory,active=key===category;
+  b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));
+  b.disabled=recommendationExploreBusy;
+  b.title=PRODUCT_CATEGORY_NAMES[key]+" · "+(recommendationExploreProgress[key]||0)+"/"+PRODUCT_CATEGORY_TERMS[key].length+" 품목 조회";
+ });
 }
 function updateRecommendationExplore(url){
  recommendationExplore.hidden=!recommendationExploreVisible(url);
- recommendationExploreStep=0;recommendationExploreBusy=false;
- recommendationExploreButton.disabled=!recommendationExplore.hidden;recommendationExploreButton.hidden=false;
- recommendationExploreButton.textContent="다른 판매처 상품 찾아보기 +";
- recommendationExploreNote.textContent="원본 추천상품과 추가 검색 상품은 구분됩니다. 새 판매처가 꼭 발견되는 것은 아닙니다.";
+ selectedProductCategory="food";recommendationExploreProgress={};recommendationExploreBusy=false;
+ recommendationExploreNote.textContent="관심 카테고리에서 실제 상품을 더 찾습니다. 새로운 상품 개수는 검색 결과에 따라 달라집니다.";
+ updateRecommendationExploreButton();
 }
+productCategoryTabs.addEventListener("click",event=>{
+ const b=event.target.closest("[data-product-category]");
+ if(!b||recommendationExploreBusy||recommendationExplore.hidden)return;
+ selectedProductCategory=b.dataset.productCategory;
+ const count=recommendationExploreProgress[selectedProductCategory]||0;
+ recommendationExploreNote.textContent=PRODUCT_CATEGORY_NAMES[selectedProductCategory]+" · "+count+"/"+PRODUCT_CATEGORY_TERMS[selectedProductCategory].length+"개 품목 조회";
+ updateRecommendationExploreButton();
+});
 function productKey(p){
   const title=String(p?.title||"").normalize("NFKC").toLowerCase().replace(/[^가-힣a-z0-9]/g,"");
   return String(p?.affiliate_source||p?.cp_code||p?.cp_name||"")+"|"+title+"|"+String(p?.price??"");
@@ -1198,7 +1236,7 @@ try{
       statusEl.textContent=(staleFeed?"최근 조회 상품 ":"관련 상품 ")+shownCount+"개"+merchantSummary(initial)+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+(staleFeed?" · 새 정보 확인 중":"")+(partial?" · 일부 검색어 미확인":"")+" · 가격은 판매처에서 확인";
     }
     if(partial)retryMain.hidden=false;
-    if(!recommendationExplore.hidden)recommendationExploreButton.disabled=false;
+    if(!recommendationExplore.hidden)updateRecommendationExploreButton();
     return;
   }
   if(payload.code==="API_NOT_CONFIGURED"){
@@ -1225,49 +1263,35 @@ try{
   retryMain.hidden=false;
  }
 }finally{
- if(id===requestId){primaryPending=false;if(discoveryInView)ensureDiscovery()}
+ if(id===requestId){primaryPending=false;updateRecommendationExploreButton();if(discoveryInView)ensureDiscovery()}
 }}
 recommendationExploreButton.addEventListener("click",async()=>{
- if(recommendationExploreBusy||recommendationExplore.hidden||recommendationExploreStep>=RECOMMENDATION_EXPLORE_TERMS.length)return;
- const id=requestId,step=recommendationExploreStep,term=RECOMMENDATION_EXPLORE_TERMS[step];
- recommendationExploreBusy=true;
- recommendationExploreButton.disabled=true;
- recommendationExploreButton.textContent="제휴 상품 검색 중…";
- recommendationExploreNote.textContent=term+" 상품을 검색하고 있습니다. 판매처가 추가되지 않을 수도 있습니다.";
+ const category=selectedProductCategory,step=recommendationExploreProgress[category]||0;
+ if(recommendationExploreBusy||recommendationExplore.hidden||primaryPending||step>=PRODUCT_CATEGORY_TERMS[category].length)return;
+ const id=requestId,term=PRODUCT_CATEGORY_TERMS[category][step],label=PRODUCT_CATEGORY_NAMES[category];
+ recommendationExploreBusy=true;updateRecommendationExploreButton();
+ recommendationExploreNote.textContent=label+" · "+term+" 관련 제휴 상품을 조회 중입니다.";
  try{
   const response=await fetchProducts("/api/search?q="+encodeURIComponent(term)+"&limit=20");
   const payload=await response.json();
   if(id!==requestId||recommendationExplore.hidden)return;
-  if(!response.ok||payload.success!==true)throw Error("제휴 검색 실패");
+  if(!response.ok||payload.success!==true)throw Error("상품 검색 실패");
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
-  if(!list)throw Error("상품 목록 없음");
-  const oldShops=recommendationMerchantNames(availableItems);
+  if(!list)throw Error("유효하지 않은 상품 목록");
   const fresh=uniqueNew(list).map(item=>({...item,recommendation_discovered:true}));
-  const addedShops=new Set(fresh.map(p=>String(p.cp_name||"").trim()).filter(name=>name&&!oldShops.has(name)));
-  if(fresh.length){
-   availableItems.push(...fresh);
-   shownCount=availableItems.length;
-   refreshMerchantOptions();renderListing();
-  }
-  recommendationExploreStep=step+1;
-  const totalShops=recommendationMerchantNames(availableItems).size;
-  recommendationExploreNote.textContent=addedShops.size
-   ?"새 판매처 "+addedShops.size+"곳 발견 · 현재 "+totalShops+"곳, 상품 "+shownCount+"개 · 위 판매처 메뉴에서 선택하세요."
-   :fresh.length?"새 상품 "+fresh.length+"개 추가 · 판매처 "+totalShops+"곳 · 다음 검색에서 다른 판매처를 찾을 수 있습니다."
-   :"이번 검색에서는 새 상품을 찾지 못했습니다. 다른 품목으로 검색해 보세요.";
-  statusEl.textContent="추천상품과 별도 검색 상품 "+shownCount+"개 · 현재 판매처 "+totalShops+"곳 · 가격과 구매 조건은 판매처 확인";
+  if(fresh.length){availableItems.push(...fresh);shownCount=availableItems.length;refreshMerchantOptions();renderListing();}
+  recommendationExploreProgress[category]=step+1;
+  const total=PRODUCT_CATEGORY_TERMS[category].length;
+  recommendationExploreNote.textContent=fresh.length
+   ?label+" · "+term+" 검색으로 새 상품 "+fresh.length+"개 추가 · 전체 "+shownCount+"개"
+   :label+" · "+term+" 검색에서 새로운 상품을 찾지 못했습니다. 다른 품목을 확인해 보세요.";
+  if(recommendationExploreProgress[category]>=total)recommendationExploreNote.textContent+=" · 이 카테고리의 준비된 품목 검색 완료";
+  statusEl.textContent="추천 목록과 추가 탐색 상품 "+shownCount+"개 · 가격·재고는 판매처에서 확인";
  }catch{
   if(id===requestId&&!recommendationExplore.hidden)
-   recommendationExploreNote.textContent="추가 상품 조회가 지연되거나 검색 한도에 도달했습니다. 다시 눌러주세요.";
+   recommendationExploreNote.textContent="상품 조회가 지연되거나 검색 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.";
  }finally{
-  if(id===requestId&&!recommendationExplore.hidden){
-   recommendationExploreBusy=false;
-   recommendationExploreButton.disabled=false;
-   const finished=recommendationExploreStep>=RECOMMENDATION_EXPLORE_TERMS.length;
-   recommendationExploreButton.hidden=finished;
-   recommendationExploreButton.textContent=finished?"":("다른 품목에서도 찾아보기 "+(recommendationExploreStep+1)+"/"+RECOMMENDATION_EXPLORE_TERMS.length+" +");
-   if(finished)recommendationExploreNote.textContent+=" · 추가 검색을 마쳤습니다.";
-  }
+  if(id===requestId&&!recommendationExplore.hidden){recommendationExploreBusy=false;updateRecommendationExploreButton();}
  }
 });
 // Progressive category discovery. Supplier data remains in browser memory only
