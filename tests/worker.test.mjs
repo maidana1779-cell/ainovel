@@ -8,7 +8,8 @@ function request(path,init){return new Request(BASE+path,init)}
 test('Worker health, origin permissions, and missing secret response',async()=>{
  const health=await workerFetch(request('/health'));assert.equal(health.status,200);
  const details=await health.json();
- assert.equal(details.revision,'edge-best-cache-v2-20261025');
+ assert.equal(details.revision,'binding-diagnostic-v3-20261025');
+ assert.equal(details.adpick_binding,'not_bound');
  assert.equal(details.best_fresh_seconds,180);
  assert.equal(details.best_stale_seconds,900);
  const options=await workerFetch(request('/api/search',{method:'OPTIONS',headers:{origin:HOME}}));
@@ -110,4 +111,19 @@ test('Failed Adpick response is not stored in the successful public cache',async
   assert.equal((await good.json()).data[0].title,'복구된 상품');
   assert.equal(count,2);
  }finally{globalThis.fetch=previous}
+});
+
+test('Health checks secret-binding presence without revealing any secret',async()=>{
+ const absent=await (await workerFetch(request('/health'),{})).json();
+ const ready=await (await workerFetch(request('/health'),{ADPICK_API_KEY:'test-secret-do-not-expose'})).json();
+ const empty=await (await workerFetch(request('/health'),{ADPICK_API_KEY:''})).json();
+ const invalid=await (await workerFetch(request('/health'),{ADPICK_API_KEY:{get(){return 'secret'}}})).json();
+ assert.equal(absent.adpick_binding,'not_bound');
+ assert.equal(ready.adpick_binding,'ready');
+ assert.equal(empty.adpick_binding,'empty');
+ assert.equal(invalid.adpick_binding,'invalid_type');
+ for(const obj of [absent,ready,empty,invalid]){
+  assert.ok(!JSON.stringify(obj).includes('test-secret-do-not-expose'));
+  assert.equal(obj.status,'ok');
+ }
 });
