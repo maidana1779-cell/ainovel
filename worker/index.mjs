@@ -99,7 +99,7 @@ export async function workerFetch(request,env={},ctx={}){
    'access-control-allow-headers':'Content-Type','access-control-max-age':'600','vary':'Origin'
   }});
  }
- if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker'},200,origin);
+ if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker',revision:'edge-best-cache-v2-20261025',best_fresh_seconds:BEST_FRESH_SECONDS,best_stale_seconds:BEST_STALE_SECONDS},200,origin);
  if(path==='/api/telemetry'&&request.method==='POST'){
   if(!ORIGINS.has(origin)||!(request.headers.get('content-type')||'').startsWith('application/json'))return json({success:false},403,origin);
   try{
