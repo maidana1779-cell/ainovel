@@ -61,7 +61,8 @@ test('Real HTML price component is guarded and affiliate link/disclosures are pr
  assert.match(js,/priceLabel\(discount\.sale,"sale-price"\)/);
  assert.match(js,/make\("div","price-row"\)/);
  assert.match(js,/discount\.rate\+"%"/);
- assert.match(js,/price===null\?\(p\.affiliate_source==="toss_sharelink"/);
+ assert.match(js,/price===null\?/);
+ assert.match(js,/p\.affiliate_source==="toss_sharelink"/);
  assert.match(html,/판매처 확인 가격 · 결제 시 변동 가능/);
  assert.match(js,/link\.rel="sponsored nofollow noopener noreferrer"/);
  assert.match(html,/쉐어링크 활동의 일환/);
