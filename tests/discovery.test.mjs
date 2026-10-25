@@ -70,7 +70,11 @@ test('UI memory deduplication mirrors server product identity',()=>{
  const start=script.indexOf('function productKey(p){');
  const end=script.indexOf('function updateMoreControls(',start);
  assert.ok(start>=0&&end>start);
- const f=new Function('let seenProductKeys=new Set();\n'+script.slice(start,end)+'\nreturn {productKey,uniqueNew};')();
+ const guardStart=script.indexOf('function storefrontEligible(p){');
+ const guardEnd=script.indexOf('function displayPrice(',guardStart);
+ assert.ok(guardStart>0&&guardEnd>guardStart,'product policy is in the same browser script');
+ const browserPolicy=script.slice(guardStart,guardEnd);
+ const f=new Function('let seenProductKeys=new Set();\n'+browserPolicy+script.slice(start,end)+'\nreturn {productKey,uniqueNew};')();
  const records=[
   {title:'퍼실 액체세제 2.7L',price:9900,cp_code:'a'},
   {title:'퍼실 액체세제 2.7 L',price:9900,cp_code:'a'},

@@ -30,14 +30,18 @@ test('Browser cache expires in 90 seconds and never needs storage access to work
   setItem:(k,v)=>values.set(k,v),
   removeItem:k=>values.delete(k)
  };
- const funcs=new Function('sessionStorage',js.slice(begin,end)+'return {recentFeed,keepRecentFeed};')(storage);
+ const guardStart=js.indexOf('function storefrontEligible(p){');
+ const guardEnd=js.indexOf('function displayPrice(',guardStart);
+ assert.ok(guardStart>0&&guardEnd>guardStart);
+ const browserPolicy=js.slice(guardStart,guardEnd);
+ const funcs=new Function('sessionStorage',browserPolicy+js.slice(begin,end)+'return {recentFeed,keepRecentFeed};')(storage);
  funcs.keepRecentFeed('/api/best?area=today&limit=10',[{title:'상품',price:100}]);
  assert.deepEqual(funcs.recentFeed('/api/best?area=today&limit=10'),[{title:'상품',price:100}]);
  assert.equal(funcs.recentFeed('/api/best?area=popular&limit=10'),null);
  const key=[...values.keys()][0];
  const saved=JSON.parse(values.get(key));saved.at-=90001;values.set(key,JSON.stringify(saved));
  assert.equal(funcs.recentFeed('/api/best?area=today&limit=10'),null);
- const denied=new Function('sessionStorage',js.slice(begin,end)+'return {recentFeed,keepRecentFeed};')({
+ const denied=new Function('sessionStorage',browserPolicy+js.slice(begin,end)+'return {recentFeed,keepRecentFeed};')({
   getItem(){throw Error('denied')},setItem(){throw Error('denied')},removeItem(){throw Error('denied')}
  });
  assert.equal(denied.recentFeed('/api/best?area=today&limit=10'),null);
