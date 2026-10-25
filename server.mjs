@@ -114,21 +114,18 @@ const cacheKey=endpoint==='best'?params.area+'|'+params.limit:null;
 const cached=cacheKey?bestFeedCache.peek(cacheKey):null;
 if(cached&&!cached.stale){send(res,200,cached.payload);return}
 const inFlight=cacheKey?bestFeedCache.pending(cacheKey):null;
-if(inFlight){
- try{send(res,200,await inFlight)}
- catch{
-  if(cached)send(res,200,bestFeedCache.stalePayload(cached));
-  else send(res,502,{success:false,message:'제휴사 연결 실패'});
- }
- return;
-}
 const now=Date.now();while(hits.length&&now-hits[0]>TIME_WINDOW)hits.shift();
 const remaining=MAX_CALLS-hits.length;
 if(cached){
- // Give visitors previously verified products immediately, even on an upstream outage.
- // Refresh only once in the background while API quota is available.
- if(remaining>0){hits.push(now);void bestFeedCache.load(cacheKey,loadBestPayload).catch(()=>{});}
+ // Even while one background refresh is running, return stale products immediately.
+ // The short-lived stale response is clearly labeled and only for previously verified feeds.
+ if(!inFlight&&remaining>0){hits.push(now);void bestFeedCache.load(cacheKey,loadBestPayload).catch(()=>{});}
  send(res,200,bestFeedCache.stalePayload(cached));return;
+}
+if(inFlight){
+ try{send(res,200,await inFlight)}
+ catch{send(res,502,{success:false,message:'제휴사 연결 실패'});}
+ return;
 }
 if(remaining<1){send(res,429,{success:false,message:'잠시 후 다시 시도해 주세요'});return}
 // If the remaining API quota only permits one call, preserve the core keyword search.
