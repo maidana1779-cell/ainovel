@@ -13,7 +13,7 @@ test('Homepage prioritizes product feeds and no longer advertises a mall directo
    assert.equal(html.split('id="'+id+'"').length-1,1,id);
  }
  assert.ok(html.indexOf('id="product-discovery"')>html.indexOf('id="deals"'));
- assert.ok(html.indexOf('id="product-discovery"')<html.indexOf('id="toss-picks"'));
+ assert.ok(html.indexOf('id="toss-picks"')<html.indexOf('id="product-discovery"'));
  assert.doesNotMatch(html,/제휴몰 둘러보기|partner-malls|쇼핑몰 찾기/);
  assert.doesNotMatch(script,/\/api\/malls|loadPartnerMalls|mallGrid/);
  assert.doesNotMatch(server,/\/api\/malls|normalizePartnerMalls/);
