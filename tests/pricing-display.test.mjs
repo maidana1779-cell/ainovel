@@ -58,7 +58,9 @@ test('Real HTML price component is guarded and affiliate link/disclosures are pr
  assert.match(js,/const discount=verifiedDiscount\(p\)/);
  assert.match(js,/if\(discount\)/);
  assert.match(js,/make\("s","regular-price",won\(discount\.original\)\)/);
- assert.match(js,/discount\.rate\+"% 할인"/);
+ assert.match(js,/priceLabel\(discount\.sale,"sale-price"\)/);
+ assert.match(js,/make\("div","price-row"\)/);
+ assert.match(js,/discount\.rate\+"%"/);
  assert.match(js,/price===null\?\(p\.affiliate_source==="toss_sharelink"/);
  assert.match(html,/판매처 확인 가격 · 결제 시 변동 가능/);
  assert.match(js,/link\.rel="sponsored nofollow noopener noreferrer"/);
@@ -73,4 +75,21 @@ test('Larger type on desktop and mobile, two-column cards remain',()=>{
  assert.match(html,/\.product\{font-size:13px;min-height:62px;/);
  assert.match(html,/\.price\{font-size:20px;margin:0 0 12px/);
  assert.match(html,/\.grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
+
+test('Sharelink-inspired prices separate bold amount, won unit and verified sale rate',()=>{
+ const make=(tag,klass,value)=>({
+  tag,className:klass,textContent:value,children:[],
+  append(...items){this.children.push(...items);}
+ });
+ const compiled=new Function('make',js.slice(from,to)+'return {priceLabel};')(make);
+ const node=compiled.priceLabel(1000470,'sale-price');
+ assert.equal(node.className,'price sale-price');
+ assert.equal(node.children[0].textContent,'1,000,470');
+ assert.equal(node.children[1].textContent,'원');
+ assert.deepEqual(node.children.map(x=>x.className),['price-number','price-unit']);
+ assert.match(html,/\.product-card-link \.price-number\{/);
+ assert.match(html,/font-variant-numeric:tabular-nums/);
+ assert.match(html,/\.product-card-link \.discount-rate\{/);
+ assert.match(html,/\.product-card-link \.regular-price\{/);
 });
