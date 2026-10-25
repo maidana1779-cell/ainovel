@@ -7,41 +7,64 @@ import {verifyProductBatchWithMeta} from '../merchant-offers.mjs';
 const ORIGINS=new Set(['https://alttulpick-shop.onrender.com']);
 const MAX_CALLS=8,WINDOW=60000;
 let hits=[];
-// Public, short-lived affiliate feed cache. No visitor data, API keys, or affiliate redirects.
-const productCache=new Map(), MAX_CACHE=120;
+// Anonymous public product response cache: 3-minute fresh best feed, then up to
+// 15-minute stale fallback while background refresh runs. Never cache errors or secrets.
+const productCache=new Map(), refreshing=new Set(), MAX_CACHE=120;
+const BEST_FRESH_SECONDS=180, BEST_STALE_SECONDS=900, SEARCH_CACHE_SECONDS=60;
 function productCacheKey(url){
  return "https://alttulpick-api.maidana1779.workers.dev/__response_cache"+url.pathname+url.search;
+}
+function cachedProductPayload(payload,savedAt,status){
+ if(status!=="stale")return payload;
+ return {...payload,filter_meta:{...(payload.filter_meta||{}),
+  cache_status:"stale",cache_age_seconds:Math.max(0,Math.floor((Date.now()-savedAt)/1000))}};
 }
 async function lookupCached(url){
  const key=productCacheKey(url),now=Date.now();
  const found=productCache.get(key);
- if(found&&found.until>now)return found.payload;
+ if(found&&found.staleUntil>now){
+  return {payload:found.payload,savedAt:found.savedAt,
+   stale:found.freshUntil<=now};
+ }
  if(found)productCache.delete(key);
  try{
   if(typeof caches!=="undefined"&&caches.default){
    const response=await caches.default.match(new Request(key));
    if(response?.ok){
-    const data=await response.json();
-    if(data?.success===true){productCache.set(key,{payload:data,until:now+10000});return data}
+    const savedAt=Number(response.headers.get("x-alttulpick-saved-at")||0);
+    const freshSeconds=Number(response.headers.get("x-alttulpick-fresh-seconds")||0);
+    const staleSeconds=Number(response.headers.get("x-alttulpick-stale-seconds")||0);
+    const payload=await response.json();
+    if(payload?.success===true&&savedAt>0&&savedAt<=now&&
+       staleSeconds>0&&now-savedAt<staleSeconds*1000){
+     const record={payload,savedAt,freshUntil:savedAt+freshSeconds*1000,
+      staleUntil:savedAt+staleSeconds*1000};
+     productCache.set(key,record);
+     return {payload,savedAt,stale:now>=record.freshUntil};
+    }
    }
   }
- }catch{/* Caches may be unavailable on local runtimes. */}
+ }catch{/* Cache is optional on development runtimes and some data centers. */}
  return null;
 }
-function rememberCached(url,payload,ttlSeconds,ctx){
+function rememberCached(url,payload,freshSeconds,ctx,staleSeconds=freshSeconds){
  if(!payload||payload.success!==true)return;
- const key=productCacheKey(url);
+ const key=productCacheKey(url),savedAt=Date.now();
  if(productCache.size>=MAX_CACHE)productCache.delete(productCache.keys().next().value);
- productCache.set(key,{payload,until:Date.now()+ttlSeconds*1000});
+ productCache.set(key,{payload,savedAt,freshUntil:savedAt+freshSeconds*1000,
+  staleUntil:savedAt+staleSeconds*1000});
  try{
   if(ctx?.waitUntil&&typeof caches!=="undefined"&&caches.default){
    const saved=new Response(JSON.stringify(payload),{
     headers:{"content-type":"application/json; charset=utf-8",
-     "cache-control":"public, max-age="+ttlSeconds}
+     "cache-control":"public, max-age="+staleSeconds,
+     "x-alttulpick-saved-at":String(savedAt),
+     "x-alttulpick-fresh-seconds":String(freshSeconds),
+     "x-alttulpick-stale-seconds":String(staleSeconds)}
    });
    ctx.waitUntil(caches.default.put(new Request(key),saved).catch(()=>{}));
   }
- }catch{/* Cache failure never fails product requests. */}
+ }catch{/* A cache failure must never break a customer request. */}
 }
 function json(data,status=200,origin=''){
  const headers={'content-type':'application/json; charset=utf-8','cache-control':'no-store, private','x-content-type-options':'nosniff'};
@@ -56,6 +79,15 @@ async function fetchBIZ(key,route,params){
  const body=await response.json();
  if(body?.success!==true)throw Error('UPSTREAM_DATA');
  return body;
+}
+async function bestPayload(key,area,n){
+ const data=await fetchBIZ(key,'best',{area,limit:n});
+ const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
+ if(!list)return data;
+ const sourceFiltered=removeClearlyUnavailable(list);
+ const {items,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
+ return {...data,data:Array.isArray(data.data)?items:{...data.data,list:items},
+  filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}};
 }
 export async function workerFetch(request,env={},ctx={}){
  const u=new URL(request.url),origin=request.headers.get('origin')||'';
@@ -85,12 +117,27 @@ export async function workerFetch(request,env={},ctx={}){
  if(path==='/api/curated')return json({success:true,data:curatedProducts()},200,origin);
  const key=env.ADPICK_API_KEY;
  if(!key)return json({success:false,code:'API_NOT_CONFIGURED',message:'API key not configured'},503,origin);
- // A warm popular feed never needs to hit BIZ or consume the minute quota.
- // Cache only short, valid GET paths. Failed/429 responses are never cached.
+ // Serve successful public feeds from free Worker edge cache, without touching BIZ.
+ // On stale best results, return immediately and refresh asynchronously when quota permits.
  const cached=u.search.length<=350?await lookupCached(u):null;
- if(cached)return json(cached,200,origin);
  const now=Date.now();
  hits=hits.filter(t=>now-t<WINDOW);
+ if(cached){
+  if(cached.stale&&path==='/api/best'&&ctx?.waitUntil){
+   const area=u.searchParams.get('area')||'today',n=Number(u.searchParams.get('limit')||10);
+   const cacheKey=productCacheKey(u);
+   if(['today','popular','pick'].includes(area)&&Number.isInteger(n)&&n>=1&&n<=10&&
+      hits.length<MAX_CALLS&&!refreshing.has(cacheKey)){
+    hits.push(now);
+    refreshing.add(cacheKey);
+    ctx.waitUntil(bestPayload(key,area,n)
+     .then(payload=>rememberCached(u,payload,BEST_FRESH_SECONDS,ctx,BEST_STALE_SECONDS))
+     .catch(()=>{})
+     .finally(()=>refreshing.delete(cacheKey)));
+   }
+  }
+  return json(cachedProductPayload(cached.payload,cached.savedAt,cached.stale?'stale':'fresh'),200,origin);
+ }
  if(hits.length>=MAX_CALLS)return json({success:false,message:'잠시 후 다시 시도해 주세요'},429,origin);
  try{
   if(path==='/api/best'){
@@ -98,13 +145,8 @@ export async function workerFetch(request,env={},ctx={}){
    if(!['today','popular','pick'].includes(area)||!Number.isInteger(n)||n<1||n>10)
     return json({success:false,message:'요청값이 올바르지 않습니다'},400,origin);
    hits.push(now);
-   const data=await fetchBIZ(key,'best',{area,limit:n});
-   const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
-   if(!list)return json(data,200,origin);
-   const sourceFiltered=removeClearlyUnavailable(list);
-   const {items,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
-   const payload={...data,data:Array.isArray(data.data)?items:{...data.data,list:items},filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}};
-   rememberCached(u,payload,45,ctx);
+   const payload=await bestPayload(key,area,n);
+   rememberCached(u,payload,BEST_FRESH_SECONDS,ctx,BEST_STALE_SECONDS);
    return json(payload,200,origin);
   }
   const q=(u.searchParams.get('q')||'').trim(),n=Number(u.searchParams.get('limit')||30),batch=Number(u.searchParams.get('batch')||0);
@@ -137,7 +179,7 @@ export async function workerFetch(request,env={},ctx={}){
    quota_limited:active.length<plan.terms.length,verification,
    explicitly_unavailable_removed:sourceFiltered.removed
   }};
-  rememberCached(u,payload,25,ctx);
+  rememberCached(u,payload,SEARCH_CACHE_SECONDS,ctx);
   return json(payload,200,origin);
  }catch{return json({success:false,message:'제휴사 연결 실패'},502,origin)}
 }
