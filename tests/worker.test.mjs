@@ -16,8 +16,8 @@ test('Worker health, origin permissions, and missing secret response',async()=>{
  assert.equal(options.status,204);assert.equal(options.headers.get('access-control-allow-origin'),HOME);
  const denied=await workerFetch(request('/api/search',{method:'OPTIONS',headers:{origin:'https://evil.example'}}));
  assert.equal(denied.status,403);
- const missing=await workerFetch(request('/api/best'),{});
- assert.equal(missing.status,503);assert.equal((await missing.json()).code,'API_NOT_CONFIGURED');
+ // Without a Worker runtime secret, the public feed uses the existing Render Adpick API.
+ // The dedicated proxy tests mock this call so this unit test does not contact production.
 });
 test('Curated products are available without upstream or credentials',async()=>{
  const res=await workerFetch(request('/api/curated'),{});
@@ -126,4 +126,59 @@ test('Health checks secret-binding presence without revealing any secret',async(
   assert.ok(!JSON.stringify(obj).includes('test-secret-do-not-expose'));
   assert.equal(obj.status,'ok');
  }
+});
+
+test('Production Worker serves real Adpick affiliate feed via its existing Render backup when runtime binding is absent',async()=>{
+ const previous=globalThis.fetch, urls=[];
+ globalThis.fetch=async url=>{
+  urls.push(String(url));
+  return new Response(JSON.stringify({success:true,data:[
+   {title:'실제 애드픽 상품',price:8900,commissionlink:'https://bitl.bz/real-tracking'}
+  ]}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const res=await workerFetch(request('/api/best?area=today&limit=8',{headers:{origin:HOME}}),{});
+  assert.equal(res.status,200);
+  const payload=await res.json();
+  assert.equal(payload.data[0].commissionlink,'https://bitl.bz/real-tracking');
+  assert.equal(payload.success,true);
+  assert.equal(urls.length,1);
+  assert.equal(urls[0],'https://alttulpick-preview.onrender.com/api/best?area=today&limit=8');
+  const cached=await workerFetch(request('/api/best?area=today&limit=8',{headers:{origin:HOME}}),{});
+  assert.equal(cached.status,200);
+  assert.equal(urls.length,1,'cached affiliate feed must not wake Render again');
+ }finally{globalThis.fetch=previous}
+});
+
+test('Unconfigured Worker does not cache broken Render pages or change affiliate URLs',async()=>{
+ const previous=globalThis.fetch;
+ let count=0;
+ globalThis.fetch=async()=>{
+  count++;
+  if(count===1)return new Response('<html>Starting Render...</html>',{status:503,headers:{'content-type':'text/html'}});
+  return new Response(JSON.stringify({success:true,data:[
+   {title:'정상 상품',price:9900,commissionlink:'https://bitl.bz/unchanged'}
+  ]}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const url='/api/best?area=popular&limit=6';
+  const broken=await workerFetch(request(url),{});
+  assert.equal(broken.status,502);
+  assert.equal((await broken.json()).success,false);
+  const fixed=await workerFetch(request(url),{});
+  assert.equal(fixed.status,200);
+  assert.equal((await fixed.json()).data[0].commissionlink,'https://bitl.bz/unchanged');
+  assert.equal(count,2);
+ }finally{globalThis.fetch=previous}
+});
+
+test('Missing secret proxy rejects unbounded or invalid query before contacting Render',async()=>{
+ const previous=globalThis.fetch;
+ globalThis.fetch=async()=>{throw Error('Unexpected network call')};
+ try{
+  const bad=await workerFetch(request('/api/search?q=a&limit=30'),{});
+  assert.equal(bad.status,400);
+  const forbidden=await workerFetch(request('/api/best?area=internal&limit=10'),{});
+  assert.equal(forbidden.status,400);
+ }finally{globalThis.fetch=previous}
 });
