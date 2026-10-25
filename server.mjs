@@ -6,6 +6,7 @@ import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from './search-plan.mjs';
 import {verifyProductBatchWithMeta} from './merchant-offers.mjs';
 import {removeClearlyUnavailable} from './availability-labels.mjs';
+import {createBestFeedCache} from './best-feed-cache.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
 const analytics=createAnalytics();
@@ -41,6 +42,7 @@ async function readSmallJson(req){
 }
 
 const TIME_WINDOW=60000, MAX_CALLS=8, hits=[];
+const bestFeedCache=createBestFeedCache();
 const send=(res,code,obj)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))};
 const server=createServer(async(req,res)=>{
 const url=new URL(req.url||'/', 'http://localhost');
@@ -108,15 +110,33 @@ endpoint='search';params={q,limit:String(Math.min(n,20))};requested=n;
 if(plan.codes)params.cp_code=plan.codes.join(',');
 }else{send(res,404,{success:false,message:'Unknown route'});return}
 const key=process.env.ADPICK_API_KEY;if(!key){send(res,503,{success:false,code:'API_NOT_CONFIGURED',message:'데모 모드'});return}
+const cacheKey=endpoint==='best'?params.area+'|'+params.limit:null;
+const cached=cacheKey?bestFeedCache.peek(cacheKey):null;
+if(cached&&!cached.stale){send(res,200,cached.payload);return}
+const inFlight=cacheKey?bestFeedCache.pending(cacheKey):null;
+if(inFlight){
+ try{send(res,200,await inFlight)}
+ catch{
+  if(cached)send(res,200,bestFeedCache.stalePayload(cached));
+  else send(res,502,{success:false,message:'제휴사 연결 실패'});
+ }
+ return;
+}
 const now=Date.now();while(hits.length&&now-hits[0]>TIME_WINDOW)hits.shift();
 const remaining=MAX_CALLS-hits.length;
+if(cached){
+ // Give visitors previously verified products immediately, even on an upstream outage.
+ // Refresh only once in the background while API quota is available.
+ if(remaining>0){hits.push(now);void bestFeedCache.load(cacheKey,loadBestPayload).catch(()=>{});}
+ send(res,200,bestFeedCache.stalePayload(cached));return;
+}
 if(remaining<1){send(res,429,{success:false,message:'잠시 후 다시 시도해 주세요'});return}
 // If the remaining API quota only permits one call, preserve the core keyword search.
 const activeTerms=endpoint==='search'?plan.terms.slice(0,remaining):[];
 const callCount=endpoint==='search'?activeTerms.length:1;
 for(let i=0;i<callCount;i++)hits.push(now);
 const apiBase='https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/';
-const fetchAffiliate=async(action,searchParams)=>{
+async function fetchAffiliate(action,searchParams){
  const upstream=new URL(apiBase+action);
  for(const[k,v]of Object.entries(searchParams))upstream.searchParams.set(k,String(v));
  const response=await fetch(upstream,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
@@ -124,7 +144,16 @@ const fetchAffiliate=async(action,searchParams)=>{
  const data=await response.json();
  if(data?.success!==true)throw Error('UPSTREAM_DATA');
  return data;
-};
+}
+async function loadBestPayload(){
+ const data=await fetchAffiliate('best',params);
+ const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
+ if(!list)throw Error('UPSTREAM_SHAPE');
+ const sourceFiltered=removeClearlyUnavailable(list);
+ const {items:checked,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
+ const result=Array.isArray(data.data)?checked:{...data.data,list:checked};
+ return {...data,data:result,filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}};
+}
 try{
  if(endpoint==='search'){
    // One bounded follow-up keyword for broad categories, never an unbounded crawler.
@@ -154,13 +183,8 @@ try{
    }});
    return;
  }
- const data=await fetchAffiliate('best',params);
- const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
- if(!list){send(res,200,data);return}
- const sourceFiltered=removeClearlyUnavailable(list);
- const {items:checked,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
- const result=Array.isArray(data.data)?checked:{...data.data,list:checked};
- send(res,200,{...data,data:result,filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}});
+ const payload=await bestFeedCache.load(cacheKey,loadBestPayload);
+ send(res,200,payload);
 }catch{send(res,502,{success:false,message:'제휴사 연결 실패'})}
 });
 server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>{
