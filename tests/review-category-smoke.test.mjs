@@ -12,7 +12,8 @@ const samples=[
  {query:'주방용품',title:'테팔 프라이팬 28cm'}
 ];
 test('Six representative category searches filter unrelated merchants and retain valid purchase URLs',async()=>{
- const old=globalThis.fetch;
+ const old=globalThis.fetch,previousNow=Date.now;
+ let now=previousNow();Date.now=()=>now;
  let requests=0;
  globalThis.fetch=async()=>{
   requests++;
@@ -26,6 +27,7 @@ test('Six representative category searches filter unrelated merchants and retain
  };
  try{
   for(const sample of samples){
+   now+=61000; // A separate simulated minute; respects the eight-call API quota.
    const url=new URL(base+'/api/search');
    url.searchParams.set('q',sample.query);
    url.searchParams.set('limit','20');
@@ -40,5 +42,5 @@ test('Six representative category searches filter unrelated merchants and retain
    assert.ok(result.every(p=>affiliateLinkInspection(p.commissionlink,p).valid),'All displayed links should use valid affiliate hosts');
   }
   assert.ok(requests>=samples.length);
- }finally{globalThis.fetch=old}
+ }finally{globalThis.fetch=old;Date.now=previousNow}
 });
