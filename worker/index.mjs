@@ -5,6 +5,7 @@ import {removeClearlyUnavailable} from '../availability-labels.mjs';
 import {verifyProductBatchWithMeta} from '../merchant-offers.mjs';
 
 const ORIGINS=new Set(['https://alttulpick-shop.onrender.com']);
+const RENDER_AFFILIATE_API='https://alttulpick-preview.onrender.com';
 const MAX_CALLS=8,WINDOW=60000;
 let hits=[];
 // Anonymous public product response cache: 3-minute fresh best feed, then up to
@@ -94,6 +95,75 @@ async function bestPayload(key,area,n){
  return {...data,data:Array.isArray(data.data)?items:{...data.data,list:items},
   filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}};
 }
+// Keep the verified Adpick affiliate feed available even when Cloudflare has only
+// the build-time secret (which is NOT a runtime binding). Never follow affiliate links.
+// The Render backup already has its own server-side Adpick credential.
+const proxyPending=new Map();
+function validProxyQuery(u){
+ if(u.search.length>350)return false;
+ if(u.pathname==='/api/best'){
+  const area=u.searchParams.get('area')||'today';
+  const n=Number(u.searchParams.get('limit')||10);
+  return ['today','popular','pick'].includes(area)&&Number.isInteger(n)&&n>=1&&n<=10;
+ }
+ if(u.pathname==='/api/search'){
+  const q=(u.searchParams.get('q')||'').trim();
+  const n=Number(u.searchParams.get('limit')||30);
+  const batch=Number(u.searchParams.get('batch')||0);
+  return q.length>=2&&q.length<=60&&Number.isInteger(n)&&n>=1&&n<=30&&
+   Number.isInteger(batch)&&batch>=0&&batch<=2;
+ }
+ return false;
+}
+async function fetchRenderFeed(u,timeoutMs=9500){
+ const requestUrl=new URL(u.pathname+u.search,RENDER_AFFILIATE_API);
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),timeoutMs);
+ try{
+  const response=await fetch(requestUrl,{headers:{accept:'application/json'},
+   signal:controller.signal});
+  if(!(response.headers.get('content-type')||'').includes('application/json')){
+   return {status:502,payload:{success:false,message:'상품 서버 준비 중'}};
+  }
+  const payload=await response.json();
+  return {status:response.status,payload};
+ }catch{
+  return {status:502,payload:{success:false,message:'상품 서버 연결 지연'}};
+ }finally{clearTimeout(timer)}
+}
+function trustedAffiliateFeed(result){
+ const list=Array.isArray(result?.payload?.data)?result.payload.data:
+  Array.isArray(result?.payload?.data?.list)?result.payload.data.list:null;
+ return result.status===200&&result.payload?.success===true&&Array.isArray(list);
+}
+async function proxyRenderFeed(u,origin,ctx){
+ if(!validProxyQuery(u))return json({success:false,message:'요청값이 올바르지 않습니다'},400,origin);
+ const cached=await lookupCached(u);
+ const now=Date.now(),cacheKey=productCacheKey(u);
+ hits=hits.filter(t=>now-t<WINDOW);
+ const ttl=u.pathname==='/api/best'?BEST_FRESH_SECONDS:SEARCH_CACHE_SECONDS;
+ const staleTtl=u.pathname==='/api/best'?BEST_STALE_SECONDS:180;
+ if(cached){
+  if(cached.stale&&ctx?.waitUntil&&!refreshing.has(cacheKey)&&hits.length<MAX_CALLS){
+   refreshing.add(cacheKey);hits.push(now);
+   ctx.waitUntil(fetchRenderFeed(u,26000).then(result=>{
+    if(trustedAffiliateFeed(result))rememberCached(u,result.payload,ttl,ctx,staleTtl);
+   }).catch(()=>{}).finally(()=>refreshing.delete(cacheKey)));
+  }
+  const result=cachedProductPayload(cached.payload,cached.savedAt,cached.stale?'stale':'fresh');
+  return json(result,200,origin);
+ }
+ if(hits.length>=MAX_CALLS)return json({success:false,message:'조회 요청량 보호 중'},429,origin);
+ let running=proxyPending.get(cacheKey);
+ if(!running){
+  hits.push(now);
+  running=fetchRenderFeed(u).finally(()=>proxyPending.delete(cacheKey));
+  proxyPending.set(cacheKey,running);
+ }
+ const result=await running;
+ if(trustedAffiliateFeed(result))rememberCached(u,result.payload,ttl,ctx,staleTtl);
+ return json(result.payload,result.status,origin);
+}
 export async function workerFetch(request,env={},ctx={}){
  const u=new URL(request.url),origin=request.headers.get('origin')||'';
  const path=u.pathname;
@@ -121,7 +191,7 @@ export async function workerFetch(request,env={},ctx={}){
  if(request.method!=='GET')return json({success:false,message:'GET only'},405,origin);
  if(path==='/api/curated')return json({success:true,data:curatedProducts()},200,origin);
  const key=env.ADPICK_API_KEY;
- if(!key)return json({success:false,code:'API_NOT_CONFIGURED',message:'API key not configured'},503,origin);
+ if(!key)return proxyRenderFeed(u,origin,ctx);
  // Serve successful public feeds from free Worker edge cache, without touching BIZ.
  // On stale best results, return immediately and refresh asynchronously when quota permits.
  const cached=u.search.length<=350?await lookupCached(u):null;
