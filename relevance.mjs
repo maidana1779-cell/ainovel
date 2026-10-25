@@ -97,7 +97,7 @@ export function isGroceryQuery(query){
 // Suppress accessory-only results for broad earphone and beauty searches.
 const EARPHONE_ACCESSORY=/케이스|커버|이어팁|이어캡|보호필름|스트랩|키링|거치대|파우치|스티커|이어후크|보호캡/i;
 const EARPHONE_MAIN=/이어폰\s*본체|이어버드\s*본체|에어팟\s*본체|버즈\s*본체|이어폰\s*세트/i;
-const HOME_CUSHION=/(?:소파|쇼파|의자|방석|차량|침대)\s*쿠션|쿠션\s*(?:방석|솜|베개|커버|인테리어|소파|쇼파)/i;
+const HOME_CUSHION=/(?:소파|쇼파|의자|방석|차량|침대)\s*쿠션|쿠션\s*(?:방석|솜|베개|인테리어|소파|쇼파)/i;
 const FOOD_CREAM=/생크림|아이스크림|휘핑크림|크림빵|크림치즈/i;
 const COSMETIC_ACCESSORY=/(?:화장품|메이크업)\s*(?:보관함|정리함|수납함|파우치|가방|공병|진열대)/i;
 function categoryAccessoryOnly(query,title){
