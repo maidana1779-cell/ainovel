@@ -1149,9 +1149,12 @@ function renderSelectedExplore(){
   renderListing();
   statusEl.textContent=selectedExploreLabel(category)+" 상품 "+shownCount+"개 · 가격·재고는 판매처에서 확인";
  }else{
-  grid.replaceChildren(make("div","empty",selectedExploreLabel(category)+" 상품을 불러오는 중입니다."));
+  const attempted=(recommendationExploreProgress[category]||0)>0;
+  grid.replaceChildren(make("div","empty",attempted
+   ?selectedExploreLabel(category)+"에서 아직 표시할 상품이 없습니다. 더 보기로 다른 품목을 조회해 보세요."
+   :selectedExploreLabel(category)+" 상품을 불러오는 중입니다."));
   visibleCount.textContent="현재 불러온 상품 0개";
-  statusEl.textContent=selectedExploreLabel(category)+" 상품 조회 중…";
+  statusEl.textContent=attempted?selectedExploreLabel(category)+" 상품 0개 · 다른 품목 검색 가능":selectedExploreLabel(category)+" 상품 조회 중…";
  }
  updateRecommendationExploreButton();
 }
