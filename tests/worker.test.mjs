@@ -7,6 +7,10 @@ const HOME='https://alttulpick-shop.onrender.com';
 function request(path,init){return new Request(BASE+path,init)}
 test('Worker health, origin permissions, and missing secret response',async()=>{
  const health=await workerFetch(request('/health'));assert.equal(health.status,200);
+ const details=await health.json();
+ assert.equal(details.revision,'edge-best-cache-v2-20261025');
+ assert.equal(details.best_fresh_seconds,180);
+ assert.equal(details.best_stale_seconds,900);
  const options=await workerFetch(request('/api/search',{method:'OPTIONS',headers:{origin:HOME}}));
  assert.equal(options.status,204);assert.equal(options.headers.get('access-control-allow-origin'),HOME);
  const denied=await workerFetch(request('/api/search',{method:'OPTIONS',headers:{origin:'https://evil.example'}}));
