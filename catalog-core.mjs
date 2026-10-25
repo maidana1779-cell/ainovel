@@ -70,7 +70,7 @@ export async function syncLicensedFeed({env=process.env,fetchImpl=fetch,writeBat
  if(!catalogEnabled(env))throw Error('CATALOG_DISABLED_UNTIL_LICENSE_AND_DB');
  if(typeof writeBatch!=='function')throw Error('CATALOG_NO_WRITER');
  const feedUrl=validateLicensedFeedUrl(env.CATALOG_APPROVED_FEED_URL,env.CATALOG_APPROVED_FEED_HOSTS);
- const response=await fetchImpl(feedUrl,{headers:{accept:'application/json'},signal:AbortSignal.timeout(15000)});
+ const response=await fetchImpl(feedUrl,{redirect:'error',headers:{accept:'application/json'},signal:AbortSignal.timeout(15000)});
  if(!response.ok)throw Error('CATALOG_SOURCE_HTTP_'+response.status);
  if(Number(response.headers.get('content-length')||0)>2000000)throw Error('CATALOG_TOO_LARGE');
  const text=await response.text();

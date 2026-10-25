@@ -103,3 +103,11 @@ test('Database write rollback protects old catalog against a failed update',asyn
  await assert.rejects(upsertCatalogBatch(db,items,{source_id:'licensed-demo',received:1,rejected:0}),/DB write failed/);
  assert.equal(rolledBack,1);assert.equal(released,1);
 });
+
+test('Approved data source cannot silently redirect to a non-licensed host',async()=>{
+ let seen=null;
+ try{await syncLicensedFeed({env,
+  fetchImpl:async(_url,init)=>{seen=init;throw Error('redirect blocked')},
+  writeBatch:async()=>{throw Error('write must not run')}})}catch{}
+ assert.equal(seen?.redirect,'error');
+});
