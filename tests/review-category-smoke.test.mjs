@@ -17,7 +17,7 @@ test('Six representative category searches filter unrelated merchants and retain
   requests++;
   return new Response(JSON.stringify({success:true,data:[
    ...samples.map((sample,i)=>({
-    title:sample.title,cp_name:i%2?'가전생활몰':'이유몰',cp_code:'seller_'+i,
+    title:sample.title,cp_name:i%2?'가전생활몰':'이유몰',cp_code:i===0?'f5ff7':i===1?'c16a2':'seller_'+i,
     price:9000+i,commissionlink:'https://biz.adpick.co.kr/r'+(5000000+i)})),
    {title:'국내 항공권',cp_name:'마이리얼트립',commissionlink:'https://biz.adpick.co.kr/r8888'},
    {title:'프로그래밍 책',cp_name:'YES24',commissionlink:'https://biz.adpick.co.kr/r9999'}
