@@ -172,7 +172,8 @@ server.listen(Number(process.env.PORT||3000),'0.0.0.0',()=>{
  }).then(async response=>{
   const data=await response.json().catch(()=>null);
   console.log('[edge-health] status='+response.status+
-   ' revision='+String(data?.revision||'unidentified').slice(0,80));
+   ' revision='+String(data?.revision||'unidentified').slice(0,80)+
+   ' adpick_binding='+String(data?.adpick_binding||'not-reported').slice(0,30));
  }).catch(err=>console.log('[edge-health] unavailable '+String(err?.name||'error').slice(0,60)));
 });
 
