@@ -8,7 +8,7 @@ const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1];
 test('Six distinct category entrances open dedicated shopping views',()=>{
  assert.ok(script);
  for(const term of ['간편식','세제','이어폰','화장품','의류','주방용품']){
-  assert.equal(html.split('data-department="'+term+'"').length-1,1,term);
+  assert.equal([...html.matchAll(/class="department department--[^"]+" data-department="([^"]+)"/g)].filter(m=>m[1]===term).length,1,term);
   assert.equal(html.split('data-query="'+term+'"').length-1,1,term+" legacy category");
  }
  for(const id of ['department-grid','category-intro','category-intro-title','category-intro-description','browse-layout','category-aside','side-links','merchant-filter','product-sort','product-toolbar','visible-count']){
@@ -19,13 +19,13 @@ test('Six distinct category entrances open dedicated shopping views',()=>{
 });
 test('Category routes have safe query-key deep linking, back navigation and in-page sidebar discovery',()=>{
  assert.doesNotThrow(()=>new Script(script));
- assert.match(script,/history\.pushState\(\{category:q\}/);
- assert.match(script,/URLSearchParams\(location\.search\)\.get\("category"\)/);
+ assert.match(script,/history\.pushState\(\{category:q,item:selectedTerm\}/);
+ assert.match(script,/requestedParams\.get\("category"\)/);
  assert.match(script,/window\.addEventListener\("popstate"/);
  assert.match(script,/Object\.prototype\.hasOwnProperty\.call\(departmentInfo,requestedDepartment\)/);
  assert.match(script,/sideLinks\.addEventListener\("click"/);
  assert.match(script,/selectCategoryTerm\(btn\.dataset\.sidequery\)/);
- assert.match(script,/renderSubcategories\(q\)/);
+ assert.match(script,/renderSubcategories\(q,selectedTerm\)/);
 });
 test('Price sort is local to received products and puts unknown prices last',()=>{
  assert.match(html,/현재 화면에 불러온 상품에만 적용/);
