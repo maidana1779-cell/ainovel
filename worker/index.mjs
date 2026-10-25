@@ -7,6 +7,42 @@ import {verifyProductBatchWithMeta} from '../merchant-offers.mjs';
 const ORIGINS=new Set(['https://alttulpick-shop.onrender.com']);
 const MAX_CALLS=8,WINDOW=60000;
 let hits=[];
+// Public, short-lived affiliate feed cache. No visitor data, API keys, or affiliate redirects.
+const productCache=new Map(), MAX_CACHE=120;
+function productCacheKey(url){
+ return "https://alttulpick-api.maidana1779.workers.dev/__response_cache"+url.pathname+url.search;
+}
+async function lookupCached(url){
+ const key=productCacheKey(url),now=Date.now();
+ const found=productCache.get(key);
+ if(found&&found.until>now)return found.payload;
+ if(found)productCache.delete(key);
+ try{
+  if(typeof caches!=="undefined"&&caches.default){
+   const response=await caches.default.match(new Request(key));
+   if(response?.ok){
+    const data=await response.json();
+    if(data?.success===true){productCache.set(key,{payload:data,until:now+10000});return data}
+   }
+  }
+ }catch{/* Caches may be unavailable on local runtimes. */}
+ return null;
+}
+function rememberCached(url,payload,ttlSeconds,ctx){
+ if(!payload||payload.success!==true)return;
+ const key=productCacheKey(url);
+ if(productCache.size>=MAX_CACHE)productCache.delete(productCache.keys().next().value);
+ productCache.set(key,{payload,until:Date.now()+ttlSeconds*1000});
+ try{
+  if(ctx?.waitUntil&&typeof caches!=="undefined"&&caches.default){
+   const saved=new Response(JSON.stringify(payload),{
+    headers:{"content-type":"application/json; charset=utf-8",
+     "cache-control":"public, max-age="+ttlSeconds}
+   });
+   ctx.waitUntil(caches.default.put(new Request(key),saved).catch(()=>{}));
+  }
+ }catch{/* Cache failure never fails product requests. */}
+}
 function json(data,status=200,origin=''){
  const headers={'content-type':'application/json; charset=utf-8','cache-control':'no-store, private','x-content-type-options':'nosniff'};
  if(ORIGINS.has(origin)){headers['access-control-allow-origin']=origin;headers.vary='Origin'}
@@ -21,7 +57,7 @@ async function fetchBIZ(key,route,params){
  if(body?.success!==true)throw Error('UPSTREAM_DATA');
  return body;
 }
-export async function workerFetch(request,env={}){
+export async function workerFetch(request,env={},ctx={}){
  const u=new URL(request.url),origin=request.headers.get('origin')||'';
  const path=u.pathname;
  if(request.method==='OPTIONS'&&path.startsWith('/api/')){
@@ -49,6 +85,10 @@ export async function workerFetch(request,env={}){
  if(path==='/api/curated')return json({success:true,data:curatedProducts()},200,origin);
  const key=env.ADPICK_API_KEY;
  if(!key)return json({success:false,code:'API_NOT_CONFIGURED',message:'API key not configured'},503,origin);
+ // A warm popular feed never needs to hit BIZ or consume the minute quota.
+ // Cache only short, valid GET paths. Failed/429 responses are never cached.
+ const cached=u.search.length<=350?await lookupCached(u):null;
+ if(cached)return json(cached,200,origin);
  const now=Date.now();
  hits=hits.filter(t=>now-t<WINDOW);
  if(hits.length>=MAX_CALLS)return json({success:false,message:'잠시 후 다시 시도해 주세요'},429,origin);
@@ -63,7 +103,9 @@ export async function workerFetch(request,env={}){
    if(!list)return json(data,200,origin);
    const sourceFiltered=removeClearlyUnavailable(list);
    const {items,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
-   return json({...data,data:Array.isArray(data.data)?items:{...data.data,list:items},filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}},200,origin);
+   const payload={...data,data:Array.isArray(data.data)?items:{...data.data,list:items},filter_meta:{verification,explicitly_unavailable_removed:sourceFiltered.removed}};
+   rememberCached(u,payload,45,ctx);
+   return json(payload,200,origin);
   }
   const q=(u.searchParams.get('q')||'').trim(),n=Number(u.searchParams.get('limit')||30),batch=Number(u.searchParams.get('batch')||0);
   if(q.length<2||q.length>60||!Number.isInteger(n)||n<1||n>30||!Number.isInteger(batch)||batch<0||batch>2)
@@ -87,14 +129,16 @@ export async function workerFetch(request,env={}){
   const sourceFiltered=removeClearlyUnavailable(uniqueProductResults([...curated,...distinct]));
   const {items,verification}=await verifyProductBatchWithMeta(sourceFiltered.items.slice(0,n));
   const original=successes[0];
-  return json({...original,data:Array.isArray(original.data)?items:{...original.data,list:items},filter_meta:{
+  const payload={...original,data:Array.isArray(original.data)?items:{...original.data,list:items},filter_meta:{
    received:incoming.length,matched:items.length,excluded:incoming.length-matched.length,
    duplicates_removed:matched.length-distinct.length,stores_restricted:Boolean(allowed),
    queries_checked:successes.length,queries_requested:active.length,batch:plan.batch,
    total_batches:plan.totalBatches,has_more:plan.batch+1<plan.totalBatches,
    quota_limited:active.length<plan.terms.length,verification,
    explicitly_unavailable_removed:sourceFiltered.removed
-  }},200,origin);
+  }};
+  rememberCached(u,payload,25,ctx);
+  return json(payload,200,origin);
  }catch{return json({success:false,message:'제휴사 연결 실패'},502,origin)}
 }
 export default {fetch:workerFetch};
