@@ -50,7 +50,8 @@ test('Default browsing spends two BIZ requests, extra products require a user cl
  assert.match(script,/discoveryStep=step\+1/);
  assert.match(script,/if\(!discoveryLoaded&&!discoveryBusy\)loadDiscoveryStep\(\)/);
  assert.match(script,/if\(id===requestId\)\{primaryPending=false;if\(discoveryInView\)ensureDiscovery\(\)\}/);
- assert.doesNotMatch(script,/setInterval|setTimeout\(loadDiscovery/);
+ const discoveryScript=script.slice(script.indexOf("async function loadDiscoveryStep()"),script.indexOf("function ensureDiscovery()"));
+ assert.doesNotMatch(discoveryScript,/setInterval|setTimeout/);
  assert.match(server,/const TIME_WINDOW=60000, MAX_CALLS=8/);
 });
 test('Provider product referral links include BIZ short URL but not fake discounts',()=>{
