@@ -49,3 +49,10 @@ test('The browser filters cached and live results before the merchant dropdown',
  assert.match(js,/if\(storefrontEligible\(p\)&&!known\.has\(key\)\)/);
  assert.match(js,/RECENT_FEED_PREFIX="alttulpick:feed:v2:"/);
 });
+
+test('Merchant dropdown and sorting independently exclude off-category suppliers',()=>{
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ const js=html.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1];
+ assert.match(js,/availableItems\.filter\(storefrontEligible\)\.map\(/);
+ assert.match(js,/const filtered=availableItems\.filter\(p=>storefrontEligible\(p\)/);
+});

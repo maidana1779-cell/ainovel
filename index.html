@@ -1043,7 +1043,7 @@ function verifiedDiscount(p){
   return {original,sale,rate};
 }
 function merchantSummary(items){
- const merchants=new Set((items||[]).map(p=>String(p?.cp_name||"").trim()).filter(Boolean));
+ const merchants=new Set((items||[]).filter(storefrontEligible).map(p=>String(p.cp_name||"").trim()).filter(Boolean));
  if(!merchants.size)return " · 판매처 미표기";
  if(merchants.size===1&&!currentQuery)return " · 판매처 1곳 · 해당 목록은 한 판매처 중심";
  return " · 판매처 "+merchants.size+"곳";
@@ -1055,7 +1055,7 @@ function resetProductFilters(){
 }
 function refreshMerchantOptions(){
  const previous=merchantFilter.value;
- const names=[...new Set(availableItems.map(p=>String(p.cp_name||"제휴 쇼핑몰").trim()))].sort((a,b)=>a.localeCompare(b,"ko"));
+ const names=[...new Set(availableItems.filter(storefrontEligible).map(p=>String(p.cp_name||"제휴 쇼핑몰").trim()))].sort((a,b)=>a.localeCompare(b,"ko"));
  merchantFilter.replaceChildren(new Option("전체 판매처",""));
  for(const name of names)merchantFilter.add(new Option(name,name));
  merchantFilter.value=names.includes(previous)?previous:"";
@@ -1065,7 +1065,7 @@ function renderListing(){
  if(!availableItems.length){show([],false);visibleCount.textContent="불러온 상품이 없습니다";return}
  const vendor=merchantFilter.value;
  const sort=sortSelect.value;
- const filtered=availableItems.filter(p=>!vendor||String(p.cp_name||"제휴 쇼핑몰").trim()===vendor);
+ const filtered=availableItems.filter(p=>storefrontEligible(p)&&(!vendor||String(p.cp_name||"제휴 쇼핑몰").trim()===vendor));
  const sorted=filtered.map((p,i)=>({p,i}));
  if(sort!=="default")sorted.sort((a,b)=>{
    const pa=displayPrice(a.p),pb=displayPrice(b.p);
