@@ -26,7 +26,8 @@ test('All manually curated Toss items show immediately without another API reque
 test('UI remains responsive when external font CDN or cold fallback server is slow',()=>{
  assert.match(html,/<link rel="preload" as="style"/);
  assert.match(html,/onload="this\.onload=null;this\.rel='stylesheet'"/);
- assert.doesNotMatch(html,/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/gh\/orioncactus/);
+ const withoutNoscript=html.replace(/<noscript>[\s\S]*?<\/noscript>/g,'');
+ assert.doesNotMatch(withoutNoscript,/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/gh\/orioncactus/);
  assert.match(script,/if\(response\.ok\|\|!\[502,503,504\]\.includes\(response\.status\)\)return response/);
  assert.match(script,/setTimeout\(\(\)=>backup\.abort\(\),4500\)/);
 });
