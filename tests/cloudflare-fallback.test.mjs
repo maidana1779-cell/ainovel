@@ -4,15 +4,17 @@ import {readFileSync} from 'node:fs';
 import {Script} from 'node:vm';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const js=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
-test('Cloudflare primary API with bounded Render fallback and no fabricated discounts',()=>{
+test('Cloudflare primary API retries cold Render backup without accepting HTML spinner pages',()=>{
  assert.ok(js);
  assert.doesNotThrow(()=>new Script(js));
  assert.match(js,/const API_ORIGIN='https:\/\/alttulpick-api\.maidana1779\.workers\.dev'/);
  assert.match(js,/const BACKUP_API_ORIGIN='https:\/\/alttulpick-preview\.onrender\.com'/);
- assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),7500\)/);
- assert.match(js,/setTimeout\(\(\)=>backup\.abort\(\),4500\)/);
- assert.match(js,/!\[502,503,504\]\.includes\(response\.status\)/);
- assert.match(js,/return await fetch\(BACKUP_API_ORIGIN\+path/);
- assert.match(js,/fetchProducts\(url\)/);
+ assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),6500\)/);
+ assert.match(js,/setTimeout\(\(\)=>backup\.abort\(\),22000\)/);
+ assert.match(js,/for\(let attempt=0;attempt<4;attempt\+\+\)/);
+ assert.match(js,/jsonResponse=\(response\.headers\.get\("content-type"\)/);
+ assert.match(js,/if\(jsonResponse\)return response/);
+ assert.match(js,/fetch\(BACKUP_API_ORIGIN\+path/);
  assert.match(js,/fetchProducts\(endpoint\)/);
+ assert.match(js,/fetchProducts\(url,\(\)=>/);
 });
