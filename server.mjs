@@ -158,7 +158,7 @@ try{
    // One bounded follow-up keyword for broad categories, never an unbounded crawler.
    const requests=activeTerms.map(term=>fetchAffiliate('search',{...params,q:term}));
    const batches=await Promise.allSettled(requests);
-   const successes=batches.filter(batch=>batch.status==='fulfilled').map(batch=>batch.value);
+   const successes=batches.filter(batch=>batch.status==='fulfilled').map(batch=>batch.value).filter(data=>Array.isArray(data.data)||Array.isArray(data.data?.list));
    if(!successes.length){send(res,502,{success:false,message:'제휴사 검색 응답을 받지 못했습니다'});return}
    const incoming=successes.flatMap(data=>Array.isArray(data.data)?data.data:(Array.isArray(data.data?.list)?data.data.list:[]));
    const allowed=plan.codes?new Set(plan.codes):null;

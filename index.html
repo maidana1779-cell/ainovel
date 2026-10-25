@@ -844,7 +844,7 @@ const API_ORIGIN='https://alttulpick-api.maidana1779.workers.dev';
 const BACKUP_API_ORIGIN='https://alttulpick-preview.onrender.com';
 async function fetchProducts(path,onBackupStart){
  const primary=new AbortController();
- const timer=setTimeout(()=>primary.abort(),11000);
+ const timer=setTimeout(()=>primary.abort(),15000);
  let needsFallback=false;
  try{
   const response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:primary.signal});
@@ -1125,6 +1125,9 @@ try{
     const excluded=Number(payload.filter_meta?.excluded||0);
     const duplicates=Number(payload.filter_meta?.duplicates_removed||0);
     const expanded=Number(payload.filter_meta?.queries_checked||0)>1;
+    const checked=Number(payload.filter_meta?.queries_checked||0);
+    const requested=Number(payload.filter_meta?.queries_requested||0);
+    const partial=Boolean(currentQuery)&&((requested>0&&checked<requested)||payload.filter_meta?.quota_limited===true);
     const initial=uniqueNew(list);
     availableItems=initial;
     shownCount=initial.length;
@@ -1138,12 +1141,13 @@ try{
       showRelatedBrowse(currentQuery);
     }
     if(!list.length){
-      grid.replaceChildren(make("div","empty","검색어와 맞는 상품이 없어요. 무관한 상품은 표시하지 않습니다. 다른 키워드를 선택해 주세요."));
-      statusEl.textContent=excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음";
+      grid.replaceChildren(make("div","empty",partial?"일부 연관 검색어의 결과를 확인하지 못했습니다. 다시 불러오기를 선택해 주세요.":"검색어와 맞는 상품이 없어요. 무관한 상품은 표시하지 않습니다. 다른 키워드를 선택해 주세요."));
+      statusEl.textContent=(excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음")+(partial?" · 일부 검색어 미확인":"");
     }else{
       const staleFeed=payload.filter_meta?.cache_status==="stale";
-      statusEl.textContent=(staleFeed?"최근 조회 상품 ":"관련 상품 ")+shownCount+"개"+merchantSummary(initial)+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+(staleFeed?" · 새 정보 확인 중":"")+" · 가격은 판매처에서 확인";
+      statusEl.textContent=(staleFeed?"최근 조회 상품 ":"관련 상품 ")+shownCount+"개"+merchantSummary(initial)+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+(staleFeed?" · 새 정보 확인 중":"")+(partial?" · 일부 검색어 미확인":"")+" · 가격은 판매처에서 확인";
     }
+    if(partial)retryMain.hidden=false;
     return;
   }
   if(payload.code==="API_NOT_CONFIGURED"){
