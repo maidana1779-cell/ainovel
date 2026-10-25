@@ -21,7 +21,8 @@ test('Recently successful listings show before the asynchronous live fetch witho
 
 test('Browser cache expires in 90 seconds and never needs storage access to work',()=>{
  const begin=js.indexOf('const RECENT_FEED_MS=');
- const end=js.indexOf('async function load(url){',begin);
+ const end=js.indexOf('const retryMain=',begin);
+ assert.ok(end>begin,'isolate recent-feed helpers from DOM controls');
  assert.ok(begin>=0&&end>begin);
  const values=new Map();
  const storage={
