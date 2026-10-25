@@ -21,6 +21,9 @@ function adpickBindingState(env){
 function productCacheKey(url){
  return "https://alttulpick-api.maidana1779.workers.dev/__response_cache"+url.pathname+url.search;
 }
+function hasValidProductList(payload){
+ return payload?.success===true&&(Array.isArray(payload.data)||Array.isArray(payload.data?.list));
+}
 function cachedProductPayload(payload,savedAt,status){
  if(status!=="stale")return payload;
  return {...payload,filter_meta:{...(payload.filter_meta||{}),
@@ -29,7 +32,7 @@ function cachedProductPayload(payload,savedAt,status){
 async function lookupCached(url){
  const key=productCacheKey(url),now=Date.now();
  const found=productCache.get(key);
- if(found&&found.staleUntil>now){
+ if(found&&found.staleUntil>now&&hasValidProductList(found.payload)){
   return {payload:found.payload,savedAt:found.savedAt,
    stale:found.freshUntil<=now};
  }
@@ -42,7 +45,7 @@ async function lookupCached(url){
     const freshSeconds=Number(response.headers.get("x-alttulpick-fresh-seconds")||0);
     const staleSeconds=Number(response.headers.get("x-alttulpick-stale-seconds")||0);
     const payload=await response.json();
-    if(payload?.success===true&&savedAt>0&&savedAt<=now&&
+    if(hasValidProductList(payload)&&savedAt>0&&savedAt<=now&&
        staleSeconds>0&&now-savedAt<staleSeconds*1000){
      const record={payload,savedAt,freshUntil:savedAt+freshSeconds*1000,
       staleUntil:savedAt+staleSeconds*1000};
@@ -55,7 +58,7 @@ async function lookupCached(url){
  return null;
 }
 function rememberCached(url,payload,freshSeconds,ctx,staleSeconds=freshSeconds){
- if(!payload||payload.success!==true)return;
+ if(!hasValidProductList(payload))return;
  const key=productCacheKey(url),savedAt=Date.now();
  if(productCache.size>=MAX_CACHE)productCache.delete(productCache.keys().next().value);
  productCache.set(key,{payload,savedAt,freshUntil:savedAt+freshSeconds*1000,
@@ -90,7 +93,7 @@ async function fetchBIZ(key,route,params){
 async function bestPayload(key,area,n){
  const data=await fetchBIZ(key,'best',{area,limit:n});
  const list=Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:null;
- if(!list)return data;
+ if(!list)throw Error('UPSTREAM_SHAPE');
  const sourceFiltered=removeClearlyUnavailable(list);
  const {items,verification}=await verifyProductBatchWithMeta(sourceFiltered.items);
  return {...data,data:Array.isArray(data.data)?items:{...data.data,list:items},
@@ -252,7 +255,7 @@ async function handleWorkerFetch(request,env={},ctx={}){
   const params={q,limit:String(Math.min(n,20))};
   if(plan.codes)params.cp_code=plan.codes.join(',');
   const settled=await Promise.allSettled(active.map(term=>fetchBIZ(key,'search',{...params,q:term})));
-  const successes=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
+  const successes=settled.filter(x=>x.status==='fulfilled').map(x=>x.value).filter(hasValidProductList);
   if(!successes.length)return json({success:false,message:'제휴사 검색 응답을 받지 못했습니다'},502,origin);
   const incoming=successes.flatMap(data=>Array.isArray(data.data)?data.data:Array.isArray(data.data?.list)?data.data.list:[]);
   const allowed=plan.codes?new Set(plan.codes):null;
