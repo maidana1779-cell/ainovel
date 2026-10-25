@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="알뜰픽 제휴 쇼핑 서비스">
+<defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eaf2ff"/><stop offset="1" stop-color="#f9fbff"/></linearGradient></defs>
+<rect width="1200" height="630" rx="32" fill="url(#a)"/><rect x="70" y="70" width="1060" height="490" rx="35" fill="#fff" stroke="#d9e7ff" stroke-width="2"/>
+<circle cx="175" cy="171" r="60" fill="#2468e8"/><path d="M147 173l18 18 40-44" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<g font-family="sans-serif"><text x="260" y="191" font-size="76" font-weight="800" fill="#192334">알뜰픽</text><text x="127" y="322" font-size="53" font-weight="700" fill="#243957">찾는 상품, 더 간편하게.</text><text x="129" y="387" font-size="29" fill="#627b9c">카테고리 · 상품 검색 · 제휴 쇼핑 안내</text><text x="129" y="492" font-size="21" fill="#6d829b">ALTTUL PICK  /  SHOP SMARTER</text></g>
+</svg>
