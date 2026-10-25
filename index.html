@@ -621,6 +621,12 @@ body.category-active .category-section{
 @media(prefers-reduced-motion:reduce){.curated-grid{scroll-behavior:auto}}
 
 
+/* Mobile filter controls take the full available width. */
+@media(max-width:730px){
+ .product-toolbar .toolbar-controls{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 10px}
+ .product-toolbar .toolbar-controls select{width:100%;max-width:none;min-height:40px}
+ #status{overflow-wrap:anywhere}
+}
 /* Public review readiness: obvious sponsorship, working site information and mobile navigation */
 .affiliate-banner{display:flex;align-items:center;gap:12px;margin:8px 0 23px;padding:15px 17px;background:#f5f8ff;border:1px solid #e3eafb;border-radius:13px;color:#5e7390;font-size:12px;line-height:1.6}
 .affiliate-banner strong{color:#2d4a73;font-weight:800}
@@ -916,7 +922,7 @@ function merchantBadge(product){
 function show(items,isDemo,target=grid,append=false){
  if(!append)target.replaceChildren();
  if(!items.length){if(!append)target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
- items.forEach(p=>{
+ items.forEach((p,index)=>{
   const href=typeof p.commissionlink==="string"?p.commissionlink:"";
   let allowed=false,isToss=false;
   try{
@@ -942,7 +948,10 @@ function show(items,isDemo,target=grid,append=false){
   }
   const pic=make("div","picture");
   if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){
-   const img=document.createElement("img");img.alt="";img.loading="lazy";img.decoding="async";img.referrerPolicy="no-referrer";
+   const img=document.createElement("img");img.alt="";
+   const prioritize=target===grid&&index<2;
+   img.loading=prioritize?"eager":"lazy";if(prioritize&&index===0)img.fetchPriority="high";
+   img.decoding="async";img.referrerPolicy="no-referrer";
    img.addEventListener("error",()=>imageFallback(pic,isDemo,p));pic.append(img);img.src=p.photo;
   }else imageFallback(pic,isDemo,p);
   link.append(pic);
@@ -1003,6 +1012,12 @@ function verifiedDiscount(p){
   const rate=Math.round((original-sale)/original*100);
   if(rate<1||rate>99)return null;
   return {original,sale,rate};
+}
+function merchantSummary(items){
+ const merchants=new Set((items||[]).map(p=>String(p?.cp_name||"").trim()).filter(Boolean));
+ if(!merchants.size)return " · 판매처 미표기";
+ if(merchants.size===1&&!currentQuery)return " · 판매처 1곳 · 해당 목록은 한 판매처 중심";
+ return " · 판매처 "+merchants.size+"곳";
 }
 function resetProductFilters(){
  availableItems=[];merchantFilter.value="";sortSelect.value="default";
@@ -1127,7 +1142,7 @@ try{
       statusEl.textContent=excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음";
     }else{
       const staleFeed=payload.filter_meta?.cache_status==="stale";
-      statusEl.textContent=(staleFeed?"최근 조회 상품 ":"관련 상품 ")+shownCount+"개"+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+(staleFeed?" · 새 정보 확인 중":"")+" · 가격은 판매처에서 확인";
+      statusEl.textContent=(staleFeed?"최근 조회 상품 ":"관련 상품 ")+shownCount+"개"+merchantSummary(initial)+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+(staleFeed?" · 새 정보 확인 중":"")+" · 가격은 판매처에서 확인";
     }
     return;
   }
@@ -1177,7 +1192,7 @@ moreButton.addEventListener("click",async()=>{
     if(fresh.length){availableItems.push(...fresh);shownCount=availableItems.length;refreshMerchantOptions();renderListing();}
     nextBatch=batch+1;
     const hasMore=payload.filter_meta?.has_more===true;
-    statusEl.textContent="표시 중인 서로 다른 관련 상품 "+shownCount+"개 · 구매 조건은 판매처에서 확인";
+    statusEl.textContent="표시 중인 서로 다른 관련 상품 "+shownCount+"개"+merchantSummary(availableItems)+" · 구매 조건은 판매처에서 확인";
     moreNote.textContent=fresh.length?("새 상품 "+fresh.length+"개 추가 · 현재 "+shownCount+"개 표시"):(hasMore?"이번 검색에서는 새 상품이 없었어요. 다음 품목을 확인할 수 있어요.":"더 찾을 수 있는 연관 검색어가 없어요. 아래 다른 품목을 골라보세요.");
     moreArea.hidden=!hasMore;
   }catch{

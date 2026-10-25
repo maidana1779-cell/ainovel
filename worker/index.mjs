@@ -3,6 +3,7 @@ import {curatedProducts,matchingCuratedProducts} from '../curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from '../search-plan.mjs';
 import {removeClearlyUnavailable} from '../availability-labels.mjs';
 import {verifyProductBatchWithMeta} from '../merchant-offers.mjs';
+import {interleaveSearchMerchants,merchantCount} from '../merchant-diversity.mjs';
 
 const ORIGINS=new Set(['https://alttulpick-shop.onrender.com']);
 const RENDER_AFFILIATE_API='https://alttulpick-preview.onrender.com';
@@ -164,7 +165,23 @@ async function proxyRenderFeed(u,origin,ctx){
  if(trustedAffiliateFeed(result))rememberCached(u,result.payload,ttl,ctx,staleTtl);
  return json(result.payload,result.status,origin);
 }
+const livePending=new Map();
 export async function workerFetch(request,env={},ctx={}){
+ const u=new URL(request.url),origin=request.headers.get('origin')||'';
+ // Share the in-flight response by URL and CORS origin without storing secrets.
+ if(request.method!=='GET'||typeof env?.ADPICK_API_KEY!=='string'||!env.ADPICK_API_KEY.trim()||
+    !['/api/best','/api/search'].includes(u.pathname)||u.search.length>350)
+  return handleWorkerFetch(request,env,ctx);
+ const key=u.pathname+u.search+'|'+origin;
+ let pending=livePending.get(key);
+ if(!pending){
+  pending=handleWorkerFetch(request,env,ctx);
+  livePending.set(key,pending);
+  void pending.finally(()=>{if(livePending.get(key)===pending)livePending.delete(key)}).catch(()=>{});
+ }
+ return (await pending).clone();
+}
+async function handleWorkerFetch(request,env={},ctx={}){
  const u=new URL(request.url),origin=request.headers.get('origin')||'';
  const path=u.pathname;
  if(request.method==='OPTIONS'&&path.startsWith('/api/')){
@@ -244,11 +261,13 @@ export async function workerFetch(request,env={},ctx={}){
   const distinct=uniqueProductResults(matched);
   const curated=plan.batch===0?matchingCuratedProducts(q):[];
   const sourceFiltered=removeClearlyUnavailable(uniqueProductResults([...curated,...distinct]));
-  const {items,verification}=await verifyProductBatchWithMeta(sourceFiltered.items.slice(0,n));
+  const balanced=interleaveSearchMerchants(sourceFiltered.items);
+  const {items,verification}=await verifyProductBatchWithMeta(balanced.slice(0,n));
   const original=successes[0];
   const payload={...original,data:Array.isArray(original.data)?items:{...original.data,list:items},filter_meta:{
    received:incoming.length,matched:items.length,excluded:incoming.length-matched.length,
    duplicates_removed:matched.length-distinct.length,stores_restricted:Boolean(allowed),
+   merchants_count:merchantCount(items),
    queries_checked:successes.length,queries_requested:active.length,batch:plan.batch,
    total_batches:plan.totalBatches,has_more:plan.batch+1<plan.totalBatches,
    quota_limited:active.length<plan.terms.length,verification,

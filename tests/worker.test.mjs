@@ -182,3 +182,21 @@ test('Missing secret proxy rejects unbounded or invalid query before contacting 
   assert.equal(forbidden.status,400);
  }finally{globalThis.fetch=previous}
 });
+
+test('Concurrent identical bound search requests do not duplicate upstream BIZ calls',async()=>{
+ const original=globalThis.fetch;let calls=0,release;
+ const gate=new Promise(resolve=>release=resolve);
+ globalThis.fetch=async()=>{calls++;await gate;return new Response(JSON.stringify({
+  success:true,data:[{title:'커피믹스 30개입',cp_code:'f5ff7',cp_name:'판매처',price:9000,commissionlink:'https://biz.adpick.co.kr/r123'}]
+ }),{status:200,headers:{'content-type':'application/json'}})};
+ try{
+  const path='/api/search?q='+encodeURIComponent('커피')+'&limit=6&batch=0';
+  const a=workerFetch(request(path,{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  const b=workerFetch(request(path,{headers:{origin:HOME}}),{ADPICK_API_KEY:'fake-for-test'});
+  release();
+  const [x,y]=await Promise.all([a,b]);
+  assert.equal(x.status,200);assert.equal(y.status,200);
+  assert.deepEqual(await x.json(),await y.json());
+  assert.equal(calls,2,'two provider keywords fetched once each');
+ }finally{globalThis.fetch=original}
+});
