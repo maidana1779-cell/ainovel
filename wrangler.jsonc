@@ -7,10 +7,5 @@
   "observability": {
     "enabled": true
   },
-  "keep_vars": true,
-  "secrets": {
-    "required": [
-      "ADPICK_API_KEY"
-    ]
-  }
+  "keep_vars": true
 }
