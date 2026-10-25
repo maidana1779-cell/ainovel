@@ -35,3 +35,8 @@ test('Cross-category searches are bounded and the mobile CTA remains tappable',(
  assert.match(js,/새 판매처가 꼭 발견되는 것은 아닙니다/);
  assert.match(html,/\.recommendation-explore-button\{width:100%;min-height:44px\}/);
 });
+
+test('Recommendation exploration waits until the original feed loads',()=>{
+ assert.match(js,/recommendationExploreButton\.disabled=!recommendationExplore\.hidden/);
+ assert.match(js,/if\(!recommendationExplore\.hidden\)recommendationExploreButton\.disabled=false/);
+});
