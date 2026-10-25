@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {workerFetch} from '../worker/index.mjs';
+import {affiliateLinkInspection} from '../review-preflight.mjs';
 const base='https://alttulpick-api.example.workers.dev',origin='https://alttulpick-shop.onrender.com';
 const samples=[
  {query:'간편식',title:'비비고 볶음밥 2kg'},
@@ -36,7 +37,7 @@ test('Six representative category searches filter unrelated merchants and retain
    assert.ok(Array.isArray(result),sample.query);
    assert.ok(result.some(p=>p.title===sample.title),sample.query+' should find its relevant product');
    assert.ok(result.every(p=>p.cp_name!=='마이리얼트립'&&p.cp_name!=='YES24'));
-   assert.ok(result.every(p=>p.commissionlink.startsWith('https://biz.adpick.co.kr/r')));
+   assert.ok(result.every(p=>affiliateLinkInspection(p.commissionlink,p).valid),'All displayed links should use valid affiliate hosts');
   }
   assert.ok(requests>=samples.length);
  }finally{globalThis.fetch=old}
