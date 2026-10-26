@@ -48,10 +48,14 @@ test('Live storefront product-card validator uses same HTTPS, host and source li
  for(const [url,product,valid] of records)assert.equal(local(url,product),valid,url);
  assert.match(html,/link\.rel="sponsored nofollow noopener noreferrer"/);
 });
-test('Real operator contact is a blocking prerequisite, not a fake passing score',()=>{
+test('Published operator email matches the privacy page and passes the contact publication gate',()=>{
  const result=reviewPreflight({homepage:html,contact,privacy,guide,products:curatedProducts()});
- assert.equal(result.ready,false);
- assert.ok(result.blockers.some(v=>/연락처/.test(v)));
+ assert.equal(result.ready,true);
+ assert.equal(result.blockers.length,0);
+ assert.equal(result.contact_addresses_found,1);
+ assert.match(contact,/href="mailto:maidana1779@gmail.com"/);
+ assert.ok(privacy.includes('maidana1779@gmail.com'));
+ assert.ok(result.warnings.some(v=>/실제 수신·회신 여부/.test(v)));
  assert.equal(result.link_issues.length,0);
  assert.equal(result.products_checked,curatedProducts().length);
 });

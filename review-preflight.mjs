@@ -33,10 +33,10 @@ export function reviewPreflight({homepage,contact,privacy,guide,products=[]}={})
   .map(m=>m[1].trim().toLowerCase()).filter(v=>/^[a-z0-9.!#$%&'*+/=?^_\x60{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v));
  // A URL is contact information only if a valid real receiving address appears.
  // A user must confirm ownership before their actual address is published.
- const hasVerifiedContact=contactAddresses.length>0&&
+ const hasPublishedContact=contactAddresses.length>0&&
   contactAddresses.some(addr=>String(privacy||'').toLowerCase().includes(addr))&&
   !contactAddresses.some(addr=>/example\.(?:com|org|net)|invalid|test\.|noreply|no-reply/.test(addr));
- check(hasVerifiedContact,'운영·개인정보 문의 가능한 동일 연락처 게시');
+ check(hasPublishedContact,'운영·개인정보 문의 가능한 동일 연락처 게시');
  check(!/연락처는.*준비|문의 채널은.*준비|심사 제출.*예정/.test(String(contact||'')),
   '문의 페이지에 심사 전 미완료 문구 없음');
  check(!/법적 필수 기재사항.*최종 처리방침|정식 심사 전에 완성/.test(String(privacy||'')),
@@ -58,6 +58,7 @@ export function reviewPreflight({homepage,contact,privacy,guide,products=[]}={})
  const keywords=['간편식','세제','이어폰','화장품','의류','주방용품'];
  check(keywords.every(q=>getSearchPlan(q).terms.length>0),'대표 6개 카테고리 검색 계획 준비');
  // This checks the link's syntax, NOT whether remote products still exist.
+ warnings.push('게시된 운영 문의 이메일의 실제 수신·회신 여부는 운영자가 직접 확인 필요');
  warnings.push('실제 제휴 링크 최종 이동·상품 품절·가격·배송 조건은 외부 판매처에서 직접 확인 필요');
  warnings.push('제휴 상품 정보·이미지의 사용 범위 및 매체 승인 조건은 애드픽 측 확인 필요');
  return {ready:blockers.length===0,checks,blockers,warnings,products_checked:products.length,
