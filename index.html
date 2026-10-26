@@ -2055,8 +2055,6 @@ if("IntersectionObserver" in window){
     ensureDiscovery();
   },{once:true});
 }
-loadCuratedProducts();
-
 /* Shopping-mall events only: never show a publisher commission rate as a discount.
    No promotion is displayed until an authorized banner and tracking link are entered. */
 function shoppingEventValidDate(value){
@@ -2138,6 +2136,9 @@ async function loadShoppingEvents(){
  }catch{/* No campaign data means no promotional section. */ }
 }
 void loadShoppingEvents();
+loadCuratedProducts();
+
+
 
 </script>
 </body>
