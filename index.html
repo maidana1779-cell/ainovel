@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
 <title>알뜰픽 | 상품을 더 간편하게</title>
-<meta name="description" content="여러 제휴 쇼핑몰의 상품과 직접 고른 추천 상품을 검색하고 둘러보는 알뜰픽">
+<meta name="description" content="식품·생활용품·가전·뷰티 등 필요한 상품을 검색하고 비교하는 알뜰픽">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://alttulpick-shop.onrender.com/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:site_name" content="알뜰픽">
 <meta property="og:title" content="알뜰픽 | 찾는 상품, 더 간편하게">
-<meta property="og:description" content="식품부터 디지털까지. 제휴 쇼핑몰 상품을 검색하고 판매처에서 직접 확인하세요.">
+<meta property="og:description" content="식품부터 디지털까지 필요한 상품을 검색하고 가격과 구매 조건을 살펴보세요.">
 <meta property="og:url" content="https://alttulpick-shop.onrender.com/">
 <meta property="og:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
-<meta name="twitter:title" content="알뜰픽 | 제휴 쇼핑 상품 둘러보기">
+<meta name="twitter:title" content="알뜰픽 | 필요한 상품을 한눈에">
 <meta name="twitter:description" content="상품 검색·카테고리·추천 상품을 한곳에서 확인하세요.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
@@ -925,6 +925,11 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
  .affiliate-banner>a{margin-left:24px}
 }
 
+/* The only general-commission notice sits immediately before real product cards. */
+.product-affiliate-notice{margin:0 0 12px;padding:10px 0;border-bottom:1px solid #edf0f3;
+ font-size:12px;line-height:1.65;color:#536374;font-weight:510}
+.product-affiliate-notice a{color:#286ab7;text-decoration:underline;text-underline-offset:3px;margin-left:4px;font-weight:650}
+@media(max-width:730px){.product-affiliate-notice{font-size:11px;padding:9px 0;margin-bottom:10px}}
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -943,7 +948,7 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
 <section class="hero" aria-labelledby="hero-heading">
  <div class="hero-top">
   <div><p class="eyebrow">알뜰픽 상품 검색</p><h1 id="hero-heading">원하는 상품을 <span>찾아보세요</span></h1></div>
-  <p class="hero-intro">여러 제휴 쇼핑몰 상품을 모아 보여드려요.<br>가격과 구매 조건은 판매처에서 확인하세요.</p>
+  <p class="hero-intro">식품부터 가전까지, 필요한 상품을 빠르게 찾아보세요.<br>가격과 구매 조건은 판매처에서 확인하세요.</p>
  </div>
  <div class="search-surface">
   <form id="searchform" class="bar" role="search">
@@ -960,11 +965,6 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
   </div>
  </div>
 </section>
-<aside class="affiliate-banner" aria-label="제휴 링크 안내">
-  <span class="affiliate-banner-icon" aria-hidden="true">i</span>
-  <span><strong>제휴 상품 안내 서비스</strong> · 구매 등 제휴 프로그램에서 인정하는 활동으로 운영자가 수수료를 받을 수 있습니다. 주문·결제는 각 판매처에서 진행됩니다.</span>
-  <a href="/guide.html">이용안내 확인 <span aria-hidden="true">↗</span></a>
-</aside>
 <section id="shop-categories" class="category-hub" aria-labelledby="hub-title">
  <div class="hub-heading">
   <div><span class="hub-eyebrow">CATEGORY</span><h2 id="hub-title">카테고리</h2><p>품목을 선택하면 해당 상품을 바로 찾습니다.</p></div>
@@ -1026,7 +1026,7 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
   <button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">주방</button>
  </div>
  <div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
- <p class="category-caption">검색 결과는 연결된 제휴 쇼핑몰의 일부 상품입니다. 일부 카테고리는 관련 검색어를 함께 확인하며, 결과는 최대 30개까지 표시합니다.</p>
+ <p class="category-caption">일부 카테고리는 관련 품목도 함께 검색하며, 결과는 최대 30개까지 표시합니다.</p>
 </section>
 <div id="browse-layout" class="browse-layout">
 <aside id="category-aside" class="category-aside" aria-label="선택한 카테고리의 세부 품목">
@@ -1036,13 +1036,14 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
 <section id="deals" class="deals" aria-label="상품 목록">
  <div id="category-intro" class="category-intro"><div class="category-intro-copy"><span class="breadcrumb" id="category-breadcrumb">홈 / 카테고리</span><span class="category-intro-overline">EXPLORE COLLECTION</span><h2 id="category-intro-title">카테고리 쇼핑관</h2><p id="category-intro-description">관련 상품을 살펴보세요.</p></div><span id="category-intro-stamp" class="category-intro-stamp" aria-hidden="true">PICK</span></div>
  <div class="section">
-  <div><span class="overline">PRODUCT LIST</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">제휴 쇼핑몰에서 제공한 상품을 살펴보세요.</p></div>
+  <div><span class="overline">PRODUCT LIST</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">지금 확인할 수 있는 상품을 살펴보세요.</p></div>
   <div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
    <button type="button" class="tab active" data-area="today" aria-pressed="true">오늘의 베스트</button>
    <button type="button" class="tab" data-area="popular" aria-pressed="false">인기상품</button>
    <button type="button" class="tab" data-area="pick" aria-pressed="false">추천상품</button>
   </div>
  </div>
+ <p class="product-affiliate-notice" id="affiliate-disclosure">이 페이지의 상품 링크를 통해 구매하면 운영자가 수수료를 받을 수 있습니다. 구매·결제는 판매처에서 진행됩니다. <a href="/guide.html">자세히 보기</a></p>
  <div class="results-meta">
   <div class="status-row"><div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div><button id="retry-main" type="button" class="retry-main" hidden>상품 다시 불러오기</button></div>
   <span class="aside">실제 구매 가격과 배송비는 판매처에서 확인</span>
@@ -1107,17 +1108,17 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
  </div>
  <div class="discovery-foot">
   <button type="button" id="discovery-more" class="discovery-more" hidden>추천 상품 더 보기 +</button>
-  <span id="discovery-status" class="discovery-notice" role="status" aria-live="polite">실제 제휴 상품을 불러오고 있습니다.</span>
+  <span id="discovery-status" class="discovery-notice" role="status" aria-live="polite">상품을 불러오고 있습니다.</span>
  </div>
 </section>
 
 <section id="about" class="policy-strip">
- <div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 상품을 직접 판매하지 않는 제휴 상품 안내 서비스입니다. 표시 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 상품의 재고와 판매 여부는 실시간으로 확인되지 않으며, 표시된 가격과 구매 가능 여부는 판매처에서 달라질 수 있습니다. 배송 조건 역시 판매처에서 확인해 주세요. 제휴 링크를 통한 구매 시 운영자에게 수수료가 지급될 수 있습니다. 클릭만으로 수익이 발생하는 것은 아닙니다.</p></div>
+ <div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 상품을 직접 판매하지 않습니다. 표시 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 상품의 재고와 판매 여부는 실시간으로 확인되지 않으며, 표시된 가격과 구매 가능 여부는 판매처에서 달라질 수 있습니다. 배송 조건 역시 판매처에서 확인해 주세요.</p></div>
  <span class="policy-mark">ALTTUL PICK / GUIDE</span>
 </section>
 </main>
 <footer class="footer"><div class="wrap footerin">
- <div class="footer-brand"><div class="foothead">알뜰픽<b>·</b></div><div class="footer-meta">여러 제휴 쇼핑몰의 상품을 찾아보고 판매처로 연결하는 독립 상품 안내 서비스</div><p class="footer-disclosure">이 사이트에는 제휴 마케팅 링크가 포함되어 있으며, 구매 등으로 운영자가 수수료를 받을 수 있습니다.</p></div>
+ <div class="footer-brand"><div class="foothead">알뜰픽<b>·</b></div><div class="footer-meta">식품·생활용품·가전 등 필요한 상품을 찾아보고 판매처로 연결하는 상품 검색 서비스</div></div>
  <div class="footer-links">
   <nav aria-label="서비스 및 정책 안내"><a href="/about.html">서비스 소개</a><a href="/guide.html">상품 이용안내</a><a href="/privacy.html">개인정보 처리 안내</a><a href="/contact.html">운영·문의 안내</a></nav>
   <div class="footer-note">상품 판매·결제·배송·취소·환불은 실제 판매처에서 처리합니다.<br>알뜰픽은 각 제휴사와 쇼핑몰의 공식 고객센터가 아닙니다.</div>
@@ -1530,8 +1531,8 @@ try{
     return;
   }
   if(payload.code==="API_NOT_CONFIGURED"){
-    if(!cachedItems)grid.replaceChildren(make("div","empty","제휴 상품 연결이 일시적으로 지연되고 있어요. 아래 토스쇼핑 추천 상품은 바로 둘러볼 수 있습니다."));
-    statusEl.textContent="제휴 상품 연결 준비 중 · 잠시 후 다시 시도해 주세요";
+    if(!cachedItems)grid.replaceChildren(make("div","empty","상품 정보를 불러오지 못했어요. 아래 추천 상품은 바로 둘러볼 수 있습니다."));
+    statusEl.textContent="상품 연결 지연 · 잠시 후 다시 시도해 주세요";
     retryMain.hidden=false;
     return;
   }
@@ -1549,7 +1550,7 @@ try{
   statusEl.textContent="최근 조회 상품 표시 중 · 최신 연결이 지연됩니다 · 가격은 판매처에서 확인";
  }else{
   grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
-  statusEl.textContent="제휴 상품 연결 지연";
+  statusEl.textContent="상품 연결 지연";
   retryMain.hidden=false;
  }
 }finally{
@@ -1571,7 +1572,7 @@ async function fetchRecommendationCategory(category){
  recommendationExploreBusy=true;
  updateRecommendationExploreButton();
  if(selectedProductCategory===category){
-  recommendationExploreNote.textContent=label+" · "+term+" 제휴 상품을 조회하는 중입니다.";
+  recommendationExploreNote.textContent=label+" · "+term+" 상품을 조회하는 중입니다.";
  }
  try{
   const response=await fetchProducts("/api/search?q="+encodeURIComponent(term)+"&limit=20");
