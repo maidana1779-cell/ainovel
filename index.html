@@ -2071,6 +2071,8 @@ function shoppingEventTodayKst(){
 }
 function eligibleShoppingEvent(event,today=shoppingEventTodayKst()){
  if(!event||typeof event!=="object"||Array.isArray(event))return false;
+ if(event.asset_authorized!==true||event.link_confirmed!==true)return false;
+ if(["commission_per","commission_percent","commission_rate","discount_rate"].some(key=>key in event))return false;
  if(!shoppingEventValidDate(today)||!shoppingEventValidDate(event.ends_on))return false;
  if(event.ends_on<today)return false;
  if(event.starts_on!==undefined&&(!shoppingEventValidDate(event.starts_on)||event.starts_on>today||event.starts_on>event.ends_on))return false;
@@ -2110,6 +2112,7 @@ function renderShoppingEvents(items,today=shoppingEventTodayKst()){
   a.setAttribute("aria-label",event.mall+" "+event.title+" · 기획전으로 이동");
   const photo=document.createElement("span");photo.className="shopping-event-media";
   const img=document.createElement("img");img.src=event.image_url;img.alt=event.title+" 기획전 배너";img.loading="lazy";img.decoding="async";
+  img.addEventListener("error",()=>{a.remove();if(!grid.children.length)section.hidden=true},{once:true});
   photo.append(img);
   const content=document.createElement("span");content.className="shopping-event-copy";
   const mall=document.createElement("span");mall.className="shopping-event-merchant";mall.textContent=event.mall;
