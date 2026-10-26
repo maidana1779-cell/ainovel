@@ -41,9 +41,11 @@ export function reviewPreflight({homepage,contact,privacy,guide,products=[]}={})
   '문의 페이지에 심사 전 미완료 문구 없음');
  check(!/법적 필수 기재사항.*최종 처리방침|정식 심사 전에 완성/.test(String(privacy||'')),
   '개인정보 페이지 미완성 문구 제거');
- check(String(homepage||'').includes('제휴 상품 안내 서비스')&&
-  String(homepage||'').includes('수수료를 받을 수 있습니다')&&
-  String(guide||'').includes('제휴 수수료 고지'),'제휴 수익 및 구매 조건 고지');
+ check(String(homepage||'').includes('<strong>광고·제휴 안내</strong>')&&
+  String(homepage||'').includes('구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다')&&
+  String(guide||'').includes('제휴 수수료 고지')&&
+  String(homepage||'').indexOf('class="affiliate-banner"')<String(homepage||'').indexOf('id="products"'),
+  '상품 목록 상단의 명확한 제휴 수수료 및 구매 조건 고지');
  check(/href="\/about\.html"/.test(homepage)&&/href="\/privacy\.html"/.test(homepage)&&
   /href="\/contact\.html"/.test(homepage),'서비스·개인정보·문의 페이지 접근');
  check(/function validAffiliateLink\(raw,product\)/.test(homepage)&&
