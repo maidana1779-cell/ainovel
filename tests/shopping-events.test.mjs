@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {Script} from 'node:vm';
+import {createHash} from 'node:crypto';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const script=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const manifest=JSON.parse(readFileSync(new URL('../public/shopping-events.json',import.meta.url),'utf8'));
@@ -24,12 +25,14 @@ test('Above-the-fold carousel shows BOTH supplied tracking links and actual phot
  assert.match(top,/class="shopping-theme-grid shopping-campaign-slider"/);
  assert.match(top,/href="https:\/\/bitl\.bz\/jKubOI"/);
  assert.match(top,/href="https:\/\/bitl\.bz\/Bmbhq2"/);
- assert.match(top,/11번가<br>생필품 BEST/);
+ assert.match(top,/alt="11번가 베스트 생필품 총집합 기획전 공식 이미지"/);
  assert.match(top,/아디다스 온라인 스토어/);
- assert.match(top,/images\.unsplash\.com\/photo-1684156752598-dc58f01ac3bb/);
- assert.match(top,/images\.unsplash\.com\/photo-1584725274139-8531540ae5b2/);
+ assert.match(top,/src="\/events\/11st-living\.avif"/);
+ assert.match(top,/src="\/events\/adidas-autumn\.avif"/);
  assert.equal((top.match(/rel="sponsored nofollow noopener noreferrer"/g)||[]).length,2);
- assert.match(top,/배너는 연출 사진입니다/);
+ assert.match(top,/행사 및 구매 조건은 판매처에서 확인해 주세요/);
+ assert.doesNotMatch(top,/images\.unsplash\.com|배너는 연출 사진입니다/);
+ assert.doesNotMatch(top,/class="shopping-theme-text"/);
  assert.match(top,/id="shopping-event-grid" class="shopping-event-grid" hidden/);
  assert.match(script,/fetch\("\/shopping-events\.json",\{cache:"no-store"\}\)/);
  assert.match(script,/if\(!eligible\.length\)\{showThemes\(\);return 0\}/);
@@ -96,4 +99,18 @@ test('A verified promotion replaces—not follows—the top photo feature cards'
  assert.match(renderer,/themes\.hidden=false/);
  assert.match(renderer,/grid\.hidden=true/);
  assert.doesNotMatch(html,/id="shopping-events"[^>]*hidden/);
+});
+
+test('Supplied campaign images are real, nonempty AVIF assets rather than external stock photos',()=>{
+ const fs=readFileSync;
+ for(const [path,sha] of [
+  ['../public/events/11st-living.avif','cf3d680a84da17ab8930f5c694dc589b501a36ec'],
+  ['../public/events/adidas-autumn.avif','0322356c935c8d706c0c0307102b17855e521500']
+ ]){
+  const bytes=fs(new URL(path,import.meta.url));
+  assert.ok(bytes.length>5000,'Campaign image is not an empty placeholder');
+  assert.equal(bytes.subarray(4,12).toString('ascii'),'ftypavif');
+  const gitBlob=Buffer.concat([Buffer.from('blob '+bytes.length+String.fromCharCode(0)),bytes]);
+  assert.equal(createHash('sha1').update(gitBlob).digest('hex'),sha,'Media bytes must match uploaded photograph');
+ }
 });

@@ -1022,6 +1022,24 @@ body.category-active .shopping-events{display:none}
  .shopping-campaign-footnote{font-size:9px}
 }
 
+/* The actual merchant creatives already contain their own typography.
+   Preserve the whole artwork instead of obscuring it with stock-photo overlays. */
+.shopping-campaign-slider .shopping-theme-card,
+.shopping-campaign-slider .shopping-theme-card.theme-fashion{
+ min-height:0;aspect-ratio:768/429;background:#f6f7f9;border-radius:0;isolation:auto
+}
+.shopping-campaign-slider .shopping-theme-card::before,
+.shopping-campaign-slider .shopping-theme-card.theme-fashion::before{display:none!important}
+.shopping-campaign-slider .shopping-theme-card img{
+ position:static;inset:auto;z-index:auto;display:block;width:100%;height:100%;
+ object-fit:contain;object-position:center;transform:none!important;transition:none
+}
+.shopping-campaign-slider .shopping-theme-text{display:none}
+@media(max-width:730px){
+ .shopping-campaign-slider .shopping-theme-card,
+ .shopping-campaign-slider .shopping-theme-card.theme-fashion{min-height:0;aspect-ratio:768/429}
+}
+
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -1043,12 +1061,10 @@ body.category-active .shopping-events{display:none}
  </div>
  <div id="shopping-theme-grid" class="shopping-theme-grid shopping-campaign-slider" role="region" aria-label="쇼핑몰 기획전 사진 배너" aria-roledescription="슬라이드">
  <a class="shopping-theme-card theme-living is-active" data-campaign-slide="0" href="https://bitl.bz/jKubOI" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="false" aria-label="11번가 생필품BEST 기획전 바로가기">
-  <img src="https://images.unsplash.com/photo-1684156752598-dc58f01ac3bb?auto=format&amp;fit=crop&amp;w=1300&amp;q=80" alt="수건과 생활용품 연출 사진" loading="eager" fetchpriority="high" decoding="async">
-  <span class="shopping-theme-text"><span class="shopping-theme-tag">11번가 · 생필품 기획전</span><strong>11번가<br>생필품 BEST</strong><span class="shopping-theme-sub">생활에 필요한 상품을 한눈에 둘러보세요.</span><span class="shopping-theme-action">11번가 기획전 보기 <span aria-hidden="true">↗</span></span></span>
+  <img src="/events/11st-living.avif" alt="11번가 베스트 생필품 총집합 기획전 공식 이미지" width="768" height="429" loading="eager" fetchpriority="high" decoding="async">
  </a>
  <a class="shopping-theme-card theme-fashion" data-campaign-slide="1" href="https://bitl.bz/Bmbhq2" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="true" tabindex="-1" aria-label="아디다스 온라인 스토어 가을 스타일 기획전 바로가기">
-  <img src="https://images.unsplash.com/photo-1584725274139-8531540ae5b2?auto=format&amp;fit=crop&amp;w=1300&amp;q=80" alt="아디다스 후디를 입은 인물의 가을 스트리트 패션 연출 사진" loading="lazy" decoding="async">
-  <span class="shopping-theme-text"><span class="shopping-theme-tag">아디다스 온라인 스토어</span><strong>새로운 계절,<br>가을 스타일</strong><span class="shopping-theme-sub">새로운 계절에 어울리는 아디다스 아이템을 찾아보세요.</span><span class="shopping-theme-action">아디다스 둘러보기 <span aria-hidden="true">↗</span></span></span>
+  <img src="/events/adidas-autumn.avif" alt="아디다스 온라인 스토어 가을 스타일 공식 기획전 이미지" width="768" height="429" loading="lazy" decoding="async">
  </a>
  <button type="button" class="shopping-campaign-arrow shopping-campaign-prev" aria-label="이전 기획전">‹</button>
  <button type="button" class="shopping-campaign-arrow shopping-campaign-next" aria-label="다음 기획전">›</button>
@@ -1057,7 +1073,7 @@ body.category-active .shopping-events{display:none}
   <button type="button" data-campaign-dot="1" aria-label="아디다스 기획전" aria-current="false"></button>
  </div>
 </div>
-<p class="shopping-campaign-footnote">배너는 연출 사진입니다. 실제 행사 및 구매 조건은 판매처에서 확인해 주세요.</p>
+<p class="shopping-campaign-footnote">배너를 누르면 각 쇼핑몰 행사 페이지로 이동합니다. 행사 및 구매 조건은 판매처에서 확인해 주세요.</p>
 <div id="shopping-event-grid" class="shopping-event-grid" hidden></div>
 </section>
 <section class="hero" aria-labelledby="hero-heading">
