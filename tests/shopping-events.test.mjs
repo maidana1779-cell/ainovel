@@ -110,7 +110,7 @@ test('Supplied campaign images are real, nonempty AVIF assets rather than extern
   const bytes=fs(new URL(path,import.meta.url));
   assert.ok(bytes.length>5000,'Campaign image is not an empty placeholder');
   assert.equal(bytes.subarray(4,12).toString('ascii'),'ftypavif');
-    const gitBlob=Buffer.concat([Buffer.from('blob '+bytes.length+'\\0'),bytes]);
+  const gitBlob=Buffer.concat([Buffer.from('blob '+bytes.length+String.fromCharCode(0)),bytes]);
   assert.equal(createHash('sha1').update(gitBlob).digest('hex'),sha,'Media bytes must match uploaded photograph');
  }
 });
