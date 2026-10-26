@@ -993,6 +993,35 @@ body.category-active .shopping-events{display:none}
 }
 @media(prefers-reduced-motion:reduce){.shopping-theme-grid{scroll-behavior:auto}.shopping-theme-card img{transition:none}}
 
+/* Linked partner campaigns placed immediately beneath the site header */
+.shopping-campaign-slider{position:relative;display:block;border-radius:13px;overflow:hidden}
+.shopping-campaign-slider .shopping-theme-card{display:none;width:100%;min-height:352px;border-radius:0}
+.shopping-campaign-slider .shopping-theme-card.is-active{display:block}
+.shopping-campaign-slider .shopping-theme-card:before{background:linear-gradient(90deg,#15212aee 0%,#15212aca 37%,#15212a0c 89%)}
+.shopping-campaign-slider .shopping-theme-card.theme-fashion:before{background:linear-gradient(90deg,#161d2beb 0%,#161d2bc3 37%,#161d2b0c 89%)}
+.shopping-campaign-slider .shopping-theme-text{min-height:352px;max-width:690px;padding:37px 9%;gap:12px}
+.shopping-campaign-slider .shopping-theme-text strong{font-size:clamp(32px,4.5vw,50px);line-height:1.18;letter-spacing:-1.5px}
+.shopping-campaign-slider .shopping-theme-sub{font-size:14px;line-height:1.6}
+.shopping-campaign-slider .shopping-theme-tag{font-size:12px}
+.shopping-campaign-slider .shopping-theme-action{margin-top:8px;padding:12px 17px;font-size:13px}
+.shopping-campaign-arrow{position:absolute;top:50%;transform:translateY(-50%);width:37px;height:37px;display:grid;place-items:center;border:0;border-radius:50%;background:#fffffff0;color:#273747;font-size:27px;z-index:3;box-shadow:0 2px 7px #0002}
+.shopping-campaign-prev{left:12px}.shopping-campaign-next{right:12px}
+.shopping-campaign-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:7px;align-items:center;z-index:4}
+.shopping-campaign-dots button{width:9px;height:9px;border-radius:10px;border:1px solid #fffa;padding:0;background:#ffffff85}
+.shopping-campaign-dots button[aria-current="true"]{width:23px;background:#fff}
+.shopping-campaign-footnote{margin:6px 2px 0;text-align:right;font-size:10px;color:#8895a4}
+@media(max-width:730px){
+ .shopping-campaign-slider .shopping-theme-card{min-height:284px;flex:none}
+ .shopping-campaign-slider .shopping-theme-text{min-height:284px;max-width:93%;padding:29px 31px;gap:8px}
+ .shopping-campaign-slider .shopping-theme-text strong{font-size:clamp(27px,7vw,37px)}
+ .shopping-campaign-slider .shopping-theme-sub{font-size:11px;max-width:205px}
+ .shopping-campaign-slider .shopping-theme-tag{font-size:10px}
+ .shopping-campaign-slider .shopping-theme-action{font-size:11px;padding:9px 11px;margin-top:4px}
+ .shopping-campaign-arrow{width:30px;height:30px;font-size:21px}
+ .shopping-campaign-prev{left:4px}.shopping-campaign-next{right:4px}
+ .shopping-campaign-footnote{font-size:9px}
+}
+
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -1010,19 +1039,26 @@ body.category-active .shopping-events{display:none}
 <main class="wrap">
 <section id="shopping-events" class="shopping-events top-shopping-feature" aria-labelledby="shopping-events-title">
  <div class="shopping-events-head">
-  <div><span class="shopping-events-kicker">ALTTUL PICK / FEATURED</span><h2 id="shopping-events-title">지금 둘러볼 쇼핑 테마</h2><p id="shopping-events-description">생활 속 필요한 상품부터 관심 있는 스타일 아이템까지</p></div>
+  <div><span class="shopping-events-kicker">SHOPPING EVENTS</span><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p id="shopping-events-description">11번가 생필품과 아디다스 가을 스타일을 둘러보세요.</p></div>
  </div>
- <div id="shopping-theme-grid" class="shopping-theme-grid" role="group" aria-label="추천 쇼핑 테마">
-  <button type="button" class="shopping-theme-card theme-living" data-feature-department="간편식" aria-label="식품·커피 상품 보러가기">
-   <img src="https://images.unsplash.com/photo-1721406769891-f2ba651401d9?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000" alt="차분한 주방의 커피잔과 커피 도구" loading="eager" fetchpriority="high" decoding="async" referrerpolicy="no-referrer">
-   <span class="shopping-theme-text"><span class="shopping-theme-tag">FOOD &amp; DAILY</span><strong>매일 필요한<br>생활 속 아이템</strong><span class="shopping-theme-sub">식품 · 커피 · 간편식</span><span class="shopping-theme-action">상품 둘러보기 <span aria-hidden="true">↗</span></span></span>
-  </button>
-  <button type="button" class="shopping-theme-card theme-fashion" data-feature-department="의류" aria-label="패션 상품 보러가기">
-   <img src="https://images.unsplash.com/photo-1603400521630-9f2de124b33b?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000" alt="편집숍에 진열된 다양한 색상의 의류" loading="eager" decoding="async" referrerpolicy="no-referrer">
-   <span class="shopping-theme-text"><span class="shopping-theme-tag">FASHION &amp; STYLE</span><strong>나만의 스타일을<br>찾는 시간</strong><span class="shopping-theme-sub">패션 · 의류 · 데일리웨어</span><span class="shopping-theme-action">상품 둘러보기 <span aria-hidden="true">↗</span></span></span>
-  </button>
+ <div id="shopping-theme-grid" class="shopping-theme-grid shopping-campaign-slider" role="region" aria-label="쇼핑몰 기획전 사진 배너" aria-roledescription="슬라이드">
+ <a class="shopping-theme-card theme-living is-active" data-campaign-slide="0" href="https://bitl.bz/jKubOI" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="false" aria-label="11번가 생필품BEST 기획전 바로가기">
+  <img src="https://images.unsplash.com/photo-1684156752598-dc58f01ac3bb?auto=format&amp;fit=crop&amp;w=1300&amp;q=80" alt="수건과 생활용품 연출 사진" loading="eager" fetchpriority="high" decoding="async">
+  <span class="shopping-theme-text"><span class="shopping-theme-tag">11번가 · 생필품 기획전</span><strong>11번가<br>생필품 BEST</strong><span class="shopping-theme-sub">생활에 필요한 상품을 한눈에 둘러보세요.</span><span class="shopping-theme-action">11번가 기획전 보기 <span aria-hidden="true">↗</span></span></span>
+ </a>
+ <a class="shopping-theme-card theme-fashion" data-campaign-slide="1" href="https://bitl.bz/Bmbhq2" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="true" tabindex="-1" aria-label="아디다스 온라인 스토어 가을 스타일 기획전 바로가기">
+  <img src="https://images.unsplash.com/photo-1584725274139-8531540ae5b2?auto=format&amp;fit=crop&amp;w=1300&amp;q=80" alt="아디다스 후디를 입은 인물의 가을 스트리트 패션 연출 사진" loading="lazy" decoding="async">
+  <span class="shopping-theme-text"><span class="shopping-theme-tag">아디다스 온라인 스토어</span><strong>새로운 계절,<br>가을 스타일</strong><span class="shopping-theme-sub">새로운 계절에 어울리는 아디다스 아이템을 찾아보세요.</span><span class="shopping-theme-action">아디다스 둘러보기 <span aria-hidden="true">↗</span></span></span>
+ </a>
+ <button type="button" class="shopping-campaign-arrow shopping-campaign-prev" aria-label="이전 기획전">‹</button>
+ <button type="button" class="shopping-campaign-arrow shopping-campaign-next" aria-label="다음 기획전">›</button>
+ <div class="shopping-campaign-dots" role="group" aria-label="기획전 배너 선택">
+  <button type="button" data-campaign-dot="0" aria-label="11번가 기획전" aria-current="true"></button>
+  <button type="button" data-campaign-dot="1" aria-label="아디다스 기획전" aria-current="false"></button>
  </div>
- <div id="shopping-event-grid" class="shopping-event-grid" hidden></div>
+</div>
+<p class="shopping-campaign-footnote">배너는 연출 사진입니다. 실제 행사 및 구매 조건은 판매처에서 확인해 주세요.</p>
+<div id="shopping-event-grid" class="shopping-event-grid" hidden></div>
 </section>
 <section class="hero" aria-labelledby="hero-heading">
  <div class="hero-top">
@@ -2159,8 +2195,8 @@ function renderShoppingEvents(items,today=shoppingEventTodayKst()){
  grid.replaceChildren();
  function showThemes(){
   grid.hidden=true;themes.hidden=false;
-  title.textContent="지금 둘러볼 쇼핑 테마";
-  description.textContent="생활 속 필요한 상품부터 관심 있는 스타일 아이템까지";
+  title.textContent="쇼핑몰 기획전";
+  description.textContent="11번가 생필품과 아디다스 가을 스타일을 둘러보세요.";
   section.hidden=false;
  }
  if(!eligible.length){showThemes();return 0}
@@ -2202,11 +2238,47 @@ async function loadShoppingEvents(){
   renderShoppingEvents(body?.events);
  }catch{/* No campaign data means no promotional section. */ }
 }
-document.getElementById("shopping-theme-grid").addEventListener("click",event=>{
- const chosen=event.target.closest("[data-feature-department]");
- if(!chosen)return;
- changeDepartment(chosen.dataset.featureDepartment,{scroll:true});
-});
+function initShoppingCampaignSlider(){
+ const node=document.getElementById("shopping-theme-grid");
+ if(!node)return;
+ const cards=[...node.querySelectorAll("[data-campaign-slide]")];
+ const dots=[...node.querySelectorAll("[data-campaign-dot]")];
+ if(cards.length<2)return;
+ let active=0,manual=false,hovered=false,focused=false;
+ const show=(next)=>{
+  active=(next+cards.length)%cards.length;
+  cards.forEach((card,i)=>{
+   const on=i===active;
+   card.classList.toggle("is-active",on);
+   card.setAttribute("aria-hidden",String(!on));
+   card.tabIndex=on?0:-1;
+  });
+  dots.forEach((dot,i)=>dot.setAttribute("aria-current",String(i===active)));
+ };
+ node.querySelector(".shopping-campaign-prev").addEventListener("click",()=>{manual=true;show(active-1)});
+ node.querySelector(".shopping-campaign-next").addEventListener("click",()=>{manual=true;show(active+1)});
+ dots.forEach((dot,i)=>dot.addEventListener("click",()=>{manual=true;show(i)}));
+ node.addEventListener("mouseenter",()=>hovered=true);
+ node.addEventListener("mouseleave",()=>hovered=false);
+ node.addEventListener("focusin",()=>focused=true);
+ node.addEventListener("focusout",e=>{if(!node.contains(e.relatedTarget))focused=false});
+ let x0=null;
+ node.addEventListener("touchstart",e=>x0=e.touches[0]?.clientX??null,{passive:true});
+ node.addEventListener("touchend",e=>{
+  if(x0===null)return;
+  const x1=e.changedTouches[0]?.clientX;
+  if(typeof x1==="number"&&Math.abs(x1-x0)>50){manual=true;show(active+(x1<x0?1:-1))}
+  x0=null;
+ },{passive:true});
+ const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)");
+ const timer=setInterval(()=>{
+  if(manual||hovered||focused||document.hidden||reduced?.matches||node.hidden)return;
+  show(active+1);
+ },6500);
+ window.addEventListener("pagehide",()=>clearInterval(timer),{once:true});
+ show(0);
+}
+initShoppingCampaignSlider();
 void loadShoppingEvents();
 loadCuratedProducts();
 
