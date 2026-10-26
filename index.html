@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
-<meta name="twitter:title" content="알뜰픽 | 제휴 쇼핑 상품 둘러보기">
+<meta name="twitter:title" content="알뜰픽 | 다양한 상품 둘러보기">
 <meta name="twitter:description" content="상품 검색·카테고리·추천 상품을 한곳에서 확인하세요.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
@@ -1041,7 +1041,7 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
  </div>
  <aside class="affiliate-banner" aria-label="광고·제휴 수익 안내">
   <span class="affiliate-banner-icon" aria-hidden="true">i</span>
-  <span><strong>광고·제휴 안내</strong> · 상품 링크를 통한 구매 등으로 운영자가 수수료를 받을 수 있습니다. 주문·결제는 판매처에서 진행됩니다.</span>
+  <span><strong>광고·제휴 안내</strong> · 상품 링크를 통한 구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다. 주문·결제는 판매처에서 진행됩니다.</span>
   <a href="/guide.html">자세히 보기</a>
  </aside>
  <div class="results-meta">
@@ -1108,7 +1108,7 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
  </div>
  <div class="discovery-foot">
   <button type="button" id="discovery-more" class="discovery-more" hidden>추천 상품 더 보기 +</button>
-  <span id="discovery-status" class="discovery-notice" role="status" aria-live="polite">실제 제휴 상품을 불러오고 있습니다.</span>
+  <span id="discovery-status" class="discovery-notice" role="status" aria-live="polite">새로운 상품을 불러오고 있습니다.</span>
  </div>
 </section>
 
@@ -1186,7 +1186,7 @@ function merchantStyle(name){
   return {label:compact.slice(0,2).toUpperCase()||"SHOP",klass:"default"};
 }
 function merchantBadge(product){
-  const name=String(product?.cp_name||"제휴 쇼핑몰").trim()||"제휴 쇼핑몰";
+  const name=String(product?.cp_name||"판매처").trim()||"판매처";
   const visual=merchantStyle(name);
   const badge=make("div","merchant merchant-badge");
   const logo=make("span","merchant-logo merchant-logo--"+visual.klass);
@@ -1230,7 +1230,7 @@ function show(items,isDemo,target=grid,append=false){
    link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer";
    link.setAttribute("aria-label",(p.title||"상품")+" · "+(p.cp_name||"판매처")+"에서 보기 (새 창)");
    link.addEventListener("click",()=>{
-    const event=JSON.stringify({event:"product_click",merchant:String(p.cp_name||"제휴 쇼핑몰").slice(0,80)});
+    const event=JSON.stringify({event:"product_click",merchant:String(p.cp_name||"판매처").slice(0,80)});
     try{
      const blob=new Blob([event],{type:"application/json"});
      if(navigator.sendBeacon?.(API_ORIGIN+"/api/telemetry",blob))return;
@@ -1325,7 +1325,7 @@ function resetProductFilters(){
 }
 function refreshMerchantOptions(){
  const previous=merchantFilter.value;
- const names=[...new Set(availableItems.filter(storefrontEligible).map(p=>String(p.cp_name||"제휴 쇼핑몰").trim()))].sort((a,b)=>a.localeCompare(b,"ko"));
+ const names=[...new Set(availableItems.filter(storefrontEligible).map(p=>String(p.cp_name||"판매처").trim()))].sort((a,b)=>a.localeCompare(b,"ko"));
  merchantFilter.replaceChildren(new Option("전체 판매처",""));
  for(const name of names)merchantFilter.add(new Option(name,name));
  merchantFilter.value=names.includes(previous)?previous:"";
@@ -1335,7 +1335,7 @@ function renderListing(){
  if(!availableItems.length){show([],false);visibleCount.textContent="불러온 상품이 없습니다";return}
  const vendor=merchantFilter.value;
  const sort=sortSelect.value;
- const filtered=availableItems.filter(p=>storefrontEligible(p)&&(!vendor||String(p.cp_name||"제휴 쇼핑몰").trim()===vendor));
+ const filtered=availableItems.filter(p=>storefrontEligible(p)&&(!vendor||String(p.cp_name||"판매처").trim()===vendor));
  const sorted=filtered.map((p,i)=>({p,i}));
  if(sort!=="default")sorted.sort((a,b)=>{
    const pa=displayPrice(a.p),pb=displayPrice(b.p);
@@ -1531,8 +1531,8 @@ try{
     return;
   }
   if(payload.code==="API_NOT_CONFIGURED"){
-    if(!cachedItems)grid.replaceChildren(make("div","empty","제휴 상품 연결이 일시적으로 지연되고 있어요. 아래 토스쇼핑 추천 상품은 바로 둘러볼 수 있습니다."));
-    statusEl.textContent="제휴 상품 연결 준비 중 · 잠시 후 다시 시도해 주세요";
+    if(!cachedItems)grid.replaceChildren(make("div","empty","상품을 불러오지 못했습니다. 아래 토스쇼핑 추천 상품은 바로 둘러볼 수 있습니다."));
+    statusEl.textContent="상품 조회 지연 · 잠시 후 다시 시도해 주세요";
     retryMain.hidden=false;
     return;
   }
@@ -1550,7 +1550,7 @@ try{
   statusEl.textContent="최근 조회 상품 표시 중 · 최신 연결이 지연됩니다 · 가격은 판매처에서 확인";
  }else{
   grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
-  statusEl.textContent="제휴 상품 연결 지연";
+  statusEl.textContent="상품 조회 지연";
   retryMain.hidden=false;
  }
 }finally{
@@ -1572,7 +1572,7 @@ async function fetchRecommendationCategory(category){
  recommendationExploreBusy=true;
  updateRecommendationExploreButton();
  if(selectedProductCategory===category){
-  recommendationExploreNote.textContent=label+" · "+term+" 제휴 상품을 조회하는 중입니다.";
+  recommendationExploreNote.textContent=label+" · "+term+" 상품을 조회하는 중입니다.";
  }
  try{
   const response=await fetchProducts("/api/search?q="+encodeURIComponent(term)+"&limit=20");

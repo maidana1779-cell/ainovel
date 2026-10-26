@@ -14,7 +14,7 @@ test('Exactly one explicit on-page commission notice sits by the actual product 
  const deal=html.indexOf('id="deals"'),notice=html.indexOf('class="affiliate-banner"');
  assert.ok(notice>deal&&notice<html.indexOf('id="products"'));
  assert.match(html,/광고·제휴 안내/);
- assert.match(html,/상품 링크를 통한 구매 등으로 운영자가 수수료를 받을 수 있습니다/);
+ assert.match(html,/상품 링크를 통한 구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다/);
  assert.match(html,/주문·결제는 판매처에서 진행됩니다/);
 });
 test('A full guide and the distinct Toss disclosure remain without redundant front copy',()=>{
