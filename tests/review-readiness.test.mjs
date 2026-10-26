@@ -51,7 +51,10 @@ test('Privacy disclosure describes the actual no-account, 90s browser-cache and 
   assert.ok(privacy.includes(item),item);
  }
  const contact=readFileSync(resolve(root,'public/contact.html'),'utf8');
- assert.match(contact,/공식 연락처를 확인하지 않은 상태에서 임의의 이메일 주소나 연락처를 안내하지 않습니다/);
+ assert.match(contact,/href="mailto:maidana1779@gmail.com"/);
+ assert.match(privacy,/href="mailto:maidana1779@gmail.com"/);
+ assert.doesNotMatch(contact,/운영 문의 채널은 현재 등록 준비 중입니다/);
+ assert.doesNotMatch(privacy,/정식 심사 전에 완성할 예정/);
  assert.doesNotMatch(contact,/example\.com|mailto:hello@|contact@alttulpick/);
 });
 
