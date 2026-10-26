@@ -15,7 +15,7 @@ test('Changing a product category immediately starts real fetching without a sec
  assert.match(switching,/showExploreCategory\(button\.dataset\.productCategory\)/);
  assert.match(switching,/void fetchRecommendationCategory\(category\)/);
  assert.match(fetchFlow,/fetchProducts\("\/api\/search\?q="\+encodeURIComponent\(term\)\+"&limit=20"\)/);
- assert.match(html,/카테고리를 누르면 해당 상품을 바로 조회해 목록이 바뀝니다/);
+ assert.match(html,/카테고리를 누르면 상품 목록이 바로 바뀝니다/);
  assert.doesNotMatch(html,/다른 판매처 상품 찾아보기/);
 });
 
