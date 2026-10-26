@@ -1,0 +1,2305 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>알뜰픽 | 상품을 더 간편하게</title>
+<meta name="description" content="식품·생활용품·가전부터 패션까지, 알뜰픽에서 원하는 상품을 쉽고 빠르게 찾아보세요.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://alttulpick-shop.onrender.com/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="알뜰픽">
+<meta property="og:title" content="알뜰픽 | 찾는 상품, 더 간편하게">
+<meta property="og:description" content="식품·리빙·디지털 상품을 검색하고 카테고리별로 둘러보세요.">
+<meta property="og:url" content="https://alttulpick-shop.onrender.com/">
+<meta property="og:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://alttulpick-shop.onrender.com/share-preview.png">
+<meta name="twitter:title" content="알뜰픽 | 다양한 상품 둘러보기">
+<meta name="twitter:description" content="상품 검색·카테고리·추천 상품을 한곳에서 확인하세요.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
+<style>
+
+:root{
+ --ink:#192334;--ink-soft:#455469;--muted:#78869a;--soft:#f3f6fa;
+ --border:#e6eaf0;--line:#dfe6ef;--primary:#2468e8;--primary-dark:#1657cc;
+ --blue-light:#eff5ff;--surface:#fff;
+ font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+ color:var(--ink);background:#f5f7fa;font-synthesis:none
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:98px}
+body{margin:0;min-width:320px}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
+[hidden]{display:none!important}
+.site{max-width:1280px;min-height:100vh;margin:0 auto;background:#fff;box-shadow:0 0 80px #1b365209}
+.wrap{max-width:1150px;margin:0 auto;padding-inline:32px}
+.header{background:#fff;border-bottom:1px solid var(--border)}
+.headin{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:30px}
+.brand-group{display:flex;align-items:center;gap:25px;min-width:0}
+.brand{font-size:31px;font-weight:950;letter-spacing:-2.1px;white-space:nowrap;line-height:1}
+.brand b{color:var(--primary);font-size:34px;line-height:.5}
+.brand-tag{font-size:12px;font-weight:600;color:#66758a;white-space:nowrap}
+.nav{display:flex;gap:25px;font-size:13px;font-weight:730;color:#455369;white-space:nowrap}
+.nav a:hover{color:var(--primary)}
+.header-chip{font-size:10px;letter-spacing:.8px;border:1px solid var(--border);border-radius:100px;padding:9px 12px;color:#728098;white-space:nowrap}
+.hero{padding:43px 0 20px}
+.hero-top{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:21px}
+.eyebrow{color:var(--primary);letter-spacing:2px;font-size:10px;font-weight:900;margin:0 0 9px}
+.hero h1{font-size:clamp(27px,3.5vw,38px);line-height:1.3;letter-spacing:-1.6px;margin:0;font-weight:900;word-break:keep-all}
+.hero h1 span{color:var(--primary)}
+.hero-intro{margin:0 0 2px;color:var(--muted);font-size:12px;line-height:1.7;max-width:300px;text-align:right}
+.search-surface{display:block}
+.bar{display:flex;align-items:center;min-height:66px;background:#f3f5f9;border:1px solid #edf0f5;border-radius:15px;padding:7px 7px 7px 21px;transition:background .2s,border-color .2s}
+.bar:focus-within{background:#fff;border-color:var(--primary);box-shadow:0 0 0 3px #2568e710}
+.search-mark{width:22px;height:22px;display:inline-grid;place-items:center;flex-shrink:0;margin-right:15px;color:#66758b}
+.search-mark svg{display:block;width:21px;height:21px}
+.bar input{border:0;outline:0;min-width:0;flex:1;background:transparent;color:var(--ink);font-size:14px;padding:12px 0}
+.bar input::placeholder{color:#929eb0}
+.primary{border:0;border-radius:11px;background:var(--ink);color:#fff;padding:15px 24px;min-height:49px;font-size:13px;font-weight:850}
+.primary:hover{background:var(--primary)}
+.quick-searches{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.quick-title{font-size:11px;color:#98a3b1;margin-right:3px}
+.quick-searches button{background:none;border:0;border-bottom:1px solid transparent;padding:7px 5px;color:#64748b;font-size:11px;font-weight:650}
+.quick-searches button:hover{color:var(--primary);border-bottom-color:var(--primary)}
+.category-section{margin:17px 0 42px}
+.category-heading{display:none}
+.category-list{display:flex;gap:10px;align-items:center;overflow-x:auto;padding:0 0 3px;scrollbar-width:none}
+.category-list::-webkit-scrollbar{display:none}
+.catbtn{border:1px solid transparent;border-radius:28px;background:#f2f4f8;color:#4d5b6e;padding:11px 20px;white-space:nowrap;font-size:13px;font-weight:750;transition:background .18s,color .18s}
+.catbtn:first-child{padding-inline:21px}
+.catbtn.active{color:#fff;background:#192334;box-shadow:0 3px 9px #17274118}
+.catbtn:hover:not(.active){background:#e7eefb;color:#1e62d4}
+.subcat-panel{margin-top:13px;padding:13px 0 0;border-top:1px solid var(--border)}
+.subcat-panel .note{font-size:11px;color:#8995a8;margin-right:11px}
+.subcat-list{display:inline-flex;gap:8px;flex-wrap:wrap;vertical-align:middle}
+.subbtn{border:1px solid var(--border);border-radius:20px;background:#fff;color:#647388;font-size:13px;font-weight:650;padding:8px 13px}
+.subbtn.active{background:var(--blue-light);border-color:#b7cef9;color:var(--primary);font-weight:800}
+.category-caption{color:#99a4b1;font-size:10px;line-height:1.6;margin:12px 0 0}
+
+/* Category-first navigation inspired by marketplace IA, without fake promotions */
+.category-hub{margin:25px 0 37px}
+.hub-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:0 0 17px}
+.hub-heading h2{font-size:24px;letter-spacing:-1px;margin:0 0 5px;font-weight:900}
+.hub-heading p{font-size:12px;color:#8390a0;margin:0;line-height:1.7}
+.hub-heading .hub-overline{font-size:10px;letter-spacing:1.2px;color:#4779c8;font-weight:850;white-space:nowrap}
+.department-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px}
+.department{appearance:none;display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0;text-align:left;background:#fff;border:1px solid #e6ebf1;border-radius:15px;padding:18px 15px 17px;transition:border-color .18s,box-shadow .18s,transform .18s}
+.department:hover{border-color:#9cbef6;box-shadow:0 7px 20px #1c4a9512;transform:translateY(-2px)}
+.department:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.department-icon{width:43px;height:43px;flex:none;display:grid;place-items:center;background:#f0f5fd;color:#2567bb;border-radius:12px}
+.department-icon svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.department-name{font-size:16px;font-weight:880;letter-spacing:-.6px;line-height:1.3}
+.department-desc{font-size:12px;color:#8a96a7;line-height:1.5;min-height:32px}
+.department-arrow{margin-top:auto;font-size:12px;color:#2760b9;font-weight:800}
+body:not(.category-active) .category-section{display:none}
+body.category-active .category-hub{display:none}
+body.category-active .hero{padding:20px 0 11px}
+body.category-active .hero-top,body.category-active .quick-searches{display:none}
+body.category-active .category-section{margin:17px 0 24px}
+body.category-active .category-caption{display:none}
+.browse-layout.category-open{display:grid;grid-template-columns:196px minmax(0,1fr);gap:24px;align-items:start}
+.category-aside{display:none;border:1px solid #e8edf3;border-radius:15px;padding:20px 13px 17px;background:#fff;position:sticky;top:15px}
+.browse-layout.category-open .category-aside{display:block}
+.side-head{font-size:11px;color:#8b97a8;letter-spacing:.8px;font-weight:800;margin:0 9px 13px}
+.side-links{display:flex;flex-direction:column;gap:3px}
+.side-link{background:transparent;text-align:left;width:100%;border:0;border-radius:8px;color:#4d5d70;font-size:13px;font-weight:670;line-height:1.5;padding:11px 10px}
+.side-link:hover{background:#f2f6fd;color:#1d5fb9}
+.side-link.active{background:#eaf2ff;color:#165ccd;font-weight:850}
+.side-note{margin:15px 10px 0;font-size:10px;color:#9aa6b4;line-height:1.65}
+.category-intro{display:none;background:linear-gradient(108deg,#f1f6ff,#f8fafd 75%);border:1px solid #e6eef9;border-radius:16px;padding:23px 26px;margin-bottom:26px}
+.browse-layout.category-open .category-intro{display:block}
+.breadcrumb{display:block;color:#778ca8;font-size:11px;font-weight:650;margin:0 0 10px}
+.category-intro h2{font-size:25px;line-height:1.25;font-weight:930;letter-spacing:-1px;margin:0 0 8px}
+.category-intro p{font-size:12px;color:#6e829e;line-height:1.7;margin:0}
+.browse-layout.category-open .section h2{font-size:22px}
+.browse-layout.category-open .section .section-sub{font-size:12px}
+.browse-layout.category-open .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.product-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-2px 0 16px;padding:12px 15px;background:#f9fafc;border:1px solid #edf0f4;border-radius:11px}
+.toolbar-label{font-size:11px;color:#7a879a;font-weight:700}
+.toolbar-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar-controls label{font-size:12px;color:#6c7c92;font-weight:700}
+.toolbar-controls select{appearance:auto;border:1px solid #dfe6f0;background:#fff;border-radius:8px;padding:8px 28px 8px 10px;color:#31445d;font-size:12px;max-width:160px}
+.shop-disclaimer{font-size:10px;color:#98a4b3;margin:0 0 15px;line-height:1.7}
+.deals{padding:1px 0 26px}
+.section{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:16px}
+.overline{display:block;color:var(--primary);font-size:10px;font-weight:850;letter-spacing:1.8px}
+.section h2,.section-head h2{font-size:28px;font-weight:900;letter-spacing:-1.2px;line-height:1.3;margin:7px 0 5px}
+.section-sub{font-size:13px;color:#8490a2;margin:0;line-height:1.7}
+.tabs{display:flex;gap:4px;align-items:center;border:1px solid var(--border);padding:4px;border-radius:12px;background:#f8fafc}
+.tab{border:0;background:transparent;color:#778498;border-radius:8px;font-size:13px;font-weight:800;white-space:nowrap;padding:10px 13px}
+.tab.active{color:var(--ink);background:#fff;box-shadow:0 1px 6px #24324c12}
+.tab:hover:not(.active){color:var(--primary)}
+.results-meta{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px}
+.muted{color:#8190a3;font-size:13px;line-height:1.65}
+.results-meta .aside{color:#a0aab8;font-size:10px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:34px}
+.card{display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid #edf0f4;border-radius:14px;overflow:hidden;box-shadow:0 3px 13px #1b304b08;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 9px 24px #1b304b12}
+.picture{width:100%;aspect-ratio:1.06;display:grid;place-items:center;position:relative;background:#f4f6f8;overflow:hidden}
+.picture img{height:100%;width:100%;object-fit:contain;transition:transform .3s}
+.card:hover .picture img{transform:scale(1.02)}
+.picture.has-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:18px}
+.fallback-no{font-size:10px;font-weight:850;letter-spacing:1.8px;color:#b1bac8}
+.fallback-wordmark{font-size:13px;font-weight:900;letter-spacing:3px;color:#5579bb}
+.fallback-size{font-size:clamp(24px,3vw,36px);font-weight:900;letter-spacing:-1.8px;color:#244c88}
+.fallback-caption{font-size:11px;color:#8d9bad;line-height:1.55}
+.content{padding:14px 15px 15px;display:flex;flex-direction:column;flex:1}
+.merchant{color:#5e718a;font-size:12px;font-weight:770}
+/* Merchant identity: provider's real cp_icon first, branded initials when absent. */
+.merchant-badge{display:inline-flex;align-items:center;gap:7px;min-width:0;max-width:100%;align-self:flex-start;line-height:1.2}
+.merchant-logo{position:relative;flex:0 0 25px;width:25px;height:25px;border:1px solid #e6ebf2;border-radius:7px;display:grid;place-items:center;overflow:hidden;background:#f0f3f7;color:#63718a}
+.merchant-logo img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;padding:2px;background:#fff}
+.merchant-initials{font-size:9px;font-weight:900;letter-spacing:-.5px;line-height:1}
+.merchant-name{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.merchant-logo--toss{color:#0064ff;background:#ebf4ff;border-color:#c9ddff}
+.merchant-logo--eleven{color:#e82240;background:#fff1f4;border-color:#ffd8e0}
+.merchant-logo--ssg{color:#a130a6;background:#faf1fb;border-color:#efd9f1}
+.merchant-logo--olive{color:#678b20;background:#f1f7e8;border-color:#dfeccc}
+.merchant-logo--gs{color:#22694a;background:#eaf6ee;border-color:#d3e9dd}
+.merchant-logo--high{color:#cf2f42;background:#fff2f3;border-color:#f9d9dd}
+.merchant-logo--cj{color:#bf3f50;background:#fff1f1;border-color:#f5dce0}
+
+.product{font-size:14px;font-weight:760;line-height:1.55;min-height:66px;margin:8px 0 10px;letter-spacing:-.2px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.price{font-size:24px;font-weight:930;letter-spacing:-1px;line-height:1.3;margin:0 0 15px}
+.pricing{display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin:0 0 15px;min-height:31px}
+.pricing .price{margin:0}
+.pricing.has-discount{gap:5px}
+.discount-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.discount-rate{font-size:18px;font-weight:930;color:#d73346;letter-spacing:-.5px}
+.regular-price{font-size:12px;color:#929cab;font-weight:650;text-decoration:line-through;text-decoration-thickness:1px}
+.sale-price{color:#182538}
+.price-unavailable{font-size:14px!important;letter-spacing:-.3px;color:#73849b!important;font-weight:750!important;line-height:1.5!important}
+.price-reference{font-size:10px;line-height:1.45;color:#8796a7;letter-spacing:0}
+
+.go{margin-top:auto;text-align:center;display:flex;align-items:center;justify-content:center;background:#f2f6ff;color:#235ccd;font-size:13px;font-weight:830;padding:12px 8px;border-radius:9px;min-height:41px}
+.go:hover{background:#e5eeff;color:#1547a7}
+.go.disabled{background:#f4f5f7;color:#9da6b1;pointer-events:none}
+.commission-detail{color:#8290a1;font-size:10px;line-height:1.65;margin:0 0 13px}
+.empty{grid-column:1/-1;background:#f9fafc;border:1px dashed #d9e1eb;border-radius:14px;color:#7b8ba0;font-size:13px;line-height:1.8;padding:55px 25px;text-align:center}
+.more-area{display:flex;flex-direction:column;align-items:center;gap:8px;margin:-7px 0 36px}
+.more-button{background:#fff;color:#2658b1;border:1px solid #cbdaf3;padding:14px 27px;min-width:230px;border-radius:12px;font-size:13px;font-weight:850}
+.more-button:hover:not(:disabled){background:#eef5ff;border-color:#8ab0ea}
+.more-button:disabled{cursor:wait;opacity:.65}
+.more-note{font-size:11px;color:#8b98a9;text-align:center;line-height:1.7;max-width:650px}
+.related-browse{border-top:1px solid var(--border);padding:20px 0 12px;margin:0 0 30px}
+.related-browse strong{font-size:14px;letter-spacing:-.3px}
+.related-browse p{font-size:11px;color:#8894a5;margin:6px 0 13px}
+.related-list{display:flex;flex-wrap:wrap;gap:8px}
+.related-link{background:#f4f7fb;border:1px solid #e8edf5;border-radius:50px;font-weight:720;font-size:12px;padding:9px 14px;color:#46586f}
+.related-link:hover{background:#e9f2ff;border-color:#acc8f1;color:#1657cc}
+/* Additional products, not a list of partner merchants. */
+.product-discovery{margin:23px 0 38px;padding:27px 0 9px;border-top:1px solid #e6ebf3}
+.product-discovery .section-head{display:flex;align-items:end;justify-content:space-between;gap:13px;margin:0 0 18px}
+.product-discovery .section-head h2{font-size:25px;letter-spacing:-.9px;margin:7px 0 5px}
+.product-discovery .section-head p{font-size:12px;color:#7a899d;line-height:1.65;margin:0}
+.product-discovery .discovery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.product-discovery .discovery-foot{display:flex;flex-direction:column;align-items:center;gap:8px;margin:18px 0 7px}
+.product-discovery .discovery-more{border:1px solid #bfd1ee;border-radius:12px;background:#fff;color:#1f5abc;font-size:14px;font-weight:850;min-width:210px;padding:14px 23px;cursor:pointer}
+.product-discovery .discovery-more:hover:not(:disabled){background:#eef5ff}
+.product-discovery .discovery-more:disabled{opacity:.55;cursor:wait}
+.product-discovery .discovery-notice{font-size:11px;color:#7b8b9e;text-align:center;line-height:1.6}
+.category-active .product-discovery{display:none}
+@media(min-width:731px) and (max-width:1030px){.product-discovery .discovery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:730px){.product-discovery{padding-top:21px;margin:19px 0 30px}.product-discovery .section-head{display:block}.product-discovery .section-head h2{font-size:22px}.product-discovery .discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product-discovery .discovery-more{width:100%}}
+.curated-section{margin:24px 0 52px;padding:28px 26px 22px;background:#eff5ff;border-radius:23px}
+.section-head{margin:0 0 18px;display:flex;justify-content:space-between;align-items:end;gap:18px}
+.section-head .overline{letter-spacing:1.35px}
+.section-head h2{font-size:25px;margin:7px 0 5px}
+.section-head p{color:#788eac;font-size:12px;margin:0;line-height:1.65}
+.section-count{font-size:11px;color:#7792bf;font-weight:850;letter-spacing:1px;white-space:nowrap}
+.curated-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:15px}
+.curated-grid .card{display:grid;grid-template-columns:minmax(240px,38%) minmax(0,1fr);border:0;border-radius:16px;box-shadow:none;transform:none}
+.curated-grid .picture{min-height:265px;aspect-ratio:auto;background:linear-gradient(150deg,#f4f8ff,#e7f0ff)}
+.curated-grid .picture.has-fallback{gap:17px}
+.curated-grid .fallback-size{font-size:37px}
+.curated-grid .content{padding:27px 29px 22px;justify-content:center}
+.curated-grid .merchant{font-size:12px;color:var(--primary)}
+.curated-grid .product{font-size:21px;font-weight:870;letter-spacing:-.6px;min-height:auto;margin:12px 0 12px;-webkit-line-clamp:3}
+.curated-grid .price{font-size:15px;background:#f1f5fd;color:var(--primary-dark);padding:12px 14px;border-radius:9px;margin:3px 0 12px;letter-spacing:-.3px}
+.curated-grid .go{background:var(--primary);color:#fff;font-size:14px;min-height:48px;border-radius:10px}
+.curated-grid .go:hover{background:var(--primary-dark)}
+.curated-disclosure{font-size:11px;color:#60789e;margin:15px 3px 0;line-height:1.75}
+.policy-strip{margin:49px 0 0;padding:25px 27px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:30px}
+.policy-strip strong{font-size:15px}
+.policy-strip p{font-size:12px;color:#8491a1;line-height:1.8;max-width:760px;margin:7px 0 0}
+.policy-mark{font-size:10px;letter-spacing:1px;color:#a3afbc;white-space:nowrap}
+.footer{margin-top:30px;border-top:1px solid var(--border);padding:27px 0 45px}
+.footerin{display:flex;justify-content:space-between;gap:30px}
+.foothead{font-size:24px;font-weight:950;letter-spacing:-1.5px}
+.foothead b{color:var(--primary)}
+.footer-meta,.footer-note{font-size:11px;color:#95a0ae;line-height:1.8;margin-top:8px}
+.footer-note{text-align:right;max-width:460px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card,.picture img{transition:none}}
+@media(max-width:980px){.headin{min-height:75px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:731px) and (max-width:1030px){.department-grid{grid-template-columns:repeat(3,1fr)}.browse-layout.category-open{grid-template-columns:165px minmax(0,1fr);gap:17px}.browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:730px){
+ .department-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .category-hub{margin:19px 0 31px}
+ .hub-heading h2{font-size:21px}.hub-heading .hub-overline{display:none}
+ .department{padding:13px 10px;gap:9px;border-radius:12px}.department-icon{width:36px;height:36px;border-radius:9px}.department-icon svg{width:22px;height:22px}
+ .department-name{font-size:14px}.department-desc{font-size:11px;min-height:30px}.department-arrow{font-size:10px}
+ .browse-layout.category-open{display:block}.browse-layout.category-open .category-aside{display:none}
+ .category-intro{padding:17px 18px;margin-bottom:19px}.category-intro h2{font-size:22px}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.category-active .category-section{margin:8px 0 20px}
+ .product-toolbar{display:block;padding:10px 11px}.toolbar-label{display:block;margin-bottom:9px}.toolbar-controls select{max-width:155px}
+ .shop-disclaimer{font-size:10px}.pricing{margin-bottom:12px}.discount-rate{font-size:16px}.regular-price{font-size:11px}.price-reference{font-size:10px}.pricing .price-unavailable{font-size:12px!important}
+ .wrap{padding-inline:17px}
+ .headin{min-height:65px;gap:10px}.brand{font-size:26px;letter-spacing:-1.7px}.brand b{font-size:28px}
+ .brand-group{gap:12px}.brand-tag{font-size:10px}
+ .nav{gap:12px;font-size:11px}.nav a:nth-child(2){display:none}.header-chip{display:none}
+ .hero{padding:25px 0 12px}.hero-top{margin-bottom:17px}.hero h1{font-size:25px;letter-spacing:-1px}.hero-intro{display:none}
+ .bar{min-height:57px;padding:5px 5px 5px 15px;border-radius:13px}.search-mark{margin-right:10px}.bar input{font-size:14px;padding:8px 0}.primary{min-height:45px;padding:11px 16px}
+ .quick-searches{gap:4px;margin-top:8px}.quick-title{font-size:10px}.quick-searches button{font-size:11px}
+ .category-section{margin:13px 0 31px}.category-list{margin-right:-17px;padding-right:17px;gap:8px}.catbtn{font-size:13px;padding:10px 15px}.catbtn:first-child{padding-inline:15px}
+ .subcat-panel{padding-top:11px}.subcat-list{gap:6px}.subbtn{font-size:12px;padding:8px 11px}.category-caption{font-size:10px}
+ .section{display:block;margin-bottom:12px}.section h2{font-size:24px}.section-sub{font-size:12px}
+ .tabs{margin-top:14px;width:fit-content;max-width:100%;overflow-x:auto}.tab{font-size:12px;padding:9px 12px}
+ .results-meta{margin-bottom:14px}.results-meta .aside{display:none}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:24px}
+ .content{padding:11px}.merchant-logo{width:23px;height:23px;flex-basis:23px;border-radius:6px}.merchant-badge{gap:5px}.merchant-name{max-width:128px}.product{font-size:13px;min-height:62px;line-height:1.5;margin:7px 0}.merchant{font-size:11px}.price{font-size:20px;margin:0 0 12px}
+ .go{font-size:12px;padding:11px 4px}.picture{aspect-ratio:1.05}
+ .more-area{margin:0 0 27px}.more-button{width:100%}.related-browse{padding-top:17px;margin-bottom:25px}.related-list{gap:7px}.related-link{font-size:12px;padding:8px 12px}
+ .curated-section{margin:19px -17px 42px;border-radius:0;padding:25px 17px 22px}.section-head h2{font-size:23px}.section-head p{font-size:11px}.section-count{display:none}
+ .curated-grid .card{grid-template-columns:40% minmax(0,1fr);min-height:210px}.curated-grid .picture{min-height:210px}
+ .curated-grid .content{padding:15px 12px}.curated-grid .product{font-size:15px;margin:8px 0}.curated-grid .price{font-size:12px;padding:9px 8px}.curated-grid .go{font-size:12px;min-height:42px;padding:9px 5px}.curated-grid .merchant{font-size:12px}.curated-grid .fallback-size{font-size:25px}
+ .curated-grid .fallback-wordmark{font-size:10px}.curated-grid .fallback-caption{font-size:9px}
+ .policy-strip{padding:22px 0;display:block;margin:30px 0 0}.policy-mark{display:none}.footer{margin-top:16px}.footerin{display:block}.footer-note{text-align:left;margin-top:14px}
+}
+@media(max-width:390px){.brand-tag{display:none}.nav a:last-child{display:none}.curated-grid .card{grid-template-columns:38% minmax(0,1fr)}.curated-grid .content{padding:11px 10px}.curated-grid .fallback-size{font-size:21px}}
+
+
+/* Marketplace-inspired image-first product cards with full-card affiliate links. */
+.grid,.product-discovery .discovery-grid{column-gap:17px;row-gap:25px}
+.card{border:0;border-radius:13px;background:#fff;box-shadow:none;overflow:visible}
+.card:hover{transform:none;box-shadow:none}
+.product-card-link{display:flex;flex-direction:column;height:100%;min-width:0;min-height:100%;text-decoration:none;border-radius:13px;outline-offset:3px}
+.card--clickable .product-card-link{cursor:pointer}
+.card--clickable .product-card-link:hover .product{color:#1762da}
+.card--clickable .product-card-link:hover .picture{box-shadow:0 7px 22px #1b304b16}
+.card--clickable .product-card-link:hover .picture img{transform:scale(1.045)}
+.product-card-link:focus-visible{outline:3px solid #2468e8;outline-offset:4px}
+.picture{border-radius:13px;aspect-ratio:1/1;background:#f5f6f8}
+.picture img{border-radius:13px}
+.content{padding:12px 2px 5px;gap:0}
+.merchant-badge{order:0;gap:5px;margin-bottom:7px;color:#7c8798}
+.merchant-logo{width:20px;height:20px;flex-basis:20px;border-radius:5px}
+.merchant-name{font-size:11px;font-weight:680}
+.product{order:1;min-height:0;margin:0 0 8px;font-size:14px;font-weight:650;line-height:1.5;-webkit-line-clamp:2}
+.pricing{order:2;min-height:0;margin:0 0 7px;gap:3px}
+.pricing .price{font-size:23px;font-weight:900;letter-spacing:-.85px;color:#172236}
+.discount-line{gap:8px}
+.discount-rate{font-size:18px}
+.regular-price{font-size:12px}
+.card-foot{order:3;display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:auto;min-height:18px;color:#8a97a7}
+.shop-hint{font-size:10px;font-weight:600}
+.external-arrow{font-size:17px;line-height:1;color:#557fbe;transition:transform .2s}
+.card--clickable .product-card-link:hover .external-arrow{transform:translate(2px,-2px)}
+.card--unavailable .shop-hint{color:#a4abb5}
+.curated-grid .card{display:block;min-height:0}
+.curated-grid .product-card-link{display:grid;grid-template-columns:minmax(210px,38%) minmax(0,1fr)}
+.curated-grid .picture{height:100%;min-height:250px;border-radius:14px 0 0 14px}
+.curated-grid .content{padding:24px 28px;justify-content:center}
+.curated-grid .product{font-size:21px;min-height:0;margin:8px 0 12px;-webkit-line-clamp:3;font-weight:800}
+.curated-grid .price{font-size:21px;background:none;border-radius:0;padding:0;margin:0}
+.curated-grid .card-foot{margin-top:16px}
+@media(max-width:730px){
+ .grid,.product-discovery .discovery-grid{column-gap:12px;row-gap:21px}
+ .picture{aspect-ratio:1/1}
+ .content{padding:9px 1px 4px}
+ .merchant-logo{width:18px;height:18px;flex-basis:18px}
+ .merchant-name{font-size:10px}
+ .product{font-size:12px;line-height:1.5;min-height:0;margin:0 0 7px;-webkit-line-clamp:2}
+ .pricing{margin-bottom:5px}
+ .pricing .price{font-size:19px}
+ .discount-rate{font-size:15px}.regular-price{font-size:11px}
+ .shop-hint{font-size:9px}.external-arrow{font-size:15px}
+ .curated-grid .product-card-link{grid-template-columns:40% minmax(0,1fr)}
+ .curated-grid .picture{min-height:185px}
+ .curated-grid .content{padding:14px 12px}
+ .curated-grid .product{font-size:14px;margin:7px 0;min-height:0}
+ .curated-grid .pricing .price{font-size:16px;padding:0;margin:0}
+ .curated-grid .card-foot{margin-top:9px}
+}
+
+
+/* Storefront v3 — actual loaded font, larger product-focused layout, no tool-like button. */
+.site{max-width:1380px}
+.wrap{max-width:1250px}
+.grid,.product-discovery .discovery-grid{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ column-gap:24px;row-gap:39px
+}
+.card{background:#fff;border:0;border-radius:0;box-shadow:none;overflow:visible}
+.card:hover{transform:none;box-shadow:none}
+.product-card-link{font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif}
+.picture{aspect-ratio:1.16;border-radius:16px;background:#f7f8fa;box-shadow:inset 0 0 0 1px #edf0f4}
+.picture img{border-radius:16px}
+.product-card-link .content{padding:16px 3px 8px;gap:0}
+.product-card-link .product{
+ order:1;font-size:17px;font-weight:560;line-height:1.52;letter-spacing:-.35px;
+ min-height:52px;margin:0 0 10px;color:#353b45;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all
+}
+.product-card-link .pricing{order:2;display:flex;flex-direction:column;align-items:flex-start;min-height:42px;gap:6px;margin:0 0 10px}
+.product-card-link .price{
+ display:inline-flex;align-items:baseline;gap:1px;white-space:nowrap;
+ font-size:31px;font-weight:820;line-height:1.22;letter-spacing:-1.45px;color:#101722;
+ background:none;border:0;padding:0
+}
+.product-card-link .price-number{
+ font-family:"Pretendard Variable",Pretendard,Arial,sans-serif;
+ font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+ font-weight:830;letter-spacing:-1.25px
+}
+.product-card-link .price-unit{
+ font-size:.60em;font-weight:600;letter-spacing:-.5px;margin-left:2px
+}
+.product-card-link .regular-price{
+ display:block;font-size:13px;font-weight:450;color:#a0a5ad;line-height:1.4;
+ text-decoration:line-through;text-decoration-color:#a0a5ad
+}
+.product-card-link .price-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;row-gap:3px}
+.product-card-link .discount-rate{
+ font-size:29px;font-weight:680;color:#f04438;line-height:1.2;letter-spacing:-1.1px;white-space:nowrap
+}
+.product-card-link .price-reference{font-size:10px;color:#9399a3;line-height:1.45}
+.product-card-link .price-unavailable{
+ font-size:15px!important;font-weight:560!important;letter-spacing:-.2px!important;
+ color:#818b99!important;white-space:normal
+}
+.product-card-link .merchant-badge{
+ order:3;display:inline-flex;align-items:center;gap:6px;margin:4px 0 0;color:#8b929e
+}
+.product-card-link .merchant-name{font-size:12px;font-weight:470;letter-spacing:-.2px}
+.product-card-link .merchant-logo{width:19px;height:19px;flex-basis:19px;border-radius:5px}
+.product-card-link .card-foot{display:none}
+.curated-grid .card{border-radius:17px;overflow:hidden}
+.curated-grid .product-card-link .picture{border-radius:17px 0 0 17px}
+.curated-grid .product-card-link .content{padding:30px 35px;justify-content:center}
+.curated-grid .product-card-link .product{
+ font-size:23px;min-height:0;line-height:1.42;font-weight:620;margin-bottom:17px
+}
+.curated-grid .product-card-link .price{font-size:34px}
+.curated-grid .product-card-link .discount-rate{font-size:30px}
+@media(min-width:731px) and (max-width:1030px){
+ .grid,.product-discovery .discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:1031px){
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:730px){
+ .grid,.product-discovery .discovery-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:26px
+ }
+ .picture{aspect-ratio:1.04;border-radius:12px}
+ .picture img{border-radius:12px}
+ .product-card-link .content{padding:11px 1px 7px}
+ .product-card-link .product{
+  font-size:14px;font-weight:540;line-height:1.48;min-height:42px;letter-spacing:-.25px;margin-bottom:8px
+ }
+ .product-card-link .pricing{min-height:30px;gap:4px;margin-bottom:7px}
+ .product-card-link .price{font-size:23px;line-height:1.2;letter-spacing:-.8px}
+ .product-card-link .price-number{letter-spacing:-.9px}
+ .product-card-link .price-unit{font-size:.60em;margin-left:1px}
+ .product-card-link .regular-price{font-size:11px}
+ .product-card-link .discount-rate{font-size:21px}
+ .product-card-link .price-row{gap:6px}
+ .product-card-link .price-reference{font-size:9px}
+ .product-card-link .merchant-name{font-size:10px}
+ .product-card-link .merchant-logo{width:16px;height:16px;flex-basis:16px}
+ .product-card-link .price-unavailable{font-size:12px!important}
+ .curated-grid .product-card-link{grid-template-columns:40% minmax(0,1fr)}
+ .curated-grid .product-card-link .picture{min-height:195px;border-radius:13px 0 0 13px}
+ .curated-grid .product-card-link .content{padding:15px 13px}
+ .curated-grid .product-card-link .product{font-size:15px;min-height:0;line-height:1.42;margin-bottom:10px}
+ .curated-grid .product-card-link .price{font-size:20px}
+ .curated-grid .product-card-link .discount-rate{font-size:18px}
+}
+
+/* Category shop v4 — merchandised six-department hub and functional category rails. */
+.category-hub{margin:30px 0 45px;padding:0}
+.hub-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 21px}
+.hub-eyebrow{display:block;color:#2468e8;font-size:11px;font-weight:760;letter-spacing:1.35px;margin:0 0 8px}
+.hub-heading h2{font-size:29px;line-height:1.25;letter-spacing:-1.25px;font-weight:790;margin:0 0 8px;color:#141e2e}
+.hub-heading p{font-size:13px;line-height:1.6;color:#7a8899;margin:0}
+.hub-count{color:#8090a5;font-size:12px;font-weight:600;white-space:nowrap;padding-bottom:4px}
+.department-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.department{
+ display:flex;flex-direction:row;align-items:center;gap:17px;min-width:0;min-height:121px;
+ padding:17px 20px;border:1px solid #e9edf2;background:#fff;border-radius:18px;
+ cursor:pointer;text-align:left;transition:border-color .15s,transform .15s,box-shadow .15s
+}
+.department:hover{border-color:#a3bfee;transform:translateY(-2px);box-shadow:0 9px 26px #2345690d}
+.department:focus-visible{outline:3px solid #2c70e9;outline-offset:3px}
+.department-art{
+ width:83px;height:83px;flex:0 0 83px;display:grid;place-items:center;
+ border-radius:17px;position:relative;overflow:hidden;background:#f0f6ff;color:#3162a8
+}
+.department-icon{display:grid;place-items:center;width:100%;height:100%;background:transparent;color:inherit;border-radius:0}
+.department-icon svg{width:39px;height:39px;stroke-width:1.6}
+.department--food .department-art{background:#fff3df;color:#b66b19}
+.department--living .department-art{background:#e8f7f3;color:#168678}
+.department--digital .department-art{background:#eaf0ff;color:#5572cb}
+.department--beauty .department-art{background:#fcebf4;color:#bf5d89}
+.department--fashion .department-art{background:#f2ecfa;color:#7b60b0}
+.department--kitchen .department-art{background:#e8f3fb;color:#377eaf}
+.department-text{display:flex;flex-direction:column;gap:6px;align-items:flex-start;min-width:0;flex:1}
+.department-name{font-size:19px;font-weight:790;line-height:1.3;color:#1d2939;letter-spacing:-.65px}
+.department-desc{font-size:12px;color:#8592a3;line-height:1.4;min-height:0;word-break:keep-all}
+.department-arrow{font-size:17px;font-weight:650;color:#7c96be;align-self:flex-start;margin:2px 0 0 1px}
+.hub-shortcuts{
+ display:flex;align-items:flex-start;gap:18px;padding:19px 0 0;margin:22px 0 0;
+ border-top:1px solid #eff1f4
+}
+.hub-shortcuts-heading{flex:0 0 auto;font-size:12px;font-weight:760;color:#596779;margin-top:9px}
+.hub-quicklinks{display:flex;gap:8px;flex-wrap:wrap;min-width:0}
+.hub-quick{
+ display:inline-flex;align-items:center;gap:7px;border:1px solid #e5eaf1;
+ background:#f8fafc;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:610;
+ color:#45566c;white-space:nowrap;transition:background .16s,border-color .16s
+}
+.hub-quick span{font-size:12px;color:#7596c6}
+.hub-quick:hover{background:#eef5ff;border-color:#a6c5fa;color:#185dd2}
+
+/* Category search surface: clear active state + visible subcategory navigation. */
+body.category-active .category-section{
+ display:block;margin:13px 0 24px;padding:19px 21px 17px;background:#fafbfd;
+ border:1px solid #e9edf3;border-radius:17px
+}
+.category-heading{display:flex;align-items:center;gap:9px;margin-bottom:14px;color:#152b47;font-size:15px;font-weight:780}
+.category-heading-mark{display:grid;place-items:center;width:25px;height:25px;background:#e8f1ff;border-radius:7px;color:#2468e8;font-size:18px}
+.category-heading-tip{font-size:11px;color:#97a3b3;font-weight:480;margin-left:auto}
+.category-list{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 0 4px;scroll-snap-type:x proximity}
+.catbtn{
+ border:1px solid #e5eaf1;border-radius:10px;background:#fff;color:#4b5e74;
+ padding:12px 17px;font-size:13px;font-weight:660;flex-shrink:0;scroll-snap-align:start
+}
+.catbtn.active{background:#1f62d3;border-color:#1f62d3;color:#fff;box-shadow:none}
+.catbtn:hover:not(.active){background:#eff5ff;border-color:#c7dbf9}
+.subcat-panel{margin-top:15px;padding:13px 0 0;border-top:1px solid #e8edf4}
+.subcat-panel .note{display:block;margin-bottom:9px;color:#8390a1;font-size:11px;font-weight:660}
+.subcat-list{display:flex;gap:7px;flex-wrap:wrap}
+.subbtn{
+ border:1px solid #e3eaf3;border-radius:100px;background:#fff;
+ color:#5e7085;padding:9px 14px;font-size:12px;font-weight:580
+}
+.subbtn.active{background:#e7f1ff;color:#155bc4;border-color:#bed4fb;font-weight:750}
+.subbtn:hover:not(.active){border-color:#b6cff3;background:#f3f8ff}
+.browse-layout.category-open{grid-template-columns:205px minmax(0,1fr);gap:26px}
+.category-aside{position:sticky;top:20px;border:1px solid #e8edf4;border-radius:16px;padding:20px 11px}
+.side-head{font-size:13px;letter-spacing:-.1px;font-weight:760;color:#1c304b;margin:1px 12px 14px}
+.side-links{gap:4px}
+.side-link{padding:12px 13px;border-radius:10px;font-size:13px;color:#687589;font-weight:590}
+.side-link.active{background:#eaf2ff;color:#195dbe;font-weight:760}
+.side-link:hover:not(.active){background:#f5f8fc;color:#254772}
+.side-note{margin:14px 12px 2px;font-size:10px;color:#a5afbc;line-height:1.6}
+.category-intro{
+ display:none;align-items:center;justify-content:space-between;min-height:176px;
+ gap:26px;padding:28px 32px;margin-bottom:27px;border:1px solid #e3ecf9;border-radius:20px;
+ background:linear-gradient(115deg,#f1f6ff 0%,#f9fbff 70%,#f6f9ff 100%);
+}
+.browse-layout.category-open .category-intro{display:flex}
+.category-intro-copy{min-width:0;flex:1}
+.breadcrumb{font-size:11px;color:#7f8fa5;font-weight:590;margin:0 0 15px}
+.category-intro-overline{display:block;color:#4c82cf;font-size:10px;font-weight:760;letter-spacing:1.1px;margin-bottom:7px}
+.category-intro h2{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.18;margin:0 0 8px}
+.category-intro p{font-size:13px;color:#6c7e96;line-height:1.55;word-break:keep-all;margin:0}
+.category-intro-stamp{
+ width:94px;height:94px;flex:0 0 94px;border-radius:25px;
+ display:grid;place-items:center;background:#e6efff;color:#3975cc;
+ font-size:17px;font-weight:850;letter-spacing:.7px;transform:rotate(-6deg)
+}
+.browse-layout.category-open .section h2{font-size:25px}
+.browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1050px) and (min-width:731px){
+ .department-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .department{min-height:110px}
+ .browse-layout.category-open{grid-template-columns:170px minmax(0,1fr);gap:20px}
+}
+@media(max-width:730px){
+ .category-hub{margin:24px 0 34px}
+ .hub-heading{margin:0 0 15px}
+ .hub-heading h2{font-size:23px;margin-bottom:6px}
+ .hub-heading p{font-size:11px}
+ .hub-count{font-size:10px}
+ .department-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .department{
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  padding:12px 12px 13px;min-height:154px;border-radius:14px;position:relative
+ }
+ .department-art{width:58px;height:58px;flex-basis:58px;border-radius:13px}
+ .department-icon svg{width:29px;height:29px}
+ .department-text{gap:4px;flex:0 0 auto}
+ .department-name{font-size:16px}
+ .department-desc{font-size:11px;line-height:1.4}
+ .department-arrow{position:absolute;top:14px;right:13px;font-size:15px}
+ .hub-shortcuts{display:block;margin-top:16px;padding-top:15px}
+ .hub-shortcuts-heading{display:block;margin:0 0 10px;font-size:11px}
+ .hub-quicklinks{gap:7px}
+ .hub-quick{font-size:11px;padding:8px 10px}
+ body.category-active .category-section{margin:10px 0 18px;padding:13px 11px 12px;border-radius:12px}
+ .category-heading{margin-bottom:11px;font-size:13px}
+ .category-heading-tip{display:none}
+ .catbtn{padding:10px 13px;font-size:12px;border-radius:9px}
+ .category-list{margin:0;padding-bottom:7px}
+ .subcat-panel{margin-top:10px;padding-top:10px}
+ .subcat-list{flex-wrap:nowrap;overflow-x:auto;padding:0 1px 5px;scrollbar-width:none}
+ .subcat-list::-webkit-scrollbar{display:none}
+ .subbtn{flex:0 0 auto;font-size:12px;padding:9px 12px}
+ .browse-layout.category-open{display:block}
+ .browse-layout.category-open .category-aside{display:none}
+ .category-intro{min-height:0;padding:19px 17px;margin-bottom:19px;border-radius:14px;gap:8px}
+ .category-intro h2{font-size:24px;margin-bottom:6px}
+ .category-intro p{font-size:11px;line-height:1.55}
+ .category-intro-stamp{width:53px;height:53px;flex-basis:53px;border-radius:15px;font-size:11px}
+ .breadcrumb{margin-bottom:8px;font-size:10px}
+ .category-intro-overline{font-size:9px;margin-bottom:5px}
+ .browse-layout.category-open .section h2{font-size:22px}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Toss Sharelink: responsive horizontally scrolling recommendation rail. */
+.curated-section{margin-top:32px;background:#f5f8ff;border-radius:22px;padding:25px 24px 19px}
+.curated-section .section-head{align-items:center;gap:15px}
+.toss-slider-tools{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.toss-slide-count{font-size:12px;color:#748198;font-weight:650;margin-right:5px;font-variant-numeric:tabular-nums}
+.toss-slider-button{width:36px;height:36px;border:1px solid #d7e1f1;background:#fff;color:#3268ac;border-radius:50%;font-size:25px;line-height:1;display:grid;place-items:center}
+.toss-slider-button:hover:not(:disabled){border-color:#91b7ee;background:#e8f1ff}
+.toss-slider-button:disabled{opacity:.35;cursor:default}
+.curated-grid{
+ display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;
+ scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;
+ padding:4px 2px 14px;outline-offset:2px
+}
+.curated-grid::-webkit-scrollbar{display:none}
+.curated-grid .card{
+ flex:0 0 calc((100% - 32px)/3);min-width:0;display:flex;
+ border-radius:15px;background:#fff;overflow:hidden;box-shadow:0 2px 10px #2d466012;
+ scroll-snap-align:start
+}
+.curated-grid .product-card-link{display:flex;flex-direction:column;min-height:100%;width:100%}
+.curated-grid .product-card-link .picture{width:100%;height:auto;aspect-ratio:1.3;min-height:0;border-radius:15px 15px 0 0;background:#eef4fe}
+.curated-grid .picture.has-fallback{gap:8px}
+.curated-grid .picture.toss-product-fallback{gap:10px;background:linear-gradient(145deg,#e8f2ff,#f8faff);padding:16px}
+.toss-fallback-icon{font-size:clamp(32px,4.3vw,52px);line-height:1.2}
+.toss-fallback-note{font-size:11px;color:#6f85a6;line-height:1.5}
+.curated-grid .product-card-link .content{padding:14px 15px 17px;justify-content:flex-start}
+.curated-grid .product-card-link .product{font-size:15px;font-weight:650;line-height:1.48;min-height:44px;margin:0 0 9px;-webkit-line-clamp:2}
+.curated-grid .product-card-link .price-unavailable{font-size:12px!important;line-height:1.5!important}
+.curated-grid .product-card-link .merchant-badge{margin-top:auto}
+.curated-grid .product-card-link .price{font-size:21px}
+.curated-disclosure{margin:6px 2px 0;line-height:1.6}
+@media(min-width:731px) and (max-width:1030px){
+ .curated-grid .card{flex-basis:calc((100% - 16px)/2)}
+}
+@media(max-width:730px){
+ .curated-section{margin:18px -17px 32px;padding:21px 17px 17px;border-radius:0}
+ .curated-section .section-head{align-items:center}
+ .curated-section .section-head h2{font-size:21px}
+ .curated-section .section-head p{font-size:11px}
+ .toss-slider-button{height:31px;width:31px;font-size:21px}
+ .toss-slide-count{font-size:11px;margin-right:2px}
+ .curated-grid{gap:12px;margin-right:-17px;padding-right:17px}
+ .curated-grid .card{flex:0 0 min(75vw,300px)}
+ .curated-grid .product-card-link{display:flex}
+ .curated-grid .product-card-link .picture{min-height:0;aspect-ratio:1.28;border-radius:14px 14px 0 0}
+ .curated-grid .product-card-link .content{padding:13px 14px 16px}
+ .curated-grid .product-card-link .product{font-size:15px;min-height:44px}
+ .curated-grid .product-card-link .price{font-size:20px}
+ .toss-fallback-icon{font-size:47px}
+}
+@media(prefers-reduced-motion:reduce){.curated-grid{scroll-behavior:auto}}
+
+
+/* Mobile filter controls take the full available width. */
+@media(max-width:730px){
+ .product-toolbar .toolbar-controls{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 10px}
+ .product-toolbar .toolbar-controls select{width:100%;max-width:none;min-height:40px}
+ #status{overflow-wrap:anywhere}
+}
+/* Explicit, quota-conscious recommendation exploration. */
+.recommendation-explore{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 19px;margin:0 0 22px;border:1px solid #d9e7fb;border-radius:13px;background:#f8fbff}
+.recommendation-explore[hidden]{display:none}
+.recommendation-explore-copy{min-width:0;flex:1}
+.recommendation-explore strong{font-size:14px;color:#20436b}
+.recommendation-explore p{margin:6px 0 0;color:#63758a;font-size:12px;line-height:1.6;word-break:keep-all}
+.recommendation-explore-button{flex:0 0 auto;border:1px solid #b6ceee;border-radius:9px;padding:12px 15px;background:#fff;color:#1e5ba9;font-size:12px;font-weight:750}
+.recommendation-explore-button:hover:not(:disabled){background:#eaf3ff}
+.recommendation-explore-button:disabled{opacity:.62;cursor:wait}
+.product-discovery-tag{display:inline-flex;width:max-content;align-items:center;margin:5px 0 7px;padding:4px 7px;background:#edf5ff;border-radius:5px;color:#245eaa;font-size:10px;font-weight:750}
+@media(max-width:730px){
+ .recommendation-explore{flex-direction:column;align-items:stretch;gap:13px;padding:14px 13px}
+ .recommendation-explore-button{width:100%;min-height:44px}
+}
+.product-category-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.product-category-chip{border:1px solid #cfdbee;border-radius:999px;background:#fff;color:#435b7c;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;min-height:38px}
+.product-category-chip:hover{border-color:#7fa4db}
+.product-category-chip.active,.product-category-chip[aria-pressed="true"]{background:#225dab;border-color:#225dab;color:#fff}
+.product-category-chip:focus-visible{outline:3px solid #2c70e9;outline-offset:2px}
+.product-category-chip:disabled{opacity:.56;cursor:wait}
+@media(max-width:730px){.product-category-tabs{gap:7px}.product-category-chip{min-height:42px}}
+/* Public review readiness: obvious sponsorship, working site information and mobile navigation */
+.affiliate-banner{display:flex;align-items:center;gap:12px;margin:8px 0 23px;padding:15px 17px;background:#f5f8ff;border:1px solid #e3eafb;border-radius:13px;color:#5e7390;font-size:12px;line-height:1.6}
+.affiliate-banner strong{color:#2d4a73;font-weight:800}
+.affiliate-banner-icon{width:24px;height:24px;flex:0 0 24px;border-radius:50%;background:#dceafe;color:#2468e8;display:grid;place-items:center;font-size:13px;font-weight:900}
+.affiliate-banner>a{margin-left:auto;color:#1c5dbc;white-space:nowrap;font-size:12px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.affiliate-banner>a:hover{color:#174887}
+.status-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.retry-main{border:1px solid #b2cafa;background:#edf4ff;color:#205fc2;border-radius:9px;font-size:12px;font-weight:800;padding:8px 11px}
+.retry-main:hover{background:#e0edff}
+.footerin{align-items:start;gap:26px}
+.footer-brand{flex:1;min-width:220px;max-width:460px}
+.footer-meta{max-width:410px;line-height:1.8}
+.footer-disclosure{color:#586b82;line-height:1.8;font-size:11px;margin:12px 0 0;max-width:420px}
+.footer-links{display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:450px}
+.footer-links nav{display:flex;align-items:center;justify-content:flex-end;gap:11px 14px;flex-wrap:wrap}
+.footer-links nav a{font-size:12px;font-weight:750;color:#3d5877;text-decoration:underline;text-underline-offset:3px}
+.footer-links nav a:hover{color:var(--primary)}
+.footer-links .footer-note{margin-top:7px}
+@media(max-width:730px){
+ .affiliate-banner{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:9px 10px;margin-top:2px;padding:12px 13px;font-size:11px}
+ .affiliate-banner>a{grid-column:2;justify-self:start;margin-left:0}
+ .footerin{display:flex;flex-direction:column;gap:19px}
+ .footer-links{align-items:flex-start;max-width:100%}
+ .footer-links nav{justify-content:flex-start}
+ .footer-links .footer-note{text-align:left}
+}
+
+/* ============================================================================
+   ALTTUL PICK — RETAIL DESIGN SYSTEM · 2026-10
+   Inspired by proven commerce navigation principles, not copied from any brand.
+   Keep real product attributes and transparent affiliate disclosures.
+   These overrides deliberately supersede older landing-page treatments.
+   ============================================================================ */
+:root{
+ --ink:#1b2530;--ink-soft:#465568;--muted:#7c8795;--soft:#f7f8fa;
+ --border:#e6e9ee;--line:#e7ebf0;--primary:#1769d1;--primary-dark:#1056b2;
+ --blue-light:#f1f6fd;--surface:#fff;
+ background:#fff;color:#1b2530
+}
+html{scroll-padding-top:82px}
+body{background:#fff}
+.site{max-width:none;background:#fff;box-shadow:none}
+.wrap{max-width:1264px;padding-inline:28px}
+.header{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid #e9edf1}
+.headin{min-height:68px;gap:18px}
+.brand-group{gap:18px}
+.brand{font-size:27px;letter-spacing:-1.6px;font-weight:850;color:#17212f}
+.brand b{color:#1467d8;font-size:27px}
+.brand-tag{padding-left:18px;border-left:1px solid #e5e8ed;color:#7d8795;font-size:11px;font-weight:500;letter-spacing:-.1px}
+.nav{gap:23px;font-size:12px;font-weight:650;color:#526173}
+.nav a{padding:24px 0 22px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.nav a:hover,.nav a:focus-visible{color:#1769d1;border-bottom-color:#1769d1}
+.hero{padding:26px 0 17px}
+.hero-top{margin-bottom:14px;align-items:center}
+.hero .eyebrow{display:none}
+.hero h1{font-size:22px;letter-spacing:-.65px;font-weight:800;line-height:1.4}
+.hero h1 span{color:var(--ink)}
+.hero-intro{font-size:11px;line-height:1.6;max-width:400px;color:#8b96a3}
+.bar{min-height:57px;border:2px solid #2268ca;background:#fff;border-radius:10px;padding:5px 5px 5px 19px;box-shadow:none;transition:border-color .15s,box-shadow .15s}
+.bar:focus-within{border-color:#1460bf;background:#fff;box-shadow:0 0 0 3px #1769d112}
+.search-mark{color:#50769f;margin-right:11px}
+.bar input{font-size:15px;letter-spacing:-.15px}
+.bar input::placeholder{color:#9ba6b3}
+.primary{min-height:43px;border-radius:6px;padding:11px 33px;font-size:14px;font-weight:750;background:#1769d1}
+.primary:hover{background:#1259b6}
+.quick-searches{margin-top:10px;gap:6px}
+.quick-title{font-size:11px;color:#8d97a4}
+.quick-searches button{font-size:12px;font-weight:520;color:#637183;padding:5px 8px;border:0;border-radius:5px}
+.quick-searches button:hover{background:#f0f5fb}
+.affiliate-banner{gap:8px;margin:3px 0 19px;padding:10px 0;background:none;border:0;border-top:1px solid #eff1f4;border-bottom:1px solid #eff1f4;border-radius:0;color:#7b8795;font-size:11px;line-height:1.6}
+.affiliate-banner strong{color:#5c6878;font-weight:670}
+.affiliate-banner-icon{width:17px;height:17px;flex-basis:17px;border:1px solid #9fabba;background:none;color:#8593a4;font-size:10px}
+.affiliate-banner>a{margin-left:auto;font-size:11px;color:#52749f;font-weight:620;text-underline-offset:3px}
+.category-hub{margin:18px 0 38px}
+.hub-heading{align-items:center;margin-bottom:15px}
+.hub-eyebrow{display:none}
+.hub-heading h2{font-size:20px;font-weight:800;letter-spacing:-.65px;margin:0 0 4px}
+.hub-heading p{font-size:12px;color:#8893a1}
+.hub-count{color:#9aa4b1;font-size:11px}
+.department-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.department{
+ display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+ gap:8px;min-height:118px;padding:13px 7px;background:#fff;
+ border:1px solid #e5e9ee;border-radius:10px;box-shadow:none;
+ transition:background .15s,border-color .15s
+}
+.department:hover{background:#f7faff;border-color:#8cb6e9;transform:none;box-shadow:none}
+.department:active{background:#eef5ff}
+.department-art,
+.department--food .department-art,.department--living .department-art,
+.department--digital .department-art,.department--beauty .department-art,
+.department--fashion .department-art,.department--kitchen .department-art{
+ width:40px;height:40px;flex:0 0 40px;border-radius:9px;background:#f3f6fa;color:#496986
+}
+.department-icon svg{width:24px;height:24px;stroke-width:1.7}
+.department-text{align-items:center;gap:0;flex:none}
+.department-name{font-size:14px;font-weight:730;line-height:1.3;color:#273747;letter-spacing:-.4px}
+.department-desc,.department-arrow{display:none}
+.hub-shortcuts{gap:14px;margin:13px 0 0;padding:12px 0 0;border-top:1px solid #f0f2f5;align-items:center}
+.hub-shortcuts-heading{margin:0;font-size:11px;color:#8a95a2;font-weight:600}
+.hub-quicklinks{gap:7px}
+.hub-quick{padding:6px 10px;border:1px solid #ecf0f4;border-radius:5px;background:#f9fafb;color:#647183;font-size:11px;font-weight:550}
+.hub-quick span{display:none}
+.hub-quick:hover{border-color:#cbd9ed}
+.deals{padding:1px 0 12px}
+.section,.section-head{gap:12px;margin-bottom:16px}
+.section .overline,.section-head .overline{display:none}
+.section h2,.section-head h2{font-size:23px;font-weight:780;letter-spacing:-.8px;margin:0 0 5px;color:#1f2b38}
+.section-sub,.section-head p{font-size:12px;color:#85909d;line-height:1.5}
+.tabs{gap:19px;background:transparent;padding:0;border:0;border-bottom:1px solid #e7eaee;border-radius:0}
+.tab{position:relative;border-radius:0;padding:11px 1px;color:#798594;font-size:13px;font-weight:650}
+.tab.active{color:#1c65bb;font-weight:800;background:transparent;box-shadow:none}
+.tab.active::after{content:"";height:3px;background:#1769d1;position:absolute;bottom:-1px;left:0;right:0;border-radius:2px}
+.tab:hover:not(.active){color:#275f9f}
+.results-meta{margin-bottom:13px;gap:12px}
+.results-meta .aside{font-size:11px;color:#9aa3af}
+.muted{font-size:12px;color:#81909e}
+.product-toolbar{padding:9px 0 12px;margin:0 0 11px;border:0;border-bottom:1px solid #e7ebef;border-radius:0;background:none}
+.toolbar-label{font-size:12px;font-weight:620;color:#556374}
+.toolbar-controls{gap:8px}
+.toolbar-controls label{color:#697787;font-size:11px;font-weight:560}
+.toolbar-controls select{min-height:35px;border:1px solid #dce2e9;border-radius:5px;background:#fff;padding:7px 24px 7px 10px;font-size:12px;color:#354455}
+.shop-disclaimer{font-size:10px;line-height:1.5;margin-bottom:14px}
+.grid,.product-discovery .discovery-grid{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:18px;row-gap:27px}
+.card{border:0;border-radius:0;box-shadow:none;background:#fff}
+.card--clickable .product-card-link:hover .picture{box-shadow:0 0 0 1px #c6d2df}
+.card--clickable .product-card-link:hover .picture img{transform:scale(1.025)}
+.product-card-link{border-radius:6px}
+.picture{aspect-ratio:1/1;border-radius:8px;background:#f6f7f8;box-shadow:inset 0 0 0 1px #f0f1f2}
+.picture img{border-radius:8px}
+.product-card-link .content{padding:10px 1px 3px}
+.product-card-link .product{font-size:14px;font-weight:550;line-height:1.47;min-height:42px;margin-bottom:7px;color:#2e3742;letter-spacing:-.22px}
+.product-card-link .pricing{min-height:35px;margin-bottom:5px;gap:4px}
+.product-card-link .price{font-size:24px;font-weight:800;letter-spacing:-.7px;color:#111923}
+.product-card-link .price-number{font-weight:800;letter-spacing:-.65px}
+.product-card-link .discount-rate{font-size:18px;font-weight:750;color:#d53d40}
+.product-card-link .regular-price{font-size:12px}
+.product-card-link .merchant-badge{margin-top:4px;color:#808c9b;gap:5px}
+.product-card-link .merchant-name{font-size:11px;font-weight:500;color:#7e8997}
+.product-card-link .merchant-logo{width:17px;height:17px;flex-basis:17px}
+.empty{background:#fafbfc;border:1px solid #edf0f2;border-radius:8px;padding:42px 18px;font-size:13px}
+.more-button,.product-discovery .discovery-more{border:1px solid #cbd5e2;color:#3d5f86;background:#fff;min-width:220px;padding:12px 20px;font-weight:670;font-size:12px;border-radius:6px}
+.more-button:hover:not(:disabled),.product-discovery .discovery-more:hover:not(:disabled){background:#f6f9fd;border-color:#9bb9e0}
+.recommendation-explore{display:flex;align-items:flex-end;gap:16px;padding:16px 0 17px;border:0;border-top:1px solid #edf0f3;border-bottom:1px solid #edf0f3;border-radius:0;margin:2px 0 22px;background:none}
+.recommendation-explore-copy{flex:1;min-width:0}
+.recommendation-explore strong{font-size:14px;font-weight:770;color:#263342}
+.recommendation-explore p{font-size:11px;color:#8390a0;line-height:1.65;margin:5px 0 0}
+.product-category-tabs{gap:7px;margin-top:12px}
+.product-category-chip{border:1px solid #e0e6ed;color:#556779;background:#fff;border-radius:6px;padding:9px 12px;min-height:37px;font-size:12px;font-weight:620}
+.product-category-chip:hover{border-color:#a0b9d8;background:#f9fbff}
+.product-category-chip.active,.product-category-chip[aria-pressed="true"]{border-color:#256ac6;background:#1769d1;color:#fff}
+.recommendation-explore-button{padding:10px 14px;background:#fff;color:#2369bd;border:1px solid #b8cde6;border-radius:6px;font-size:12px;font-weight:680;white-space:nowrap;min-height:38px}
+.product-discovery-tag{border-radius:3px;background:#f0f5fc;color:#446a97;padding:3px 6px;font-size:10px}
+.product-discovery{margin:27px 0 31px;padding:26px 0 4px;border-top:1px solid #e7eaed}
+.product-discovery .section-head{margin-bottom:17px}
+.product-discovery .section-head h2{font-size:21px;font-weight:780;letter-spacing:-.7px}
+.curated-section{margin:28px 0 31px;padding:23px 0 17px;border-radius:0;border-top:1px solid #e7eaed;background:#fff}
+.curated-section .section-head h2{font-size:21px;font-weight:780}
+.curated-grid{gap:14px;padding:3px 2px 13px}
+.curated-grid .card{border:1px solid #e9edf0;box-shadow:none;border-radius:9px;overflow:hidden}
+.curated-grid .product-card-link .picture{aspect-ratio:1.2;border-radius:8px 8px 0 0;background:#f6f7f9}
+.curated-grid .product-card-link .content{padding:12px 13px 14px}
+.curated-grid .product-card-link .product{font-size:13px;min-height:40px}
+.curated-grid .product-card-link .price{font-size:20px}
+.toss-slider-button{width:32px;height:32px;font-size:21px;border-color:#e1e5eb;color:#68778a}
+.policy-strip{border-top:1px solid #e9ecef;margin:26px 0 0;padding:22px 0}
+.policy-strip strong{font-size:13px;color:#374557}
+.policy-strip p{font-size:11px;color:#8993a1;line-height:1.65}
+.footer{background:#f9fafb;border-top:1px solid #e9edf1;margin-top:20px;padding:26px 0 33px}
+.foothead{font-size:22px;letter-spacing:-1px}
+.footer-meta,.footer-disclosure,.footer-note{font-size:11px;color:#87929d;line-height:1.7}
+.footer-links nav a{font-size:11px;font-weight:650;color:#617185}
+.footer-links .footer-note{max-width:480px}
+.category-intro{padding:20px 23px;min-height:108px;border-radius:7px;border:1px solid #edf0f4;background:#f8fafc;margin-bottom:18px}
+.browse-layout.category-open .category-intro{display:flex}
+.category-intro h2{font-size:23px}
+.category-intro-overline,.category-intro-stamp{display:none}
+.breadcrumb{margin-bottom:9px}
+.category-aside{top:85px;padding:14px 10px;border:1px solid #e8edf1;border-radius:7px}
+.side-head{font-size:12px}
+.side-link{font-size:12px;border-radius:5px}
+.side-link.active{background:#f0f5fc}
+.browse-layout.category-open{grid-template-columns:187px minmax(0,1fr);gap:21px}
+.browse-layout.category-open .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf1;border-radius:7px;background:#fff;margin:9px 0 17px}
+.category-heading{font-size:13px}
+.catbtn{border-radius:5px;padding:9px 12px}
+.subbtn{border-radius:5px}
+@media(min-width:731px) and (max-width:1070px){
+ .department-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .grid,.product-discovery .discovery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .brand-tag{display:none}
+ .nav{gap:14px}
+}
+@media(max-width:730px){
+ html{scroll-padding-top:68px}
+ .wrap{padding-inline:16px}
+ .header{position:static}
+ .headin{min-height:58px}
+ .brand{font-size:24px}
+ .brand b{font-size:24px}
+ .brand-tag{display:none}
+ .nav{gap:11px;font-size:11px}
+ .nav a{padding:18px 0 17px}
+ .hero{padding:18px 0 12px}
+ .hero-top{margin-bottom:11px}
+ .hero h1{font-size:20px}
+ .bar{min-height:52px;border-radius:8px;padding:4px 4px 4px 13px}
+ .bar input{font-size:13px}
+ .primary{min-height:42px;padding:10px 17px;font-size:12px}
+ .quick-searches{margin-top:7px}
+ .quick-title,.quick-searches button{font-size:10px}
+ .affiliate-banner{display:flex;align-items:flex-start;padding:8px 0;margin:2px 0 15px;gap:7px;font-size:10px}
+ .affiliate-banner>a{margin:0 0 0 auto;font-size:10px}
+ .category-hub{margin:12px 0 27px}
+ .hub-heading{margin-bottom:11px}
+ .hub-heading h2{font-size:18px}
+ .hub-heading p{font-size:11px}
+ .department-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .department{min-height:96px;padding:10px 4px;flex-direction:column;align-items:center;gap:6px;border-radius:7px}
+ .department-art,.department--food .department-art,.department--living .department-art,
+ .department--digital .department-art,.department--beauty .department-art,
+ .department--fashion .department-art,.department--kitchen .department-art{
+  width:34px;height:34px;flex-basis:34px;border-radius:7px
+ }
+ .department-icon svg{width:21px;height:21px}
+ .department-text{align-items:center}
+ .department-name{font-size:12px}
+ .hub-shortcuts{padding:10px 0 0;margin-top:11px;gap:7px}
+ .hub-shortcuts-heading{font-size:10px}
+ .hub-quick{padding:6px 8px;font-size:10px}
+ .section{margin-bottom:11px}
+ .section h2,.section-head h2{font-size:20px}
+ .tabs{margin-top:11px;gap:16px;max-width:100%}
+ .tab{font-size:12px;padding:8px 1px}
+ .results-meta{margin-bottom:9px}
+ .grid,.product-discovery .discovery-grid,.browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:11px;row-gap:21px}
+ .picture{aspect-ratio:1/1;border-radius:6px}
+ .picture img{border-radius:6px}
+ .product-card-link .content{padding:9px 0 4px}
+ .product-card-link .product{font-size:12px;min-height:36px;margin-bottom:6px}
+ .product-card-link .pricing{min-height:27px;margin-bottom:3px}
+ .product-card-link .price{font-size:21px}
+ .product-card-link .discount-rate{font-size:16px}
+ .product-card-link .merchant-name{font-size:10px}
+ .product-card-link .merchant-logo{width:16px;height:16px;flex-basis:16px}
+ .product-toolbar{padding:8px 0 9px;margin-bottom:10px}
+ .product-toolbar .toolbar-controls{grid-template-columns:40px minmax(0,1fr);gap:7px 9px}
+ .product-toolbar .toolbar-controls select{min-height:39px;border-radius:5px}
+ .recommendation-explore{display:block;padding:13px 0 15px;margin:1px 0 17px}
+ .recommendation-explore strong{font-size:13px}
+ .recommendation-explore p{font-size:10px}
+ .product-category-tabs{gap:6px;margin-top:9px}
+ .product-category-chip{font-size:11px;padding:9px 10px;min-height:39px;border-radius:5px}
+ .recommendation-explore-button{width:100%;min-height:41px;margin-top:10px}
+ .product-discovery{margin:18px 0 24px;padding-top:20px}
+ .product-discovery .section-head h2{font-size:19px}
+ .curated-section{margin:19px -16px 22px;padding:20px 16px;border-radius:0}
+ .curated-grid{margin-right:-16px;padding-right:16px}
+ .curated-grid .card{flex-basis:min(68vw,260px)}
+ .curated-grid .product-card-link .picture{border-radius:8px 8px 0 0}
+ .policy-strip{margin-top:23px;padding:18px 0}
+ .footer{margin-top:14px}
+ body.category-active .category-section{padding:10px 8px;border-radius:5px}
+ .category-intro{padding:15px 14px;border-radius:6px;min-height:0}
+ .category-intro h2{font-size:20px}
+ .category-intro p{font-size:11px}
+}
+@media(max-width:385px){
+ .nav a:last-child{display:none}
+ .department-name{font-size:11px}
+ .tab{font-size:11px}
+ .affiliate-banner{flex-wrap:wrap}
+ .affiliate-banner>a{margin-left:24px}
+}
+
+/* Verified affiliate campaigns: compact, image-first retail showcase.
+   This section stays invisible unless real, dated promotions are supplied. */
+.shopping-events{margin:22px 0 36px;border-top:1px solid #e8ecf1;padding-top:23px}
+.shopping-events-head{margin-bottom:15px}
+.shopping-events-head h2{font-size:21px;font-weight:780;letter-spacing:-.6px;margin:0 0 4px}
+.shopping-events-head p{font-size:12px;color:#7f8d9e;line-height:1.6;margin:0}
+.shopping-event-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.shopping-event-card{min-width:0;display:block;color:inherit;text-decoration:none;overflow:hidden;border:1px solid #e7ebf1;border-radius:9px;background:#fff;transition:border-color .15s}
+.shopping-event-card:hover{border-color:#9db5d6}
+.shopping-event-card:focus-visible{outline:3px solid #1769d1;outline-offset:3px}
+.shopping-event-media{display:block;width:100%;aspect-ratio:1.65;background:#f5f7f9;overflow:hidden}
+.shopping-event-media img{display:block;width:100%;height:100%;object-fit:cover}
+.shopping-event-copy{display:block;padding:13px 15px 15px}
+.shopping-event-merchant{display:block;font-size:11px;font-weight:640;color:#68798a;margin-bottom:5px}
+.shopping-event-title{display:block;font-size:15px;font-weight:780;line-height:1.5;letter-spacing:-.2px}
+.shopping-event-description{display:block;font-size:12px;color:#7b8796;line-height:1.5;margin-top:5px}
+.shopping-event-period{display:block;margin-top:9px;font-size:11px;color:#7f8d9b}
+@media(max-width:730px){
+ .shopping-events{margin:18px 0 28px;padding-top:18px}
+ .shopping-events-head h2{font-size:19px}
+ .shopping-event-grid{grid-template-columns:1fr;gap:12px}
+ .shopping-event-media{aspect-ratio:1.75}
+ .shopping-event-copy{padding:11px 13px 13px}
+ .shopping-event-title{font-size:14px}
+}
+body.category-active .shopping-events{display:none}
+
+/* Above-the-fold promotional gallery: photoreal category themes appear immediately,
+   replaced with verified, licensed affiliate campaign banners if provided. */
+.top-shopping-feature{margin:16px 0 21px;padding:0;border:0}
+.top-shopping-feature .shopping-events-head{display:flex;align-items:end;justify-content:space-between;margin:0 0 12px}
+.top-shopping-feature .shopping-events-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:1.1px;color:#366fae;margin:0 0 6px}
+.top-shopping-feature .shopping-events-head h2{font-size:22px;font-weight:820;letter-spacing:-.7px;color:#1b2635;margin:0 0 4px}
+.top-shopping-feature .shopping-events-head p{font-size:12px;color:#8895a4;margin:0}
+.shopping-theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.shopping-theme-card{min-width:0;min-height:295px;position:relative;display:block;text-align:left;overflow:hidden;border:0;border-radius:12px;padding:0;color:#fff;background:#334c51;isolation:isolate}
+.shopping-theme-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .3s}
+.shopping-theme-card:hover img{transform:scale(1.035)}
+.shopping-theme-card::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,22,29,.81) 0%,rgba(11,22,29,.63) 40%,rgba(11,22,29,.16) 100%);z-index:-1}
+.shopping-theme-card.theme-fashion{background:#615952}
+.shopping-theme-card.theme-fashion::before{background:linear-gradient(90deg,rgba(24,22,21,.78) 0%,rgba(24,22,21,.48) 43%,rgba(24,22,21,.02) 100%)}
+.shopping-theme-text{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:295px;gap:9px;padding:26px 28px}
+.shopping-theme-tag{font-size:10px;font-weight:740;letter-spacing:1.3px;color:#e7eff7}
+.shopping-theme-text strong{font-size:28px;line-height:1.3;letter-spacing:-1.05px;font-weight:820;word-break:keep-all}
+.shopping-theme-sub{font-size:12px;font-weight:550;color:#e1e7e8}
+.shopping-theme-action{font-size:12px;font-weight:730;display:inline-flex;align-items:center;gap:9px;margin-top:8px;padding:9px 12px;border:1px solid #ffffff80;border-radius:5px}
+.shopping-theme-card:focus-visible{outline:3px solid #156ddb;outline-offset:3px}
+.top-shopping-feature .shopping-event-grid{grid-template-columns:1fr 1fr;gap:14px}
+.top-shopping-feature .shopping-event-card{border-radius:12px;overflow:hidden}
+.top-shopping-feature .shopping-event-media{aspect-ratio:1.8}
+.top-shopping-feature .shopping-event-copy{padding:12px 16px}
+@media(max-width:730px){
+ .top-shopping-feature{margin:12px 0 14px}
+ .top-shopping-feature .shopping-events-head{margin-bottom:10px}
+ .top-shopping-feature .shopping-events-head h2{font-size:20px}
+ .top-shopping-feature .shopping-events-head p{font-size:11px;line-height:1.45}
+ .shopping-theme-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;scrollbar-width:none;overscroll-behavior-x:contain;padding:0 1px 5px}
+ .shopping-theme-grid::-webkit-scrollbar{display:none}
+ .shopping-theme-card{flex:0 0 90%;min-height:272px;scroll-snap-align:start;border-radius:10px}
+ .shopping-theme-text{min-height:272px;padding:24px 22px}
+ .shopping-theme-text strong{font-size:26px}
+ .top-shopping-feature .shopping-event-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;scrollbar-width:none;padding:1px 1px 7px}
+ .top-shopping-feature .shopping-event-grid::-webkit-scrollbar{display:none}
+ .top-shopping-feature .shopping-event-card{flex:0 0 92%;scroll-snap-align:start}
+ .top-shopping-feature .shopping-event-media{aspect-ratio:1.65}
+}
+@media(prefers-reduced-motion:reduce){.shopping-theme-grid{scroll-behavior:auto}.shopping-theme-card img{transition:none}}
+
+/* Linked partner campaigns placed immediately beneath the site header */
+.shopping-campaign-slider{position:relative;display:block;border-radius:13px;overflow:hidden}
+.shopping-campaign-slider .shopping-theme-card{display:none;width:100%;min-height:352px;border-radius:0}
+.shopping-campaign-slider .shopping-theme-card.is-active{display:block}
+.shopping-campaign-slider .shopping-theme-card:before{background:linear-gradient(90deg,#15212aee 0%,#15212aca 37%,#15212a0c 89%)}
+.shopping-campaign-slider .shopping-theme-card.theme-fashion:before{background:linear-gradient(90deg,#161d2beb 0%,#161d2bc3 37%,#161d2b0c 89%)}
+.shopping-campaign-slider .shopping-theme-text{min-height:352px;max-width:690px;padding:37px 9%;gap:12px}
+.shopping-campaign-slider .shopping-theme-text strong{font-size:clamp(32px,4.5vw,50px);line-height:1.18;letter-spacing:-1.5px}
+.shopping-campaign-slider .shopping-theme-sub{font-size:14px;line-height:1.6}
+.shopping-campaign-slider .shopping-theme-tag{font-size:12px}
+.shopping-campaign-slider .shopping-theme-action{margin-top:8px;padding:12px 17px;font-size:13px}
+.shopping-campaign-arrow{position:absolute;top:50%;transform:translateY(-50%);width:37px;height:37px;display:grid;place-items:center;border:0;border-radius:50%;background:#fffffff0;color:#273747;font-size:27px;z-index:3;box-shadow:0 2px 7px #0002}
+.shopping-campaign-prev{left:12px}.shopping-campaign-next{right:12px}
+.shopping-campaign-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:7px;align-items:center;z-index:4}
+.shopping-campaign-dots button{width:9px;height:9px;border-radius:10px;border:1px solid #fffa;padding:0;background:#ffffff85}
+.shopping-campaign-dots button[aria-current="true"]{width:23px;background:#fff}
+.shopping-campaign-footnote{margin:6px 2px 0;text-align:right;font-size:10px;color:#8895a4}
+@media(max-width:730px){
+ .shopping-campaign-slider .shopping-theme-card{min-height:284px;flex:none}
+ .shopping-campaign-slider .shopping-theme-text{min-height:284px;max-width:93%;padding:29px 31px;gap:8px}
+ .shopping-campaign-slider .shopping-theme-text strong{font-size:clamp(27px,7vw,37px)}
+ .shopping-campaign-slider .shopping-theme-sub{font-size:11px;max-width:205px}
+ .shopping-campaign-slider .shopping-theme-tag{font-size:10px}
+ .shopping-campaign-slider .shopping-theme-action{font-size:11px;padding:9px 11px;margin-top:4px}
+ .shopping-campaign-arrow{width:30px;height:30px;font-size:21px}
+ .shopping-campaign-prev{left:4px}.shopping-campaign-next{right:4px}
+ .shopping-campaign-footnote{font-size:9px}
+}
+
+/* The actual merchant creatives already contain their own typography.
+   Preserve the whole artwork instead of obscuring it with stock-photo overlays. */
+.shopping-campaign-slider .shopping-theme-card,
+.shopping-campaign-slider .shopping-theme-card.theme-fashion{
+ min-height:0;aspect-ratio:768/429;background:#f6f7f9;border-radius:0;isolation:auto
+}
+.shopping-campaign-slider .shopping-theme-card::before,
+.shopping-campaign-slider .shopping-theme-card.theme-fashion::before{display:none!important}
+.shopping-campaign-slider .shopping-theme-card img{
+ position:static;inset:auto;z-index:auto;display:block;width:100%;height:100%;
+ object-fit:contain;object-position:center;transform:none!important;transition:none
+}
+.shopping-campaign-slider .shopping-theme-text{display:none}
+@media(max-width:730px){
+ .shopping-campaign-slider .shopping-theme-card,
+ .shopping-campaign-slider .shopping-theme-card.theme-fashion{min-height:0;aspect-ratio:768/429}
+}
+
+</style>
+</head>
+<body data-design-version="retail-v5-20261026">
+
+<div class="site">
+<header class="header"><div class="wrap headin">
+ <div class="brand-group">
+  <a href="/" class="brand" aria-label="알뜰픽 홈">알뜰픽<b>·</b></a>
+  
+ </div>
+ <nav class="nav" aria-label="주 메뉴">
+  <a href="/#shop-categories">카테고리</a><a href="#deals">베스트 상품</a><a href="#product-discovery">인기 상품</a><a href="#toss-picks">토스쇼핑</a><a href="/about.html">서비스 안내</a>
+ </nav>
+</div></header>
+<main class="wrap">
+<section id="shopping-events" class="shopping-events top-shopping-feature" aria-labelledby="shopping-events-title">
+ <div class="shopping-events-head">
+  <div><span class="shopping-events-kicker">SHOPPING EVENTS</span><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p id="shopping-events-description">11번가 생필품과 아디다스 가을 스타일을 둘러보세요.</p></div>
+ </div>
+ <div id="shopping-theme-grid" class="shopping-theme-grid shopping-campaign-slider" role="region" aria-label="쇼핑몰 기획전 사진 배너" aria-roledescription="슬라이드">
+ <a class="shopping-theme-card theme-living is-active" data-campaign-slide="0" href="https://bitl.bz/jKubOI" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="false" aria-label="11번가 생필품BEST 기획전 바로가기">
+  <img src="/events/11st-living.avif" alt="11번가 베스트 생필품 총집합 기획전 공식 이미지" width="768" height="429" loading="eager" fetchpriority="high" decoding="async">
+ </a>
+ <a class="shopping-theme-card theme-fashion" data-campaign-slide="1" href="https://bitl.bz/Bmbhq2" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="true" tabindex="-1" aria-label="아디다스 온라인 스토어 가을 스타일 기획전 바로가기">
+  <img src="/events/adidas-autumn.avif" alt="아디다스 온라인 스토어 가을 스타일 공식 기획전 이미지" width="768" height="429" loading="lazy" decoding="async">
+ </a>
+ <button type="button" class="shopping-campaign-arrow shopping-campaign-prev" aria-label="이전 기획전">‹</button>
+ <button type="button" class="shopping-campaign-arrow shopping-campaign-next" aria-label="다음 기획전">›</button>
+ <div class="shopping-campaign-dots" role="group" aria-label="기획전 배너 선택">
+  <button type="button" data-campaign-dot="0" aria-label="11번가 기획전" aria-current="true"></button>
+  <button type="button" data-campaign-dot="1" aria-label="아디다스 기획전" aria-current="false"></button>
+ </div>
+</div>
+<p class="shopping-campaign-footnote">배너를 누르면 각 쇼핑몰 행사 페이지로 이동합니다. 행사 및 구매 조건은 판매처에서 확인해 주세요.</p>
+<div id="shopping-event-grid" class="shopping-event-grid" hidden></div>
+</section>
+<section class="hero" aria-labelledby="hero-heading">
+ <div class="hero-top">
+  <div><p class="eyebrow">알뜰픽 상품 검색</p><h1 id="hero-heading">원하는 상품을 <span>찾아보세요</span></h1></div>
+  <p class="hero-intro">식품부터 생활용품·가전까지, 필요한 상품을 빠르게 찾아보세요.</p>
+ </div>
+ <div class="search-surface">
+  <form id="searchform" class="bar" role="search">
+   <span class="search-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.7" cy="10.7" r="7.3"/><path d="m16.2 16.2 5.2 5.2"/></svg></span>
+   <input id="q" aria-label="상품 검색어" placeholder="찾는 상품이나 브랜드를 검색해 보세요" minlength="2" maxlength="60" autocomplete="off">
+   <button class="primary" type="submit">검색</button>
+  </form>
+  <div class="quick-searches" id="quick-searches" aria-label="빠른 검색">
+   <span class="quick-title">자주 찾는 상품</span>
+   <button type="button" data-quick="생수">생수</button>
+   <button type="button" data-quick="커피">커피</button>
+   <button type="button" data-quick="라면">라면</button>
+   <button type="button" data-quick="세탁세제">세탁세제</button>
+  </div>
+ </div>
+</section>
+
+<section id="shop-categories" class="category-hub" aria-labelledby="hub-title">
+ <div class="hub-heading">
+  <div><span class="hub-eyebrow">CATEGORY</span><h2 id="hub-title">카테고리</h2><p>품목을 선택하면 해당 상품을 바로 찾습니다.</p></div>
+  <span class="hub-count">6개 카테고리</span>
+ </div>
+ <div class="department-grid" id="department-grid" role="group" aria-label="카테고리 쇼핑관">
+ <button type="button" class="department department--food" data-department="간편식" aria-label="식품 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M5 4h14l-1.5 14H6.5z'/><path d='M9 4V2m6 2V2M8 9h8m-7 4h6'/></svg></span></span>
+  <span class="department-text"><span class="department-name">식품</span><span class="department-desc">간편식 · 생수 · 커피</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--living" data-department="세제" aria-label="생활용품 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 4h6v3l2 2v12H7V9l2-2zM10 2h4v2h-4zM8 12h8v5H8z'/></svg></span></span>
+  <span class="department-text"><span class="department-name">생활용품</span><span class="department-desc">세제 · 청소 · 위생</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--digital" data-department="이어폰" aria-label="디지털 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 13v-2a8 8 0 0 1 16 0v2M4 12h3v8H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm13 0h3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3z'/></svg></span></span>
+  <span class="department-text"><span class="department-name">디지털</span><span class="department-desc">이어폰 · 충전기 · 가전</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--beauty" data-department="화장품" aria-label="뷰티 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M9 2h6v3H9zM8 5h8v4l2 3v9H6v-9l2-3zM9 14h6m-3-3v6'/></svg></span></span>
+  <span class="department-text"><span class="department-name">뷰티</span><span class="department-desc">스킨케어 · 메이크업</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--fashion" data-department="의류" aria-label="패션 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='m8 3-5 4 3 4 2-2v12h8V9l2 2 3-4-5-4-4 2z'/></svg></span></span>
+  <span class="department-text"><span class="department-name">패션</span><span class="department-desc">의류 · 신발 · 가방</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ <button type="button" class="department department--kitchen" data-department="주방용품" aria-label="주방 카테고리 열기">
+  <span class="department-art" aria-hidden="true"><span class="department-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d='M4 8h14v7a7 7 0 0 1-14 0zm14 2h3a2 2 0 0 1 0 4h-3M8 5h6M11 2v3'/></svg></span></span>
+  <span class="department-text"><span class="department-name">주방</span><span class="department-desc">조리도구 · 식기 · 수납</span></span>
+  <span class="department-arrow" aria-hidden="true">↗</span>
+ </button>
+ </div>
+ <div class="hub-shortcuts" aria-label="자주 찾는 품목">
+  <span class="hub-shortcuts-heading">자주 찾는 품목</span>
+  <div id="hub-quicklinks" class="hub-quicklinks" role="group" aria-label="인기 품목 바로 검색">
+   <button type="button" class="hub-quick" data-department="간편식" data-term="생수">생수 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="간편식" data-term="라면">라면 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="간편식" data-term="커피">커피 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="세제" data-term="세탁세제">세탁세제 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="이어폰" data-term="무선이어폰">무선이어폰 <span aria-hidden="true">↗</span></button>
+   <button type="button" class="hub-quick" data-department="화장품" data-term="선크림">선크림 <span aria-hidden="true">↗</span></button>
+  </div>
+ </div>
+</section>
+<section id="categories" class="category-section" aria-label="상품 카테고리">
+ <div class="category-heading"><span class="category-heading-mark" aria-hidden="true">▦</span><span>카테고리 탐색</span><span class="category-heading-tip">원하는 카테고리를 골라보세요</span></div>
+ <div id="categories-buttons" class="category-list" role="group" aria-label="카테고리 선택">
+  <button type="button" class="catbtn active" aria-pressed="true" data-query="">전체 추천</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="간편식">식품</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="세제">생활용품</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="이어폰">디지털</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="화장품">뷰티</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="의류">패션</button>
+  <button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">주방</button>
+ </div>
+ <div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
+ <p class="category-caption">현재 조회된 일부 상품을 보여줍니다. 관련 품목도 함께 검색하며, 검색 결과는 최대 30개까지 표시합니다.</p>
+</section>
+<div id="browse-layout" class="browse-layout">
+<aside id="category-aside" class="category-aside" aria-label="선택한 카테고리의 세부 품목">
+ <p class="side-head">세부 품목 탐색</p><div id="side-links" class="side-links"></div>
+ <p class="side-note">품목을 선택하면 새로운 상품을 조회해요.</p>
+</aside>
+<section id="deals" class="deals" aria-label="상품 목록">
+ <div id="category-intro" class="category-intro"><div class="category-intro-copy"><span class="breadcrumb" id="category-breadcrumb">홈 / 카테고리</span><span class="category-intro-overline">EXPLORE COLLECTION</span><h2 id="category-intro-title">카테고리 쇼핑관</h2><p id="category-intro-description">관련 상품을 살펴보세요.</p></div><span id="category-intro-stamp" class="category-intro-stamp" aria-hidden="true">PICK</span></div>
+ <div class="section">
+  <div><span class="overline">PRODUCT LIST</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">상품을 둘러보고 원하는 품목을 찾아보세요.</p></div>
+  <div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
+   <button type="button" class="tab active" data-area="today" aria-pressed="true">오늘의 베스트</button>
+   <button type="button" class="tab" data-area="popular" aria-pressed="false">인기상품</button>
+   <button type="button" class="tab" data-area="pick" aria-pressed="false">추천상품</button>
+  </div>
+ </div>
+ <aside class="affiliate-banner" aria-label="광고·제휴 수익 안내">
+  <span class="affiliate-banner-icon" aria-hidden="true">i</span>
+  <span><strong>광고·제휴 안내</strong> · 상품 링크를 통한 구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다. 주문·결제는 판매처에서 진행됩니다.</span>
+  <a href="/guide.html">자세히 보기</a>
+ </aside>
+ <div class="results-meta">
+  <div class="status-row"><div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div><button id="retry-main" type="button" class="retry-main" hidden>상품 다시 불러오기</button></div>
+  <span class="aside">실제 구매 가격과 배송비는 판매처에서 확인</span>
+ </div>
+ <div id="product-toolbar" class="product-toolbar" hidden>
+  <span class="toolbar-label" id="visible-count">현재 불러온 상품</span>
+  <div class="toolbar-controls">
+   <label for="merchant-filter">판매처</label>
+   <select id="merchant-filter" aria-label="현재 불러온 상품의 판매처 필터"><option value="">전체 판매처</option></select>
+   <label for="product-sort">정렬</label>
+   <select id="product-sort" aria-label="현재 불러온 상품 정렬">
+    <option value="default">기본순</option><option value="asc">낮은 가격순</option><option value="desc">높은 가격순</option>
+   </select>
+  </div>
+ </div>
+ <p id="sort-disclaimer" class="shop-disclaimer" hidden>정렬·판매처 필터는 현재 화면에 불러온 상품에만 적용됩니다. 가격 미제공 상품은 가격순 정렬 시 뒤에 표시됩니다.</p>
+ <div id="recommendation-explore" class="recommendation-explore" hidden>
+  <div class="recommendation-explore-copy">
+   <strong>상품 더 찾아보기</strong>
+   <p>카테고리를 누르면 상품 목록이 바로 바뀝니다. 더 보기는 선택한 카테고리의 다른 품목을 찾을 때 이용하세요.</p>
+   <div id="product-category-tabs" class="product-category-tabs" role="group" aria-label="추가 상품 카테고리">
+    <button type="button" class="product-category-chip" data-product-category="food" aria-pressed="false">식품</button>
+    <button type="button" class="product-category-chip" data-product-category="living" aria-pressed="false">리빙·주방</button>
+    <button type="button" class="product-category-chip" data-product-category="digital" aria-pressed="false">가전·디지털</button>
+    <button type="button" class="product-category-chip" data-product-category="beauty" aria-pressed="false">뷰티</button>
+    <button type="button" class="product-category-chip" data-product-category="fashion" aria-pressed="false">패션</button>
+   </div>
+   <p id="recommendation-explore-note" role="status" aria-live="polite">실제 검색된 상품만 추가하고 동일 상품은 중복 표시하지 않습니다.</p>
+  </div>
+  <button type="button" id="recommendation-explore-button" class="recommendation-explore-button" hidden>같은 카테고리 상품 더 보기 +</button>
+ </div>
+ <div id="products" class="grid"></div>
+ <div id="more-area" class="more-area" hidden>
+  <button id="more-products" type="button" class="more-button" aria-controls="products">관련 상품 더 보기 +</button>
+  <div id="more-note" class="more-note" role="status" aria-live="polite">연관 품목을 새로 검색해 보여줍니다. 동일한 상품은 제외해요.</div>
+ </div>
+ <div id="related-browse" class="related-browse" hidden>
+  <strong>다른 품목 둘러보기</strong><p>선택한 품목의 상품을 새로 검색합니다.</p>
+  <div id="related-list" class="related-list"></div>
+ </div>
+</section>
+</div><!-- /browse-layout -->
+<section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
+ <div class="section-head">
+  <div><span class="overline">TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
+  <div class="toss-slider-tools" aria-label="토스쇼핑 상품 탐색">
+   <span id="toss-slide-count" class="toss-slide-count" aria-live="off">1 / 7</span>
+   <button id="toss-prev" class="toss-slider-button" type="button" aria-label="이전 토스쇼핑 상품">‹</button>
+   <button id="toss-next" class="toss-slider-button" type="button" aria-label="다음 토스쇼핑 상품">›</button>
+  </div>
+ </div>
+ <div id="toss-products" class="curated-grid" tabindex="0" role="region" aria-label="토스쇼핑 상품 슬라이더, 좌우로 스크롤 가능"></div>
+ <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+</section>
+<section id="product-discovery" class="product-discovery" aria-labelledby="discovery-title">
+ <div class="section-head">
+  <div><span class="overline">MORE PRODUCTS</span><h2 id="discovery-title">다른 상품도 둘러보세요</h2>
+  <p>한국 날짜에 따라 상품군을 바꿔 새롭게 소개합니다. 실제 구매 가능 여부는 판매처에서 확인해 주세요.</p></div>
+ </div>
+ <div id="discovery-products" class="discovery-grid" aria-live="polite">
+  <div class="empty">인기 상품을 불러오는 중입니다.</div>
+ </div>
+ <div class="discovery-foot">
+  <button type="button" id="discovery-more" class="discovery-more" hidden>추천 상품 더 보기 +</button>
+  <span id="discovery-status" class="discovery-notice" role="status" aria-live="polite">새로운 상품을 불러오고 있습니다.</span>
+ </div>
+</section>
+
+<section id="about" class="policy-strip">
+ <div><strong>구매 전 확인해 주세요.</strong><p>알뜰픽은 상품을 직접 판매하지 않는 상품 안내 서비스입니다. 표시 가격은 최종 결제 금액과 다를 수 있으며, 할인율과 최저가를 보장하지 않습니다. 상품의 재고와 판매 여부는 실시간으로 확인되지 않으며, 표시된 가격과 구매 가능 여부는 판매처에서 달라질 수 있습니다. 배송 조건 역시 판매처에서 확인해 주세요.</p></div>
+ <span class="policy-mark">ALTTUL PICK / GUIDE</span>
+</section>
+</main>
+<footer class="footer"><div class="wrap footerin">
+ <div class="footer-brand"><div class="foothead">알뜰픽<b>·</b></div><div class="footer-meta">필요한 상품을 찾고 판매처로 이동할 수 있는 상품 탐색 서비스</div><p class="footer-disclosure">상품 이용 조건과 자세한 내용은 서비스·정책 안내에서 확인할 수 있습니다.</p></div>
+ <div class="footer-links">
+  <nav aria-label="서비스 및 정책 안내"><a href="/about.html">서비스 소개</a><a href="/guide.html">상품 이용안내</a><a href="/privacy.html">개인정보 처리 안내</a><a href="/contact.html">운영·문의 안내</a></nav>
+  <div class="footer-note">상품 판매·결제·배송·취소·환불은 실제 판매처에서 처리합니다.<br>알뜰픽은 각 제휴사와 쇼핑몰의 공식 고객센터가 아닙니다.</div>
+ </div>
+</div></footer>
+</div>
+
+<script>
+const API_ORIGIN='https://alttulpick-api.maidana1779.workers.dev';
+const BACKUP_API_ORIGIN='https://alttulpick-preview.onrender.com';
+async function fetchProducts(path,onBackupStart){
+ const primary=new AbortController();
+ const timer=setTimeout(()=>primary.abort(),15000);
+ let needsFallback=false;
+ try{
+  const response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:primary.signal});
+  const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
+  if(jsonResponse&&(response.ok||![502,503,504].includes(response.status)))return response;
+  needsFallback=true;
+ }catch{needsFallback=true}
+ finally{clearTimeout(timer)}
+ if(!needsFallback)throw Error("상품 연결 오류");
+ onBackupStart?.();
+ // Render Free may sleep after idle and can take nearly a minute to wake.
+ // Retry only temporary gateway / spinning-up responses, not upstream JSON errors.
+ for(let attempt=0;attempt<4;attempt++){
+  const backup=new AbortController();
+  const timeout=setTimeout(()=>backup.abort(),22000);
+  try{
+   const response=await fetch(BACKUP_API_ORIGIN+path,{cache:"no-store",signal:backup.signal});
+   const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
+   if(jsonResponse)return response;
+   // Render may return an HTML warm-up page while the free service starts.
+  }catch{/* Wake-up may abort while the free instance is starting. */}
+  finally{clearTimeout(timeout)}
+  if(attempt<3)await new Promise(resolve=>setTimeout(resolve,4000));
+ }
+ throw Error("백업 API를 사용할 수 없습니다");
+}
+const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");
+const demo=[{title:"예시 상품: 생필품",price:null,cp_name:"데모 전용",icon:"🧴"},{title:"예시 상품: 식품",price:null,cp_name:"데모 전용",icon:"🍙"},{title:"예시 상품: 가전",price:null,cp_name:"데모 전용",icon:"🎧"},{title:"예시 상품: 생활잡화",price:null,cp_name:"데모 전용",icon:"🧺"}];
+function make(tag,klass,text){const el=document.createElement(tag);if(klass)el.className=klass;if(text!==undefined)el.textContent=String(text);return el}
+function imageFallback(pic,isDemo=false,product=null){
+  pic.classList.add("has-fallback");
+  if(product?.id==="toss-sparkle-water-500ml-80"){
+    pic.replaceChildren(make("span","fallback-wordmark","SPARKLE"),make("span","fallback-size","500 mL × 80"),make("span","fallback-caption","상품 사진은 판매처에서 확인"));
+  }else if(product?.affiliate_source==="toss_sharelink"){
+    pic.classList.add("toss-product-fallback");
+    pic.replaceChildren(make("span","toss-fallback-icon",product.icon||"🛍️"),
+      make("span","toss-fallback-note","상품 사진은 토스쇼핑에서 확인"));
+  }else{
+    pic.replaceChildren(make("span","fallback-no","NO IMAGE"),make("span","fallback-caption",isDemo?"예시 상품":"이미지 미제공"));
+  }
+}
+function merchantStyle(name){
+  const n=String(name||"").trim().toLowerCase();
+  if(/토스|toss/.test(n))return {label:"T",klass:"toss"};
+  if(/11번가|11st/.test(n))return {label:"11",klass:"eleven"};
+  if(/ssg|에스에스지|신세계/.test(n))return {label:"SSG",klass:"ssg"};
+  if(/올리브영|olive\s?young/.test(n))return {label:"OY",klass:"olive"};
+  if(/gs\s?shop|gs홈쇼핑/i.test(n))return {label:"GS",klass:"gs"};
+  if(/하이마트|himart/.test(n))return {label:"H",klass:"high"};
+  if(/cj|씨제이/.test(n))return {label:"CJ",klass:"cj"};
+  const compact=n.replace(/\s+/g,"");
+  return {label:compact.slice(0,2).toUpperCase()||"SHOP",klass:"default"};
+}
+function merchantBadge(product){
+  const name=String(product?.cp_name||"판매처").trim()||"판매처";
+  const visual=merchantStyle(name);
+  const badge=make("div","merchant merchant-badge");
+  const logo=make("span","merchant-logo merchant-logo--"+visual.klass);
+  logo.append(make("span","merchant-initials",visual.label));
+  const raw=product?.cp_icon;
+  if(typeof raw==="string"&&raw.length<=2048){
+    try{
+      const u=new URL(raw);
+      if(u.protocol==="https:"){
+        const img=document.createElement("img");
+        img.alt="";img.loading="lazy";img.decoding="async";img.referrerPolicy="no-referrer";
+        img.addEventListener("error",()=>img.remove());
+        img.src=u.href;logo.append(img);
+      }
+    }catch{}
+  }
+  badge.append(logo,make("span","merchant-name",name));
+  return badge;
+}
+function validAffiliateLink(raw,product){
+ try{
+  if(typeof raw!=="string"||raw.length>2048)return false;
+  const url=new URL(raw);
+  if(url.protocol!=="https:"||url.username||url.password||url.port||url.hash||url.pathname==="/")return false;
+  const adpick=["biz.adpick.co.kr","link.adpick.co.kr","bitl.bz"].includes(url.hostname);
+  const toss=product?.affiliate_source==="toss_sharelink"&&url.hostname==="toss.shopping"&&/^\/_m\/[A-Za-z0-9]+$/.test(url.pathname);
+  return adpick||toss;
+ }catch{return false}
+}
+function show(items,isDemo,target=grid,append=false){
+ if(!append)target.replaceChildren();
+ if(!items.length){if(!append)target.append(make("div","empty","상품이 없습니다. 다른 검색어를 입력해 주세요."));return}
+ items.forEach((p,index)=>{
+  const href=typeof p.commissionlink==="string"?p.commissionlink:"";
+  const allowed=validAffiliateLink(href,p);
+ const isToss=p.affiliate_source==="toss_sharelink";
+ const clickable=allowed&&!isDemo;
+  const card=make("article","card"+(clickable?" card--clickable":" card--unavailable"));
+  const link=make(clickable?"a":"div","product-card-link");
+  if(clickable){
+   link.href=href;link.target="_blank";link.rel="sponsored nofollow noopener noreferrer";
+   link.setAttribute("aria-label",(p.title||"상품")+" · "+(p.cp_name||"판매처")+"에서 보기 (새 창)");
+   link.addEventListener("click",()=>{
+    const event=JSON.stringify({event:"product_click",merchant:String(p.cp_name||"판매처").slice(0,80)});
+    try{
+     const blob=new Blob([event],{type:"application/json"});
+     if(navigator.sendBeacon?.(API_ORIGIN+"/api/telemetry",blob))return;
+     fetch(API_ORIGIN+"/api/telemetry",{method:"POST",headers:{"Content-Type":"application/json"},body:event,keepalive:true}).catch(()=>{});
+    }catch{}
+   });
+  }
+  const pic=make("div","picture");
+  if(!isDemo&&typeof p.photo==="string"&&p.photo.startsWith("https://")){
+   const img=document.createElement("img");img.alt="";
+   const prioritize=target===grid&&index<2;
+   img.loading=prioritize?"eager":"lazy";if(prioritize&&index===0)img.fetchPriority="high";
+   img.decoding="async";img.referrerPolicy="no-referrer";
+   img.addEventListener("error",()=>imageFallback(pic,isDemo,p));pic.append(img);img.src=p.photo;
+  }else imageFallback(pic,isDemo,p);
+  link.append(pic);
+  const box=make("div","content");
+  box.append(make("div","product",p.title||"상품명 없음"));
+  const pricing=make("div","pricing");
+  const discount=verifiedDiscount(p);
+  if(discount){
+   pricing.classList.add("has-discount");
+   const row=make("div","price-row");
+   row.append(make("strong","discount-rate",discount.rate+"%"),priceLabel(discount.sale,"sale-price"));
+   pricing.append(make("s","regular-price",won(discount.original)),row,
+    make("span","price-reference","판매처 확인 가격 · 결제 시 변동 가능"));
+  }else{
+   const price=displayPrice(p);
+   pricing.append(price===null?
+    make("span","price price-unavailable",p.affiliate_source==="toss_sharelink"?"가격은 토스에서 확인":"가격 확인 필요"):
+    priceLabel(price));
+  }
+  box.append(pricing);
+  box.append(merchantBadge(p));
+  if(p.recommendation_discovered===true)box.append(make("span","product-discovery-tag","추가 탐색 상품"));
+  link.append(box);card.append(link);target.append(card);
+ })
+}
+
+const browseLayout=document.getElementById("browse-layout"),departmentGrid=document.getElementById("department-grid");
+const sideLinks=document.getElementById("side-links"),categoryTitle=document.getElementById("category-intro-title");
+const categoryDescription=document.getElementById("category-intro-description"),categoryCrumb=document.getElementById("category-breadcrumb"),categoryStamp=document.getElementById("category-intro-stamp");
+const productToolbar=document.getElementById("product-toolbar"),merchantFilter=document.getElementById("merchant-filter");
+const sortSelect=document.getElementById("product-sort"),visibleCount=document.getElementById("visible-count");
+const sortDisclaimer=document.getElementById("sort-disclaimer");
+let availableItems=[],currentDepartment="",currentCategoryTerm="";
+function storefrontEligible(p){
+ const merchant=String(p?.cp_name||"").normalize("NFKC").toLowerCase().replace(/[\s._-]+/g,"");
+ if(/(?:yes24|예스24|예스이십사|교보문고|알라딘|리디북스|밀리의서재|마이리얼트립|myrealtrip|클룩|klook|와그|여기어때|야놀자|트립닷컴|tripcom|아고다|agoda|익스피디아|expedia|클래스101|class101|인프런|패스트캠퍼스|탈잉|유데미|udemy)/.test(merchant))return false;
+ return typeof p?.title==="string"&&!!p.title.trim()&&!/(?:전자책|e-?book|온라인\s*(?:강의|강좌|수업)|인강|수강권|학습지|(?:^|[\s[(])(?:도서|교재|서적|문제집|참고서)(?=\s|$)|항공권|숙박권|호텔\s*(?:예약|숙박)|펜션\s*(?:예약|숙박)|여행\s*(?:상품|패키지|투어|일정)|관광\s*(?:투어|입장권)|(?:콘서트|뮤지컬|공연|전시)\s*(?:티켓|관람권)|체험\s*(?:예약|입장권|프로그램))/i.test(p.title);
+}
+
+function displayPrice(p){
+ const raw=(typeof p?.price==="number"||typeof p?.price==="string")?String(p.price):"";
+ const value=Number(raw.replace(/[^0-9]/g,""));
+ return Number.isFinite(value)&&value>0?value:null;
+}
+function won(value){return new Intl.NumberFormat("ko-KR").format(value)+"원"}
+function priceLabel(value,modifier=""){
+ const label=make("span","price"+(modifier?" "+modifier:""));
+ label.append(make("span","price-number",new Intl.NumberFormat("ko-KR").format(value)),
+  make("span","price-unit","원"));
+ return label;
+}
+function sourceMoney(value){
+  if(typeof value==="number")return Number.isSafeInteger(value)&&value>0?value:null;
+  if(typeof value!=="string"||!/^\s*[0-9][0-9,]*\s*(?:원)?\s*$/.test(value))return null;
+  const num=Number(value.replace(/[^0-9]/g,""));
+  return Number.isSafeInteger(num)&&num>0?num:null;
+}
+function verifiedDiscount(p){
+  // Current Adpick BIZ search does not return an original price. Never infer one.
+  // Reserve discount formatting for a future BIZ-approved feed with price_org and price_sale.
+  if(!p||p.affiliate_source!=="adpick_biz_verified_offer")return null;
+  const original=sourceMoney(p.price_org),sale=sourceMoney(p.price_sale);
+  if(original===null||sale===null||original<=sale)return null;
+  if(p.price!=null&&sourceMoney(p.price)!==sale)return null;
+  const rate=Math.round((original-sale)/original*100);
+  if(rate<1||rate>99)return null;
+  return {original,sale,rate};
+}
+function merchantSummary(items){
+ const merchants=new Set((items||[]).filter(storefrontEligible).map(p=>String(p.cp_name||"").trim()).filter(Boolean));
+ if(!merchants.size)return " · 판매처 미표기";
+ if(merchants.size===1&&!currentQuery)return " · 판매처 1곳 · 해당 목록은 한 판매처 중심";
+ return " · 판매처 "+merchants.size+"곳";
+}
+function resetProductFilters(){
+ availableItems=[];merchantFilter.value="";sortSelect.value="default";
+ merchantFilter.replaceChildren(new Option("전체 판매처",""));
+ productToolbar.hidden=true;sortDisclaimer.hidden=true;
+}
+function refreshMerchantOptions(){
+ const previous=merchantFilter.value;
+ const names=[...new Set(availableItems.filter(storefrontEligible).map(p=>String(p.cp_name||"판매처").trim()))].sort((a,b)=>a.localeCompare(b,"ko"));
+ merchantFilter.replaceChildren(new Option("전체 판매처",""));
+ for(const name of names)merchantFilter.add(new Option(name,name));
+ merchantFilter.value=names.includes(previous)?previous:"";
+ productToolbar.hidden=!availableItems.length;sortDisclaimer.hidden=!availableItems.length;
+}
+function renderListing(){
+ if(!availableItems.length){show([],false);visibleCount.textContent="불러온 상품이 없습니다";return}
+ const vendor=merchantFilter.value;
+ const sort=sortSelect.value;
+ const filtered=availableItems.filter(p=>storefrontEligible(p)&&(!vendor||String(p.cp_name||"판매처").trim()===vendor));
+ const sorted=filtered.map((p,i)=>({p,i}));
+ if(sort!=="default")sorted.sort((a,b)=>{
+   const pa=displayPrice(a.p),pb=displayPrice(b.p);
+   if(pa===null&&pb!==null)return 1;
+   if(pa!==null&&pb===null)return -1;
+   if(pa!==null&&pb!==null&&pa!==pb)return sort==="asc"?pa-pb:pb-pa;
+   return a.i-b.i;
+ });
+ const visible=sorted.map(v=>v.p);
+ show(visible,false);
+ if(!visible.length)grid.replaceChildren(make("div","empty","이 판매처에 해당하는 상품이 없습니다. 전체 판매처를 선택해 보세요."));
+ visibleCount.textContent="현재 불러온 "+availableItems.length+"개 중 "+visible.length+"개 표시";
+}
+merchantFilter.addEventListener("change",renderListing);
+sortSelect.addEventListener("change",renderListing);
+const moreArea=document.getElementById("more-area"),moreButton=document.getElementById("more-products"),moreNote=document.getElementById("more-note");
+const relatedBrowse=document.getElementById("related-browse"),relatedList=document.getElementById("related-list");
+let requestId=0,currentQuery="",nextBatch=0,moreBusy=false,seenProductKeys=new Set(),shownCount=0;
+let primaryPending=false,discoveryInView=false;
+const recommendationExplore=document.getElementById("recommendation-explore");
+const recommendationExploreButton=document.getElementById("recommendation-explore-button");
+const recommendationExploreNote=document.getElementById("recommendation-explore-note");
+// One user-requested real supplier search per click; no supplier catalog crawling.
+const PRODUCT_CATEGORY_TERMS=Object.freeze({
+ food:["간편식","라면","생수","커피","과자","백미","즉석밥"],
+ living:["세제","주방용품","물티슈","화장지","청소용품","수건","프라이팬"],
+ digital:["이어폰","노트북","충전기","키보드","청소기","보조배터리","전기포트"],
+ beauty:["화장품","선크림","스킨케어","샴푸","쿠션","핸드크림"],
+ fashion:["의류","운동화","티셔츠","가방","양말"]
+});
+const PRODUCT_CATEGORY_NAMES={food:"식품",living:"리빙·주방",digital:"가전·디지털",beauty:"뷰티",fashion:"패션"};
+const productCategoryTabs=document.getElementById("product-category-tabs");
+let selectedProductCategory="",recommendationExploreProgress={},recommendationExploreItems={},recommendationExploreBusy=false,recommendationExploreQueued=null;
+function recommendationExploreVisible(url){
+ const u=new URL(url,location.href);
+ return u.pathname==="/api/best"&&["today","popular","pick"].includes(u.searchParams.get("area"));
+}
+function selectedExploreLabel(category){return PRODUCT_CATEGORY_NAMES[category]||"상품"}
+function updateRecommendationExploreButton(){
+ const category=selectedProductCategory,terms=PRODUCT_CATEGORY_TERMS[category];
+ const done=!terms||(recommendationExploreProgress[category]||0)>=terms.length;
+ recommendationExploreButton.hidden=!category||done;
+ recommendationExploreButton.disabled=!category||recommendationExplore.hidden||done||recommendationExploreBusy||primaryPending;
+ recommendationExploreButton.textContent=category?selectedExploreLabel(category)+" 상품 더 보기 +":"상품 더 보기 +";
+ productCategoryTabs.querySelectorAll("[data-product-category]").forEach(b=>{
+  const key=b.dataset.productCategory,active=key===category;
+  b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));
+  // Switching tabs must remain possible while an earlier request is running.
+  b.disabled=false;
+  b.title=selectedExploreLabel(key)+" · "+(recommendationExploreProgress[key]||0)+"/"+PRODUCT_CATEGORY_TERMS[key].length+" 품목 조회";
+ });
+}
+function updateRecommendationExplore(url){
+ recommendationExplore.hidden=!recommendationExploreVisible(url);
+ selectedProductCategory="";recommendationExploreProgress={};recommendationExploreItems={};
+ recommendationExploreQueued=null;recommendationExploreBusy=false;
+ recommendationExploreNote.textContent="카테고리를 선택하면 상품을 바로 조회합니다. 더 보기는 선택한 품목의 상품만 추가합니다.";
+ updateRecommendationExploreButton();
+}
+function renderSelectedExplore(){
+ const category=selectedProductCategory;if(!category||recommendationExplore.hidden)return;
+ availableItems=(recommendationExploreItems[category]||[]).slice();
+ shownCount=availableItems.length;
+ merchantFilter.value="";sortSelect.value="default";
+ refreshMerchantOptions();
+ if(availableItems.length){
+  renderListing();
+  statusEl.textContent=selectedExploreLabel(category)+" 상품 "+shownCount+"개 · 가격·재고는 판매처에서 확인";
+ }else{
+  const attempted=(recommendationExploreProgress[category]||0)>0;
+  grid.replaceChildren(make("div","empty",attempted
+   ?selectedExploreLabel(category)+"에서 아직 표시할 상품이 없습니다. 더 보기로 다른 품목을 조회해 보세요."
+   :selectedExploreLabel(category)+" 상품을 불러오는 중입니다."));
+  visibleCount.textContent="현재 불러온 상품 0개";
+  statusEl.textContent=attempted?selectedExploreLabel(category)+" 상품 0개 · 다른 품목 검색 가능":selectedExploreLabel(category)+" 상품 조회 중…";
+ }
+ updateRecommendationExploreButton();
+}
+function showExploreCategory(category){
+ if(!PRODUCT_CATEGORY_TERMS[category]||recommendationExplore.hidden)return;
+ selectedProductCategory=category;
+ renderSelectedExplore();
+ if((recommendationExploreProgress[category]||0)===0){
+  recommendationExploreQueued=category;
+  if(!primaryPending&&!recommendationExploreBusy){
+   recommendationExploreQueued=null;
+   void fetchRecommendationCategory(category);
+  }
+ }else{
+  recommendationExploreQueued=null;
+  recommendationExploreNote.textContent=selectedExploreLabel(category)+" 상품 "+(recommendationExploreItems[category]||[]).length+"개 표시 · 다른 품목은 아래 더 보기로 조회할 수 있습니다.";
+ }
+}
+productCategoryTabs.addEventListener("click",event=>{
+ const button=event.target.closest("[data-product-category]");
+ if(!button)return;
+ showExploreCategory(button.dataset.productCategory);
+});
+function productKey(p){
+  const title=String(p?.title||"").normalize("NFKC").toLowerCase().replace(/[^가-힣a-z0-9]/g,"");
+  return String(p?.affiliate_source||p?.cp_code||p?.cp_name||"")+"|"+title+"|"+String(p?.price??"");
+}
+function uniqueNew(items){
+  const added=[];
+  for(const item of items){
+    if(!storefrontEligible(item))continue;
+    const key=productKey(item);
+    if(seenProductKeys.has(key))continue;
+    seenProductKeys.add(key);added.push(item);
+  }
+  return added;
+}
+function updateMoreControls(hasMore){
+  moreArea.hidden=!hasMore;
+  moreButton.disabled=moreBusy;
+  moreButton.textContent=moreBusy?"새 상품 찾는 중…":"관련 상품 더 보기 +";
+}
+function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
+const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v2:";
+function recentFeed(url){
+ try{
+  const value=JSON.parse(sessionStorage.getItem(RECENT_FEED_PREFIX+url)||"null");
+  if(!value||!Array.isArray(value.items)||Date.now()-value.at>RECENT_FEED_MS)return null;
+  const items=value.items.filter(storefrontEligible).slice(0,30);
+  return items.length?items:null;
+ }catch{return null}
+}
+function keepRecentFeed(url,items){
+ try{
+  if(items.length)sessionStorage.setItem(RECENT_FEED_PREFIX+url,JSON.stringify({at:Date.now(),items:items.slice(0,30)}));
+  else sessionStorage.removeItem(RECENT_FEED_PREFIX+url);
+ }catch{/* Storage is optional; the live feed still works. */}
+}
+const retryMain=document.getElementById("retry-main");
+let lastLoadedUrl="/api/best?area=today&limit=10";
+retryMain.addEventListener("click",()=>load(lastLoadedUrl));
+async function load(url){
+lastLoadedUrl=url;
+retryMain.hidden=true;
+const id=++requestId;
+primaryPending=true;
+const u=new URL(url,location.href);
+currentQuery=u.pathname==="/api/search"?u.searchParams.get("q")||"":"";
+nextBatch=0;moreBusy=false;seenProductKeys=new Set();shownCount=0;
+resetProductFilters();
+updateMoreControls(false);
+updateRecommendationExplore(url);
+relatedBrowse.hidden=true;relatedList.replaceChildren();
+const cachedItems=recentFeed(url);
+if(cachedItems){
+ availableItems=cachedItems;shownCount=cachedItems.length;
+ refreshMerchantOptions();renderListing();
+ statusEl.textContent="최근 조회 상품 "+shownCount+"개 · 최신 정보 확인 중 · 가격은 판매처에서 확인";
+}else{
+ statusEl.textContent="상품을 불러오는 중입니다...";
+ grid.replaceChildren(make("div","empty","데이터를 불러오는 중입니다."));
+}
+try{
+  const res=await fetchProducts(url,()=>{
+   if(id===requestId)statusEl.textContent=cachedItems?"최근 조회 상품 표시 중 · 애드픽 연결 재시도 중":"애드픽 연결이 지연되어 백업 서버를 준비하고 있습니다. 아래 토스쇼핑 상품은 먼저 확인할 수 있어요.";
+  });
+  const payload=await res.json();
+  if(id!==requestId)return;
+  const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
+  if(payload.success&&list){
+    const excluded=Number(payload.filter_meta?.excluded||0);
+    const duplicates=Number(payload.filter_meta?.duplicates_removed||0);
+    const expanded=Number(payload.filter_meta?.queries_checked||0)>1;
+    const checked=Number(payload.filter_meta?.queries_checked||0);
+    const requested=Number(payload.filter_meta?.queries_requested||0);
+    const partial=Boolean(currentQuery)&&((requested>0&&checked<requested)||payload.filter_meta?.quota_limited===true);
+    const initial=uniqueNew(list);
+    availableItems=initial;
+    shownCount=initial.length;
+    keepRecentFeed(url,initial);
+    refreshMerchantOptions();
+    renderListing();
+    if(!currentQuery&&discoveryLoaded)renderDiscovered();
+    if(currentQuery) {
+      nextBatch=1;
+      updateMoreControls(payload.filter_meta?.has_more===true);
+      showRelatedBrowse(currentQuery);
+    }
+    if(!list.length){
+      grid.replaceChildren(make("div","empty",partial?"일부 연관 검색어의 결과를 확인하지 못했습니다. 다시 불러오기를 선택해 주세요.":"검색어와 맞는 상품이 없어요. 무관한 상품은 표시하지 않습니다. 다른 키워드를 선택해 주세요."));
+      statusEl.textContent=(excluded?"제공된 결과 중 관련 없는 상품 "+excluded+"개 제외":"현재 검색어와 일치하는 상품 없음")+(partial?" · 일부 검색어 미확인":"");
+    }else{
+      const staleFeed=payload.filter_meta?.cache_status==="stale";
+      statusEl.textContent=(staleFeed?"최근 조회 상품 ":"관련 상품 ")+shownCount+"개"+merchantSummary(initial)+(expanded?" · 연관 검색어까지 확인":"")+(excluded?" · 무관한 상품 "+excluded+"개 제외":"")+(duplicates?" · 중복 "+duplicates+"개 정리":"")+(staleFeed?" · 새 정보 확인 중":"")+(partial?" · 일부 검색어 미확인":"")+" · 가격은 판매처에서 확인";
+    }
+    if(partial)retryMain.hidden=false;
+    if(!recommendationExplore.hidden)updateRecommendationExploreButton();
+    return;
+  }
+  if(payload.code==="API_NOT_CONFIGURED"){
+    if(!cachedItems)grid.replaceChildren(make("div","empty","상품을 불러오지 못했습니다. 아래 토스쇼핑 추천 상품은 바로 둘러볼 수 있습니다."));
+    statusEl.textContent="상품 조회 지연 · 잠시 후 다시 시도해 주세요";
+    retryMain.hidden=false;
+    return;
+  }
+  if(res.status===429){
+    if(cachedItems){statusEl.textContent="최근 조회 상품 표시 중 · 새 조회는 잠시 후 가능합니다";return}
+    grid.replaceChildren(make("div","empty","조회 요청이 많습니다. 잠시 후 다시 선택해 주세요."));
+    statusEl.textContent="API 요청량 보호 중";
+    retryMain.hidden=false;
+    return;
+  }
+  throw Error(payload.message||"상품을 불러오지 못했습니다");
+}catch(err){
+ if(id!==requestId)return;
+ if(cachedItems){
+  statusEl.textContent="최근 조회 상품 표시 중 · 최신 연결이 지연됩니다 · 가격은 판매처에서 확인";
+ }else{
+  grid.replaceChildren(make("div","empty","상품을 불러올 수 없습니다. 잠시 후 다시 검색해 주세요."));
+  statusEl.textContent="상품 조회 지연";
+  retryMain.hidden=false;
+ }
+}finally{
+ if(id===requestId){
+  primaryPending=false;
+  if(selectedProductCategory&&!recommendationExplore.hidden){
+   renderSelectedExplore();
+   const queued=recommendationExploreQueued;recommendationExploreQueued=null;
+   if(queued&&(recommendationExploreProgress[queued]||0)===0)void fetchRecommendationCategory(queued);
+  }
+  updateRecommendationExploreButton();
+  if(discoveryInView)ensureDiscovery();
+ }
+}}
+async function fetchRecommendationCategory(category){
+ const step=recommendationExploreProgress[category]||0;
+ if(recommendationExploreBusy||primaryPending||recommendationExplore.hidden||step>=PRODUCT_CATEGORY_TERMS[category].length)return;
+ const id=requestId,term=PRODUCT_CATEGORY_TERMS[category][step],label=selectedExploreLabel(category);
+ recommendationExploreBusy=true;
+ updateRecommendationExploreButton();
+ if(selectedProductCategory===category){
+  recommendationExploreNote.textContent=label+" · "+term+" 상품을 조회하는 중입니다.";
+ }
+ try{
+  const response=await fetchProducts("/api/search?q="+encodeURIComponent(term)+"&limit=20");
+  const payload=await response.json();
+  if(id!==requestId||recommendationExplore.hidden)return;
+  if(!response.ok||payload.success!==true)throw Error("상품 검색 실패");
+  const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
+  if(!list)throw Error("유효하지 않은 상품 목록");
+  const items=recommendationExploreItems[category]||[];
+  const seen=new Set(items.map(productKey));
+  const fresh=[];
+  for(const item of list){
+   if(!storefrontEligible(item))continue;
+   const key=productKey(item);
+   if(seen.has(key))continue;
+   seen.add(key);
+   fresh.push({...item,recommendation_discovered:true});
+  }
+  recommendationExploreItems[category]=items.concat(fresh);
+  recommendationExploreProgress[category]=step+1;
+  if(selectedProductCategory===category){
+   renderSelectedExplore();
+   recommendationExploreNote.textContent=fresh.length
+    ?label+" · "+term+" 새 상품 "+fresh.length+"개 추가 · 현재 "+recommendationExploreItems[category].length+"개"
+    :label+" · "+term+" 상품은 추가로 확인되지 않았습니다. 다음 품목을 검색할 수 있습니다.";
+   if(recommendationExploreProgress[category]>=PRODUCT_CATEGORY_TERMS[category].length)
+    recommendationExploreNote.textContent+=" · 준비된 품목 조회 완료";
+   if(!fresh.length&&!recommendationExploreItems[category].length){
+    grid.replaceChildren(make("div","empty",label+"에서 아직 표시할 상품이 없습니다. 아래에서 다음 품목을 조회해 보세요."));
+    statusEl.textContent=label+" 신규 상품 0개 · 다른 품목 검색 가능";
+   }
+  }
+ }catch{
+  if(id===requestId&&!recommendationExplore.hidden&&selectedProductCategory===category){
+   recommendationExploreNote.textContent=label+" 상품 조회가 지연되거나 검색 한도에 도달했습니다. 아래 버튼으로 다시 시도해 주세요.";
+   if(!(recommendationExploreItems[category]||[]).length){
+    grid.replaceChildren(make("div","empty","상품을 가져오지 못했습니다. 아래 상품 더 보기 버튼으로 다시 시도해 주세요."));
+    statusEl.textContent=label+" 상품 조회 실패 · 재시도 가능";
+   }
+  }
+ }finally{
+  if(id===requestId&&!recommendationExplore.hidden){
+   recommendationExploreBusy=false;
+   updateRecommendationExploreButton();
+   const queued=recommendationExploreQueued;recommendationExploreQueued=null;
+   if(queued&&queued===selectedProductCategory&&(recommendationExploreProgress[queued]||0)===0)
+    void fetchRecommendationCategory(queued);
+  }
+ }
+}
+recommendationExploreButton.addEventListener("click",()=>{
+ const category=selectedProductCategory;
+ if(!category||recommendationExploreBusy||primaryPending)return;
+ void fetchRecommendationCategory(category);
+});
+// Progressive category discovery. Supplier data remains in browser memory only
+// until the user changes the search or closes the page.
+moreButton.addEventListener("click",async()=>{
+  if(moreBusy||!currentQuery||moreArea.hidden)return;
+  const id=requestId,q=currentQuery,batch=nextBatch;
+  moreBusy=true;moreNote.textContent="다른 관련 품목을 검색하고 있어요.";
+  updateMoreControls(true);
+  try{
+    const res=await fetchProducts("/api/search?q="+encodeURIComponent(q)+"&batch="+batch+"&limit=30");
+    const payload=await res.json();
+    if(id!==requestId)return;
+    if(!res.ok||!payload.success){
+      moreNote.textContent=res.status===429?"검색 요청 한도에 도달했어요. 잠시 후 다시 눌러주세요.":"추가 상품을 가져오지 못했어요. 다시 눌러주세요.";
+      return;
+    }
+    const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:[];
+    const fresh=uniqueNew(list);
+    if(fresh.length){availableItems.push(...fresh);shownCount=availableItems.length;refreshMerchantOptions();renderListing();}
+    nextBatch=batch+1;
+    const hasMore=payload.filter_meta?.has_more===true;
+    statusEl.textContent="표시 중인 서로 다른 관련 상품 "+shownCount+"개"+merchantSummary(availableItems)+" · 구매 조건은 판매처에서 확인";
+    moreNote.textContent=fresh.length?("새 상품 "+fresh.length+"개 추가 · 현재 "+shownCount+"개 표시"):(hasMore?"이번 검색에서는 새 상품이 없었어요. 다음 품목을 확인할 수 있어요.":"더 찾을 수 있는 연관 검색어가 없어요. 아래 다른 품목을 골라보세요.");
+    moreArea.hidden=!hasMore;
+  }catch{
+    if(id===requestId)moreNote.textContent="연결이 원활하지 않아요. 다시 눌러주세요.";
+  }finally{
+    if(id===requestId){
+      moreBusy=false;
+      if(!moreArea.hidden)updateMoreControls(true);
+    }
+  }
+});
+tabs.addEventListener("click",e=>{
+  const b=e.target.closest("[data-area]");if(!b)return;
+  leaveDepartment();
+  mainBestArea=b.dataset.area;
+  ensureDiscovery();
+  activate(tabs,b);activate(categories,null);input.value="";
+  heading.textContent=b.textContent+" 상품";
+  load("/api/best?area="+encodeURIComponent(b.dataset.area)+"&limit=10");
+});
+// Each category triggers one live search. Do not store third-party product data.
+const subcategories=document.getElementById("subcategories");
+const subcatlist=document.getElementById("subcatlist");
+const subQueries={
+  "세제":["세탁세제","주방세제","캡슐세제","액체세제","화장지","물티슈","청소용품","샴푸","섬유유연제"],
+  "간편식":["라면","즉석밥","커피","생수","쌀","과자","냉동식품"],
+  "이어폰":["무선이어폰","충전기","키보드","마우스","노트북","보조배터리","모니터"],
+  "화장품":["선크림","스킨케어","쿠션","클렌징","립스틱","핸드크림"],
+  "의류":["티셔츠","운동화","가방","재킷","양말","청바지"],
+  "주방용품":["프라이팬","냄비","밀폐용기","그릇","주방세제","수세미"]
+};
+const departmentInfo={
+ "간편식":{name:"식품",badge:"FOOD",description:"간편식부터 생수·커피·라면까지, 필요한 먹거리를 품목별로 살펴보세요."},
+ "세제":{name:"생활용품",badge:"LIVING",description:"세탁·주방용 세제와 생활 잡화를 목적에 맞게 찾아보세요."},
+ "이어폰":{name:"디지털",badge:"TECH",description:"이어폰·충전기·노트북 등 디지털 제품을 세부 품목부터 탐색하세요."},
+ "화장품":{name:"뷰티",badge:"BEAUTY",description:"스킨케어와 색조 제품을 원하는 종류별로 찾아보세요."},
+ "의류":{name:"패션",badge:"STYLE",description:"의류와 패션잡화를 품목 중심으로 둘러보세요."},
+ "주방용품":{name:"주방",badge:"KITCHEN",description:"프라이팬·냄비·도마·보관용기를 종류별로 확인하세요."}
+};
+function markSideSelected(term){
+ sideLinks.querySelectorAll("button").forEach(b=>{
+  const active=b.dataset.sidequery===term;
+  b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));
+ });
+}
+function renderSideNav(department,term){
+ sideLinks.replaceChildren();
+ for(const item of [department,...(subQueries[department]||[])]){
+  const btn=make("button","side-link",item===department?"전체 "+departmentInfo[department].name:item);
+  btn.type="button";btn.dataset.sidequery=item;
+  sideLinks.append(btn);
+ }
+ markSideSelected(term||department);
+}
+function validatedDepartmentTerm(department,term){
+ return term===department||(subQueries[department]||[]).includes(term)?term:department;
+}
+function departmentUrl(department,term){
+ return "/?category="+encodeURIComponent(department)+(term!==department?"&item="+encodeURIComponent(term):"");
+}
+function setDepartmentMode(department,term=department){
+ const info=departmentInfo[department];
+ const active=Boolean(info);
+ currentDepartment=active?department:"";
+ currentCategoryTerm=active?validatedDepartmentTerm(department,term):"";
+ document.body.classList.toggle("category-active",active);
+ browseLayout.classList.toggle("category-open",active);
+ if(active){
+   categoryTitle.textContent=info.name;
+   categoryCrumb.textContent="홈 / 카테고리 / "+info.name+(currentCategoryTerm!==department?" / "+currentCategoryTerm:"");
+   categoryDescription.textContent=info.description;
+   categoryStamp.textContent=info.badge;
+   renderSideNav(department,currentCategoryTerm);
+ }else{
+   sideLinks.replaceChildren();
+ }
+}
+function changeDepartment(q,{navigate=true,scroll=false,term=q}={}){
+ const info=departmentInfo[q];
+ if(!info)return;
+ const selectedTerm=validatedDepartmentTerm(q,term);
+ setDepartmentMode(q,selectedTerm);
+ activate(categories,categories.querySelector('[data-query="'+q+'"]'));
+ renderSubcategories(q,selectedTerm);
+ searchProducts(selectedTerm,selectedTerm===q?info.name:selectedTerm);
+ if(navigate)history.pushState({category:q,item:selectedTerm},"",departmentUrl(q,selectedTerm));
+ if(scroll)document.getElementById("categories").scrollIntoView({block:"start"});
+}
+function leaveDepartment({navigate=true}={}){
+ setDepartmentMode("");
+ if(navigate)history.pushState({},"","/");
+ renderSubcategories("");
+ activate(categories,categories.querySelector('[data-query=""]'));
+}
+function selectCategoryTerm(term,{navigate=true}={}){
+ if(!currentDepartment)return;
+ if(term!==currentDepartment&&!(subQueries[currentDepartment]||[]).includes(term))return;
+ currentCategoryTerm=term;
+ categoryCrumb.textContent="홈 / 카테고리 / "+departmentInfo[currentDepartment].name+(term!==currentDepartment?" / "+term:"");
+ markSideSelected(term);
+ subcatlist.querySelectorAll("button").forEach(b=>{
+  const active=b.dataset.subquery===term;
+  b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));
+ });
+ if(navigate)history.pushState({category:currentDepartment,item:term},"",departmentUrl(currentDepartment,term));
+ searchProducts(term,term===currentDepartment?departmentInfo[currentDepartment].name:term);
+}
+sideLinks.addEventListener("click",e=>{
+ const btn=e.target.closest("[data-sidequery]");
+ if(!btn)return;
+ selectCategoryTerm(btn.dataset.sidequery);
+});
+departmentGrid.addEventListener("click",e=>{
+ const btn=e.target.closest("[data-department]");
+ if(btn)changeDepartment(btn.dataset.department,{scroll:true});
+});
+document.getElementById("hub-quicklinks").addEventListener("click",e=>{
+ const btn=e.target.closest("[data-department][data-term]");
+ if(!btn)return;
+ changeDepartment(btn.dataset.department,{term:btn.dataset.term,scroll:true});
+});
+
+function searchProducts(q,label){
+  activate(tabs,null);
+  input.value="";
+  heading.textContent=(label||q)+" 관련 상품";
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
+}
+function showRelatedBrowse(q){
+  relatedList.replaceChildren();
+  const options=subQueries[q]||[];
+  relatedBrowse.hidden=!options.length;
+  for(const term of options){
+    const b=make("button","related-link",term+" ↗");
+    b.type="button";b.dataset.related=term;relatedList.append(b);
+  }
+}
+function renderSubcategories(q,selected=q){
+ subcatlist.replaceChildren();
+ const keywords=subQueries[q]||[];
+ subcategories.hidden=!keywords.length;
+ if(!keywords.length)return;
+ for(const word of [q,...keywords]){
+   const label=word===q?"전체 "+departmentInfo[q].name:word;
+   const btn=make("button","subbtn"+(word===selected?" active":""),label);
+   btn.type="button";btn.dataset.subquery=word;
+   btn.setAttribute("aria-pressed",String(word===selected));
+   subcatlist.append(btn);
+ }
+}
+categories.addEventListener("click",e=>{
+  const b=e.target.closest("[data-query]");if(!b)return;
+  if(!b.dataset.query){
+    leaveDepartment();
+    activate(tabs,tabs.querySelector("[data-area=today]"));
+    heading.textContent="오늘의 추천 상품";
+    input.value="";
+    load("/api/best?area=today&limit=10");
+    return;
+  }
+  changeDepartment(b.dataset.query);
+});
+relatedList.addEventListener("click",e=>{
+  const b=e.target.closest("[data-related]");if(!b)return;
+  const term=b.dataset.related;
+  activate(tabs,null);
+  if(currentDepartment)markSideSelected(term);
+  heading.textContent=term+" 관련 상품";
+  searchProducts(term,term);
+  document.getElementById("deals").scrollIntoView({block:"start"});
+});
+subcatlist.addEventListener("click",e=>{
+  const b=e.target.closest("[data-subquery]");if(!b)return;
+  activate(subcatlist,b);
+  if(currentDepartment)selectCategoryTerm(b.dataset.subquery);
+  else searchProducts(b.dataset.subquery,b.textContent.trim());
+});
+document.getElementById("searchform").addEventListener("submit",e=>{
+  e.preventDefault();const q=input.value.trim();if(q.length<2){input.focus();return}
+  leaveDepartment();
+  activate(tabs,null);activate(categories,null);
+  heading.textContent="‘"+q+"’ 검색 결과";
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
+});
+document.getElementById("quick-searches").addEventListener("click",e=>{
+  const b=e.target.closest("[data-quick]");
+  if(!b)return;
+  const q=b.dataset.quick;
+  leaveDepartment();
+  activate(categories,null);activate(tabs,null);
+  renderSubcategories("");
+  input.value=q;
+  heading.textContent=q+" 검색 결과";
+  load("/api/search?q="+encodeURIComponent(q)+"&limit=30");
+});
+const requestedParams=new URLSearchParams(location.search);
+const requestedDepartment=requestedParams.get("category");
+if(Object.prototype.hasOwnProperty.call(departmentInfo,requestedDepartment)){
+  changeDepartment(requestedDepartment,{navigate:false,term:requestedParams.get("item")||requestedDepartment});
+}else{
+  load("/api/best?area=today&limit=10");
+}
+window.addEventListener("popstate",()=>{
+ const params=new URLSearchParams(location.search);
+ const category=params.get("category");
+ if(Object.prototype.hasOwnProperty.call(departmentInfo,category)){
+  changeDepartment(category,{navigate:false,term:params.get("item")||category});
+ }else{
+  leaveDepartment({navigate:false});
+  activate(tabs,tabs.querySelector('[data-area="today"]'));
+  heading.textContent="오늘의 추천 상품";
+  mainBestArea="today";
+  load("/api/best?area=today&limit=10");
+  ensureDiscovery();
+ }
+});
+let tossSliderInitialized=false;
+function initTossSlider(panel,target){
+ if(tossSliderInitialized)return;
+ tossSliderInitialized=true;
+ const prev=document.getElementById("toss-prev"),next=document.getElementById("toss-next");
+ const counter=document.getElementById("toss-slide-count");
+ const cards=()=>Array.from(target.children);
+ const index=()=>{
+  const items=cards();
+  if(!items.length)return 0;
+  let nearest=0,distance=Infinity;
+  items.forEach((card,i)=>{
+   const delta=Math.abs(card.offsetLeft-target.offsetLeft-target.scrollLeft);
+   if(delta<distance){distance=delta;nearest=i}
+  });
+  return nearest;
+ };
+ const update=()=>{
+  const items=cards();
+  const current=items.length?index()+1:0;
+  counter.textContent=current+" / "+items.length;
+  prev.disabled=items.length<2;
+  next.disabled=items.length<2;
+ };
+ const go=(step)=>{
+  const items=cards();if(items.length<2)return;
+  const current=index();
+  const targetIndex=(current+step+items.length)%items.length;
+  target.scrollTo({left:items[targetIndex].offsetLeft-target.offsetLeft,behavior:"smooth"});
+  counter.textContent=(targetIndex+1)+" / "+items.length;
+ };
+ let paused=false;
+ prev.addEventListener("click",()=>{go(-1);paused=true});
+ next.addEventListener("click",()=>{go(1);paused=true});
+ target.addEventListener("scroll",update,{passive:true});
+ target.addEventListener("mouseenter",()=>{paused=true});
+ target.addEventListener("mouseleave",()=>{paused=false});
+ panel.addEventListener("focusin",()=>{paused=true});
+ panel.addEventListener("focusout",e=>{if(!panel.contains(e.relatedTarget))paused=false});
+ target.addEventListener("touchstart",()=>{paused=true},{passive:true});
+ target.addEventListener("touchend",()=>{paused=false},{passive:true});
+ const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)");
+ if(!reduced?.matches){
+  const timer=window.setInterval(()=>{
+   if(paused||document.hidden||panel.hidden||!panel.getClientRects().length)return;
+   const rect=panel.getBoundingClientRect();
+   if(rect.bottom<=0||rect.top>=window.innerHeight)return;
+   go(1);
+  },4800);
+  window.addEventListener("pagehide",()=>window.clearInterval(timer),{once:true});
+ }
+ update();
+}
+
+const featuredTossProducts=[{"title":"스파클 생수, 무라벨, 500ml, 80개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/fEfXH2Dz","affiliate_source":"toss_sharelink","icon":"💧"},{"title":"EMS 스마트 발 마사지기, 리모컨 포함, 블랙, 1개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/T3YXM88A","affiliate_source":"toss_sharelink","icon":"🦶"},{"title":"썬리지 호주산 네이블 오렌지, 중과, 3.5kg, 1박스","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/vUfumnfn","affiliate_source":"toss_sharelink","icon":"🍊"},{"title":"명식품 파래김, 100매, 1개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/9DX0e7mh","affiliate_source":"toss_sharelink","icon":"🍙"},{"title":"대식가 일키로 부대찌개, 1kg, 3팩","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/b8L8owyC","affiliate_source":"toss_sharelink","icon":"🍲"},{"title":"포레스티 국내제조 땅콩버터, 무첨가, 무가당, 무설탕, 450g, 2개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/vd1C807g","affiliate_source":"toss_sharelink","icon":"🥜"},{"title":"코주부 밀가루 없는 3분 어묵탕, 210g, 4팩","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/73U6YhQD","affiliate_source":"toss_sharelink","icon":"🍢"}];
+function loadCuratedProducts(){
+ const panel=document.getElementById("toss-picks");
+ const target=document.getElementById("toss-products");
+ show(featuredTossProducts,false,target);
+ panel.hidden=false;
+ initTossSlider(panel,target);
+}
+// Curated feed is requested when the lower sections approach the viewport.
+const discoveryGrid=document.getElementById("discovery-products");
+const discoveryMore=document.getElementById("discovery-more");
+const discoveryStatus=document.getElementById("discovery-status");
+const discoverySection=document.getElementById("product-discovery");
+let discoveredProducts=[],discoveryLoaded=false,discoveryBusy=false,discoveryStep=0,discoveryError=false;
+let mainBestArea="today";
+// Daily assortment based on the current calendar date in Korea; it is not a claim of inventory verification.
+const dailyTopics=["생활용품","커피","라면","무선이어폰","선크림","주방용품","과자","생수","운동화","샴푸","충전기","물티슈","즉석밥","키보드"];
+function koreanDayIndex(){
+  const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+  const parts=today.split("-").map(Number);
+  return Math.floor(Date.UTC(parts[0],parts[1]-1,parts[2])/86400000);
+}
+const featuredTopic=dailyTopics[koreanDayIndex()%dailyTopics.length];
+document.getElementById("discovery-title").textContent="오늘의 상품 발견 · "+featuredTopic;
+function discoveryUnique(items){
+  const existing=new Set(availableItems.map(productKey));
+  const seen=new Set();
+  return items.filter(p=>{
+    const key=productKey(p);
+    if(!storefrontEligible(p)||existing.has(key)||seen.has(key))return false;
+    seen.add(key);return true;
+  });
+}
+function renderDiscovered(){
+  const visible=discoveryUnique(discoveredProducts);
+  if(!visible.length){
+    const notice=discoveryBusy?"관련 상품을 확인하는 중입니다.":discoveryError?"애드픽 추가 상품 연결이 지연되고 있습니다. 아래 버튼으로 다시 불러올 수 있어요.":"이번에는 추가로 보여줄 상품이 없습니다. 카테고리에서 더 찾아보세요.";
+    discoveryGrid.replaceChildren(make("div","empty",notice));
+  }else{
+    show(visible,false,discoveryGrid);
+  }
+  discoveryMore.hidden=discoveryStep>=2;
+  discoveryMore.disabled=discoveryBusy;
+  discoveryMore.textContent=discoveryBusy?"상품을 가져오는 중…":discoveryStep===0?"인기 상품 불러오기 +":"추천 상품 더 보기 +";
+  discoveryStatus.textContent=discoveryError?"상품 연결이 원활하지 않습니다. 버튼을 눌러 다시 시도해 주세요.":"오늘의 "+featuredTopic+" 포함 "+visible.length+"개 · 재고·가격·배송은 판매처에서 확인";
+}
+async function loadDiscoveryStep(){
+  if(discoveryBusy||discoveryStep>=2||document.body.classList.contains("category-active"))return;
+  discoveryBusy=true;
+  const step=discoveryStep;
+  discoveryMore.hidden=false;discoveryMore.disabled=true;
+  discoveryStatus.textContent="새 상품을 확인하는 중입니다.";
+  const area=step===0?"popular":"pick";
+  const endpoint=step===0?"/api/search?q="+encodeURIComponent(featuredTopic)+"&limit=20":"/api/best?area="+area+"&limit=10";
+  try{
+    const response=await fetchProducts(endpoint);
+    const payload=await response.json();
+    if(!response.ok||payload.success!==true)throw Error("best feed unavailable");
+    const items=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
+    if(!items)throw Error("bad best response");
+    const known=new Set(discoveredProducts.map(productKey));
+    for(const p of items){
+      const key=productKey(p);
+      if(storefrontEligible(p)&&!known.has(key)){known.add(key);discoveredProducts.push(p)}
+    }
+    discoveryStep=step+1;
+    discoveryLoaded=true;
+    discoveryError=false;
+  }catch{
+    discoveryError=true;
+  }finally{
+    discoveryBusy=false;
+    renderDiscovered();
+  }
+}
+discoveryMore.addEventListener("click",loadDiscoveryStep);
+function ensureDiscovery(){
+  if(primaryPending||!discoveryInView||document.body.classList.contains("category-active"))return;
+  // Do not hammer the same upstream when the initial recommendation feed failed.
+  // Shoppers may explicitly retry the additional feed; manually curated Toss picks remain available.
+  if(!availableItems.length){
+   discoveryGrid.replaceChildren(make("div","empty","애드픽 추천 상품 연결이 지연되고 있어요. 아래 버튼을 눌러 다시 조회할 수 있습니다."));
+   discoveryMore.hidden=false;discoveryMore.disabled=false;
+   discoveryMore.textContent="인기 상품 다시 불러오기";
+   discoveryStatus.textContent="토스쇼핑 추천 상품은 위에서 바로 확인할 수 있어요.";
+   return;
+  }
+  if(!discoveryLoaded&&!discoveryBusy)loadDiscoveryStep();
+  else renderDiscovered();
+}
+// Do not use extra affiliate API calls until shoppers actually scroll to this section.
+if("IntersectionObserver" in window){
+  const observer=new IntersectionObserver(entries=>{
+    if(!entries.some(entry=>entry.isIntersecting))return;
+    discoveryInView=true;
+    observer.disconnect();
+    ensureDiscovery();
+  },{rootMargin:"120px"});
+  observer.observe(discoverySection);
+}else{
+  window.addEventListener("load",()=>{
+    discoveryInView=true;
+    ensureDiscovery();
+  },{once:true});
+}
+/* Shopping-mall events only: never show a publisher commission rate as a discount.
+   No promotion is displayed until an authorized banner and tracking link are entered. */
+function shoppingEventValidDate(value){
+ if(typeof value!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+ const date=new Date(value+"T00:00:00.000Z");
+ return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
+}
+function shoppingEventTodayKst(){
+ const parts=new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+ const values=Object.fromEntries(parts.filter(p=>p.type!=="literal").map(p=>[p.type,p.value]));
+ return values.year+"-"+values.month+"-"+values.day;
+}
+function eligibleShoppingEvent(event,today=shoppingEventTodayKst()){
+ if(!event||typeof event!=="object"||Array.isArray(event))return false;
+ if(event.asset_authorized!==true||event.link_confirmed!==true)return false;
+ if(["commission_per","commission_percent","commission_rate","discount_rate"].some(key=>key in event))return false;
+ if(!shoppingEventValidDate(today)||!shoppingEventValidDate(event.ends_on))return false;
+ if(event.ends_on<today)return false;
+ if(event.starts_on!==undefined&&(!shoppingEventValidDate(event.starts_on)||event.starts_on>today||event.starts_on>event.ends_on))return false;
+ if(typeof event.title!=="string"||!event.title.trim()||event.title.length>90)return false;
+ if(typeof event.mall!=="string"||!event.mall.trim()||event.mall.length>50)return false;
+ if(typeof event.description!=="string"||event.description.length>180)return false;
+ // Never allow commission/discount percentages to leak into consumer copy.
+ if([event.title,event.mall,event.description].some(t=>/\d+(?:\.\d+)?\s*%/.test(t)||/수수료율|커미션율/.test(t)))return false;
+ if(typeof event.url!=="string"||!validAffiliateLink(event.url,{affiliate_source:event.affiliate_source}))return false;
+ let destination;
+ try{destination=new URL(event.url)}catch{return false}
+ if(destination.pathname.startsWith("/api/"))return false; // Do not expose API keys via directlink.
+ if(typeof event.image_url!=="string"||event.image_url.length>1800)return false;
+ try{
+  const image=new URL(event.image_url);
+  if(image.protocol!=="https:"||image.username||image.password||image.port||image.hash)return false;
+  if(/^(localhost|127\.|10\.|192\.168\.|169\.254\.)/.test(image.hostname))return false;
+ }catch{return false}
+ return true;
+}
+function renderShoppingEvents(items,today=shoppingEventTodayKst()){
+ const section=document.getElementById("shopping-events");
+ const grid=document.getElementById("shopping-event-grid");
+ const themes=document.getElementById("shopping-theme-grid");
+ const title=document.getElementById("shopping-events-title");
+ const description=document.getElementById("shopping-events-description");
+ const rows=Array.isArray(items)?items.slice(0,12):[];
+ const used=new Set();
+ const eligible=rows.filter(event=>{
+  if(!eligibleShoppingEvent(event,today)||used.has(event.url))return false;
+  used.add(event.url);return true;
+ }).slice(0,6);
+ grid.replaceChildren();
+ function showThemes(){
+  grid.hidden=true;themes.hidden=false;
+  title.textContent="쇼핑몰 기획전";
+  description.textContent="11번가 생필품과 아디다스 가을 스타일을 둘러보세요.";
+  section.hidden=false;
+ }
+ if(!eligible.length){showThemes();return 0}
+ for(const event of eligible){
+  const a=document.createElement("a");
+  a.className="shopping-event-card";
+  a.href=event.url;a.target="_blank";
+  a.rel="sponsored nofollow noopener noreferrer";
+  a.setAttribute("aria-label",event.mall+" "+event.title+" · 기획전으로 이동");
+  const photo=document.createElement("span");photo.className="shopping-event-media";
+  const img=document.createElement("img");img.src=event.image_url;img.alt=event.title+" 기획전 배너";img.loading="lazy";img.decoding="async";
+  img.addEventListener("error",()=>{
+   a.remove();
+   if(!grid.children.length)showThemes();
+  },{once:true});
+  photo.append(img);
+  const content=document.createElement("span");content.className="shopping-event-copy";
+  const mall=document.createElement("span");mall.className="shopping-event-merchant";mall.textContent=event.mall;
+  const eventTitle=document.createElement("span");eventTitle.className="shopping-event-title";eventTitle.textContent=event.title;
+  content.append(mall,eventTitle);
+  if(event.description.trim()){
+   const desc=document.createElement("span");desc.className="shopping-event-description";
+   desc.textContent=event.description;content.append(desc);
+  }
+  const date=document.createElement("span");date.className="shopping-event-period";
+  date.textContent="행사 종료 "+event.ends_on.replaceAll("-",".")+" · 자세한 조건은 판매처에서 확인";
+  content.append(date);a.append(photo,content);grid.append(a);
+ }
+ themes.hidden=true;grid.hidden=false;section.hidden=false;
+ title.textContent="진행 중인 쇼핑몰 기획전";
+ description.textContent="행사와 구매 조건은 판매처에서 확인할 수 있습니다.";
+ return eligible.length;
+}
+async function loadShoppingEvents(){
+ try{
+  const response=await fetch("/shopping-events.json",{cache:"no-store"});
+  if(!response.ok)return;
+  const body=await response.json();
+  renderShoppingEvents(body?.events);
+ }catch{/* No campaign data means no promotional section. */ }
+}
+function initShoppingCampaignSlider(){
+ const node=document.getElementById("shopping-theme-grid");
+ if(!node)return;
+ const cards=[...node.querySelectorAll("[data-campaign-slide]")];
+ const dots=[...node.querySelectorAll("[data-campaign-dot]")];
+ if(cards.length<2)return;
+ let active=0,manual=false,hovered=false,focused=false;
+ const show=(next)=>{
+  active=(next+cards.length)%cards.length;
+  cards.forEach((card,i)=>{
+   const on=i===active;
+   card.classList.toggle("is-active",on);
+   card.setAttribute("aria-hidden",String(!on));
+   card.tabIndex=on?0:-1;
+  });
+  dots.forEach((dot,i)=>dot.setAttribute("aria-current",String(i===active)));
+ };
+ node.querySelector(".shopping-campaign-prev").addEventListener("click",()=>{manual=true;show(active-1)});
+ node.querySelector(".shopping-campaign-next").addEventListener("click",()=>{manual=true;show(active+1)});
+ dots.forEach((dot,i)=>dot.addEventListener("click",()=>{manual=true;show(i)}));
+ node.addEventListener("mouseenter",()=>hovered=true);
+ node.addEventListener("mouseleave",()=>hovered=false);
+ node.addEventListener("focusin",()=>focused=true);
+ node.addEventListener("focusout",e=>{if(!node.contains(e.relatedTarget))focused=false});
+ let x0=null;
+ node.addEventListener("touchstart",e=>x0=e.touches[0]?.clientX??null,{passive:true});
+ node.addEventListener("touchend",e=>{
+  if(x0===null)return;
+  const x1=e.changedTouches[0]?.clientX;
+  if(typeof x1==="number"&&Math.abs(x1-x0)>50){manual=true;show(active+(x1<x0?1:-1))}
+  x0=null;
+ },{passive:true});
+ const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)");
+ const timer=setInterval(()=>{
+  if(manual||hovered||focused||document.hidden||reduced?.matches||node.hidden)return;
+  show(active+1);
+ },6500);
+ window.addEventListener("pagehide",()=>clearInterval(timer),{once:true});
+ show(0);
+}
+initShoppingCampaignSlider();
+void loadShoppingEvents();
+loadCuratedProducts();
+
+
+
+</script>
+</body>
+</html>
