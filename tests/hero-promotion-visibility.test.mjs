@@ -1,0 +1,52 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {Script} from 'node:vm';
+const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const js=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+const mainStart=html.indexOf('<main class="wrap">');
+const campaignStart=html.indexOf('<section id="shopping-events"');
+const searchStart=html.indexOf('<section class="hero"');
+test('The large photographic carousel appears before search and categories, even with no Adpick events',()=>{
+ assert.ok(mainStart<campaignStart&&campaignStart<searchStart,'hero promotion comes before search');
+ const markup=html.slice(campaignStart,searchStart);
+ assert.doesNotMatch(markup,/<section[^>]*hidden/);
+ assert.equal((markup.match(/class="shopping-event-card hero-promo-slide"/g)||[]).length,3);
+ assert.equal((markup.match(/class="shopping-event-media"/g)||[]).length,3);
+ assert.match(markup,/images\.unsplash\.com/);
+ assert.match(markup,/href="\/\?category=주방용품"/);
+ assert.match(markup,/href="\/\?category=의류"/);
+ assert.match(markup,/href="\/\?category=화장품"/);
+});
+test('Banner navigation actually changes slides and obeys motion/accessibility settings',()=>{
+ assert.ok(js);assert.doesNotThrow(()=>new Script(js));
+ assert.match(js,/function showShoppingHeroSlide\(next\)/);
+ assert.match(js,/slide\.hidden=i!==shoppingHeroIndex/);
+ assert.match(js,/shopping-event-prev"\)\.addEventListener\("click"/);
+ assert.match(js,/shopping-event-next"\)\.addEventListener\("click"/);
+ assert.match(js,/window\.matchMedia\?\.\("prefers-reduced-motion: reduce"\)/);
+ assert.match(js,/window\.setInterval\(\(\)=>\{/);
+ assert.match(js,/document\.visibilityState==="visible"/);
+ assert.match(js,/panel\.addEventListener\("touchstart"/);
+ assert.match(js,/initShoppingHero\(\);\s*void loadShoppingEvents\(\);\s*loadCuratedProducts\(\)/);
+});
+test('Verified event creatives replace fallback themes, while absent campaigns leave photography visible',()=>{
+ assert.match(js,/function restoreShoppingThemes\(\)/);
+ assert.match(js,/const shoppingThemeSlides=Array\.from\(document\.querySelectorAll/);
+ assert.match(js,/if\(!eligible\.length\)\{restoreShoppingThemes\(\);return 0\}/);
+ assert.match(js,/a\.href=event\.url/);
+ assert.match(js,/a\.rel="sponsored nofollow noopener noreferrer"/);
+ assert.match(js,/if\(!grid\.children\.length\)restoreShoppingThemes\(\)/);
+ const markup=html.slice(campaignStart,searchStart);
+ assert.doesNotMatch(markup,/~\d+(?:\.\d+)?%|할인율|로켓배송|11번가BEST|아디다스 특가/);
+});
+test('Photo-first creative is large on desktop and mobile and caption makes illustrative nature clear',()=>{
+ const style=html.match(/<style>([\s\S]*?)<\/style>/)?.[1];
+ const block=style.slice(style.indexOf('Homepage lead: full-width photographic retail carousel'));
+ assert.match(block,/height:360px;min-height:360px/);
+ assert.match(block,/height:325px;min-height:325px/);
+ assert.match(block,/\.shopping-event-media img,\.shopping-event-grid \.shopping-event-media img\{display:block;width:100%;height:100%;object-fit:cover/);
+ assert.match(block,/\.shopping-event-title/);
+ assert.match(html,/카테고리 이미지:.*Unsplash/);
+ assert.match(html,/상품·가격·행사 혜택을 나타내는 사진은 아닙니다/);
+});

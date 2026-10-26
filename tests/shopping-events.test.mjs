@@ -18,14 +18,21 @@ const event={mall:'테스트 쇼핑몰',title:'테스트용 기획전',descripti
  url:'https://link.adpick.co.kr/owner-generated-link',asset_authorized:true,link_confirmed:true};
 test('Shopping-event section and accessible image-first card template are present but not advertised prematurely',()=>{
  assert.ok(script);assert.doesNotThrow(()=>new Script(script));
- assert.match(html,/<section id="shopping-events" class="shopping-events"[^>]* hidden>/);
+ assert.match(html,/<section id="shopping-events" class="shopping-events"[^>]*>/);
+ assert.doesNotMatch(html,/<section id="shopping-events" class="shopping-events"[^>]* hidden>/);
+ assert.ok(html.indexOf('id="shopping-events"')<html.indexOf('<section class="hero"'),'Hero carousel is first');
+ assert.equal((html.match(/data-featured-theme=/g)||[]).length,3,'Three instantly visible real-photo themes');
+ assert.match(html,/id="shopping-event-next"/);
+ assert.match(html,/id="shopping-event-prev"/);
+ assert.match(html,/id="shopping-event-count"/);
+ assert.match(html,/images\.unsplash\.com\/photo-/);
  assert.match(html,/id="shopping-event-grid" class="shopping-event-grid"/);
  assert.match(script,/async function loadShoppingEvents\(\)/);
  assert.match(script,/fetch\("\/shopping-events\.json",\{cache:"no-store"\}\)/);
- assert.match(script,/if\(!eligible\.length\)\{section\.hidden=true;return 0\}/);
+ assert.match(script,/if\(!eligible\.length\)\{restoreShoppingThemes\(\);return 0\}/);
  assert.match(script,/a\.rel="sponsored nofollow noopener noreferrer"/);
  assert.match(script,/img\.loading="lazy"/);
- assert.match(script,/addEventListener\("error",\(\)=>\{a\.remove\(\);if\(!grid\.children\.length\)section\.hidden=true\}/);
+ assert.match(script,/addEventListener\("error",\(\)=>\{a\.remove\(\);if\(!grid\.children\.length\)restoreShoppingThemes\(\)/);
  assert.deepEqual(manifest,{events:[]},'Never invent currently active events');
 });
 test('Only real, current, rights-authorized shopping promotions are eligible',()=>{
