@@ -34,7 +34,7 @@ test('Retail refresh preserves functioning search, filtering and affiliate discl
   'toss-picks','discovery-products','guide','tabs'].filter(v=>v!=='guide'))
   assert.equal(html.split('id="'+id+'"').length-1,1,'id='+id);
  assert.match(html,/광고·제휴 안내/);
- assert.match(html,/수수료를 받을 수 있습니다/);
+ assert.match(html,/구매 실적에 따라 운영자가 수수료를 지급받습니다/);
  assert.match(script,/function validAffiliateLink\(raw,product\)/);
  assert.match(script,/link\.rel="sponsored nofollow noopener noreferrer"/);
  assert.match(script,/function storefrontEligible\(p\)/);

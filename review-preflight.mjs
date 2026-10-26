@@ -42,7 +42,7 @@ export function reviewPreflight({homepage,contact,privacy,guide,products=[]}={})
  check(!/법적 필수 기재사항.*최종 처리방침|정식 심사 전에 완성/.test(String(privacy||'')),
   '개인정보 페이지 미완성 문구 제거');
  check(String(homepage||'').includes('광고·제휴 안내')&&
-  String(homepage||'').includes('수수료를 받을 수 있습니다')&&
+  String(homepage||'').includes('구매 실적에 따라 운영자가 수수료를 지급받습니다.')&&
   String(guide||'').includes('제휴 수수료 고지'),'제휴 수익 및 구매 조건 고지');
  check(/href="\/about\.html"/.test(homepage)&&/href="\/privacy\.html"/.test(homepage)&&
   /href="\/contact\.html"/.test(homepage),'서비스·개인정보·문의 페이지 접근');

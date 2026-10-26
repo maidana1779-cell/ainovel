@@ -18,7 +18,7 @@ test('Homepage is discoverable and transparent for affiliate platform review',()
  assert.match(html,/https:\/\/alttulpick-shop\.onrender\.com\/share-preview\.png/);
  assert.match(html,/name="twitter:image"/);
  assert.match(html,/광고·제휴 안내/);
- assert.match(html,/운영자가 수수료를 받을 수 있습니다/);
+ assert.match(html,/구매 실적에 따라 운영자가 수수료를 지급받습니다/);
  assert.match(html,/판매처에서 진행됩니다/);
  assert.match(html,/토스쇼핑 쉐어링크 활동의 일환/);
  assert.match(html,/id="retry-main"/);
