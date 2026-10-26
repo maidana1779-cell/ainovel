@@ -925,6 +925,33 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
  .affiliate-banner>a{margin-left:24px}
 }
 
+/* Verified affiliate campaigns: compact, image-first retail showcase.
+   This section stays invisible unless real, dated promotions are supplied. */
+.shopping-events{margin:22px 0 36px;border-top:1px solid #e8ecf1;padding-top:23px}
+.shopping-events-head{margin-bottom:15px}
+.shopping-events-head h2{font-size:21px;font-weight:780;letter-spacing:-.6px;margin:0 0 4px}
+.shopping-events-head p{font-size:12px;color:#7f8d9e;line-height:1.6;margin:0}
+.shopping-event-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.shopping-event-card{min-width:0;display:block;color:inherit;text-decoration:none;overflow:hidden;border:1px solid #e7ebf1;border-radius:9px;background:#fff;transition:border-color .15s}
+.shopping-event-card:hover{border-color:#9db5d6}
+.shopping-event-card:focus-visible{outline:3px solid #1769d1;outline-offset:3px}
+.shopping-event-media{display:block;width:100%;aspect-ratio:1.65;background:#f5f7f9;overflow:hidden}
+.shopping-event-media img{display:block;width:100%;height:100%;object-fit:cover}
+.shopping-event-copy{display:block;padding:13px 15px 15px}
+.shopping-event-merchant{display:block;font-size:11px;font-weight:640;color:#68798a;margin-bottom:5px}
+.shopping-event-title{display:block;font-size:15px;font-weight:780;line-height:1.5;letter-spacing:-.2px}
+.shopping-event-description{display:block;font-size:12px;color:#7b8796;line-height:1.5;margin-top:5px}
+.shopping-event-period{display:block;margin-top:9px;font-size:11px;color:#7f8d9b}
+@media(max-width:730px){
+ .shopping-events{margin:18px 0 28px;padding-top:18px}
+ .shopping-events-head h2{font-size:19px}
+ .shopping-event-grid{grid-template-columns:1fr;gap:12px}
+ .shopping-event-media{aspect-ratio:1.75}
+ .shopping-event-copy{padding:11px 13px 13px}
+ .shopping-event-title{font-size:14px}
+}
+body.category-active .shopping-events{display:none}
+
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -1086,6 +1113,10 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
  </div>
 </section>
 </div><!-- /browse-layout -->
+<section id="shopping-events" class="shopping-events" aria-labelledby="shopping-events-title" hidden>
+  <div class="shopping-events-head"><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p>진행 중인 행사를 둘러보세요. 행사 및 구매 조건은 판매처에서 확인할 수 있습니다.</p></div>
+  <div id="shopping-event-grid" class="shopping-event-grid"></div>
+</section>
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
   <div><span class="overline">TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
@@ -2025,6 +2056,89 @@ if("IntersectionObserver" in window){
   },{once:true});
 }
 loadCuratedProducts();
+
+/* Shopping-mall events only: never show a publisher commission rate as a discount.
+   No promotion is displayed until an authorized banner and tracking link are entered. */
+function shoppingEventValidDate(value){
+ if(typeof value!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+ const date=new Date(value+"T00:00:00.000Z");
+ return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
+}
+function shoppingEventTodayKst(){
+ const parts=new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+ const values=Object.fromEntries(parts.filter(p=>p.type!=="literal").map(p=>[p.type,p.value]));
+ return values.year+"-"+values.month+"-"+values.day;
+}
+function eligibleShoppingEvent(event,today=shoppingEventTodayKst()){
+ if(!event||typeof event!=="object"||Array.isArray(event))return false;
+ if(event.asset_authorized!==true||event.link_confirmed!==true)return false;
+ if(["commission_per","commission_percent","commission_rate","discount_rate"].some(key=>key in event))return false;
+ if(!shoppingEventValidDate(today)||!shoppingEventValidDate(event.ends_on))return false;
+ if(event.ends_on<today)return false;
+ if(event.starts_on!==undefined&&(!shoppingEventValidDate(event.starts_on)||event.starts_on>today||event.starts_on>event.ends_on))return false;
+ if(typeof event.title!=="string"||!event.title.trim()||event.title.length>90)return false;
+ if(typeof event.mall!=="string"||!event.mall.trim()||event.mall.length>50)return false;
+ if(typeof event.description!=="string"||event.description.length>180)return false;
+ // Never allow commission/discount percentages to leak into consumer copy.
+ if([event.title,event.mall,event.description].some(t=>/\d+(?:\.\d+)?\s*%/.test(t)||/수수료율|커미션율/.test(t)))return false;
+ if(typeof event.url!=="string"||!validAffiliateLink(event.url,{affiliate_source:event.affiliate_source}))return false;
+ let destination;
+ try{destination=new URL(event.url)}catch{return false}
+ if(destination.pathname.startsWith("/api/"))return false; // Do not expose API keys via directlink.
+ if(typeof event.image_url!=="string"||event.image_url.length>1800)return false;
+ try{
+  const image=new URL(event.image_url);
+  if(image.protocol!=="https:"||image.username||image.password||image.port||image.hash)return false;
+  if(/^(localhost|127\.|10\.|192\.168\.|169\.254\.)/.test(image.hostname))return false;
+ }catch{return false}
+ return true;
+}
+function renderShoppingEvents(items,today=shoppingEventTodayKst()){
+ const section=document.getElementById("shopping-events");
+ const grid=document.getElementById("shopping-event-grid");
+ const rows=Array.isArray(items)?items.slice(0,12):[];
+ const used=new Set();
+ const eligible=rows.filter(event=>{
+  if(!eligibleShoppingEvent(event,today)||used.has(event.url))return false;
+  used.add(event.url);return true;
+ }).slice(0,6);
+ grid.replaceChildren();
+ if(!eligible.length){section.hidden=true;return 0}
+ for(const event of eligible){
+  const a=document.createElement("a");
+  a.className="shopping-event-card";
+  a.href=event.url;a.target="_blank";
+  a.rel="sponsored nofollow noopener noreferrer";
+  a.setAttribute("aria-label",event.mall+" "+event.title+" · 기획전으로 이동");
+  const photo=document.createElement("span");photo.className="shopping-event-media";
+  const img=document.createElement("img");img.src=event.image_url;img.alt=event.title+" 기획전 배너";img.loading="lazy";img.decoding="async";
+  img.addEventListener("error",()=>{a.remove();if(!grid.children.length)section.hidden=true},{once:true});
+  photo.append(img);
+  const content=document.createElement("span");content.className="shopping-event-copy";
+  const mall=document.createElement("span");mall.className="shopping-event-merchant";mall.textContent=event.mall;
+  const title=document.createElement("span");title.className="shopping-event-title";title.textContent=event.title;
+  content.append(mall,title);
+  if(event.description.trim()){
+   const desc=document.createElement("span");desc.className="shopping-event-description";
+   desc.textContent=event.description;content.append(desc);
+  }
+  const date=document.createElement("span");date.className="shopping-event-period";
+  date.textContent="행사 종료 "+event.ends_on.replaceAll("-",".")+" · 자세한 조건은 판매처에서 확인";
+  content.append(date);a.append(photo,content);grid.append(a);
+ }
+ section.hidden=false;
+ return eligible.length;
+}
+async function loadShoppingEvents(){
+ try{
+  const response=await fetch("/shopping-events.json",{cache:"no-store"});
+  if(!response.ok)return;
+  const body=await response.json();
+  renderShoppingEvents(body?.events);
+ }catch{/* No campaign data means no promotional section. */ }
+}
+void loadShoppingEvents();
+
 </script>
 </body>
 </html>
