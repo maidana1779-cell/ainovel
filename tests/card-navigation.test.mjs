@@ -20,12 +20,13 @@ test('Product image, name and price share one affiliate-card link without a purc
  assert.match(html,/\.product-card-link:focus-visible/);
 });
 
-test('Visible v3 redesign loads the real font and makes cards materially larger',()=>{
+test('Retail design v5 preserves loaded font and uses product-dense readable cards',()=>{
  assert.match(html,/pretendardvariable-dynamic-subset\.min\.css/);
- assert.match(html,/data-design-version="storefront-v3-20261025"/);
- assert.match(html,/\.grid,\.product-discovery \.discovery-grid\{\s*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
- assert.match(html,/\.product-card-link \.price\{[\s\S]*?font-size:31px/);
- assert.match(html,/\.product-card-link \.product\{[\s\S]*?font-size:17px/);
+ assert.match(html,/data-design-version="retail-v5-20261026"/);
+ const retail=html.slice(html.indexOf('ALTTUL PICK — RETAIL DESIGN SYSTEM'));
+ assert.match(retail,/\.grid,\.product-discovery \.discovery-grid\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(retail,/\.product-card-link \.price\{font-size:24px/);
+ assert.match(retail,/\.product-card-link \.product\{font-size:14px/);
  const show=script.slice(script.indexOf('function show('),script.indexOf('\nconst browseLayout=',script.indexOf('function show(')));
  assert.ok(show.indexOf('box.append(pricing);')<show.indexOf('box.append(merchantBadge(p));'));
  assert.doesNotMatch(show,/상품 자세히 보기/);
