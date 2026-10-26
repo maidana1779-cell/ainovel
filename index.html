@@ -675,15 +675,265 @@ body.category-active .category-section{
  .footer-links .footer-note{text-align:left}
 }
 
+/* ============================================================================
+   ALTTUL PICK — RETAIL DESIGN SYSTEM · 2026-10
+   Inspired by proven commerce navigation principles, not copied from any brand.
+   Keep real product attributes and transparent affiliate disclosures.
+   These overrides deliberately supersede older landing-page treatments.
+   ============================================================================ */
+:root{
+ --ink:#1b2530;--ink-soft:#465568;--muted:#7c8795;--soft:#f7f8fa;
+ --border:#e6e9ee;--line:#e7ebf0;--primary:#1769d1;--primary-dark:#1056b2;
+ --blue-light:#f1f6fd;--surface:#fff;
+ background:#fff;color:#1b2530
+}
+html{scroll-padding-top:82px}
+body{background:#fff}
+.site{max-width:none;background:#fff;box-shadow:none}
+.wrap{max-width:1264px;padding-inline:28px}
+.header{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid #e9edf1}
+.headin{min-height:68px;gap:18px}
+.brand-group{gap:18px}
+.brand{font-size:27px;letter-spacing:-1.6px;font-weight:850;color:#17212f}
+.brand b{color:#1467d8;font-size:27px}
+.brand-tag{padding-left:18px;border-left:1px solid #e5e8ed;color:#7d8795;font-size:11px;font-weight:500;letter-spacing:-.1px}
+.nav{gap:23px;font-size:12px;font-weight:650;color:#526173}
+.nav a{padding:24px 0 22px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.nav a:hover,.nav a:focus-visible{color:#1769d1;border-bottom-color:#1769d1}
+.hero{padding:26px 0 17px}
+.hero-top{margin-bottom:14px;align-items:center}
+.hero .eyebrow{display:none}
+.hero h1{font-size:22px;letter-spacing:-.65px;font-weight:800;line-height:1.4}
+.hero h1 span{color:var(--ink)}
+.hero-intro{font-size:11px;line-height:1.6;max-width:400px;color:#8b96a3}
+.bar{min-height:57px;border:2px solid #2268ca;background:#fff;border-radius:10px;padding:5px 5px 5px 19px;box-shadow:none;transition:border-color .15s,box-shadow .15s}
+.bar:focus-within{border-color:#1460bf;background:#fff;box-shadow:0 0 0 3px #1769d112}
+.search-mark{color:#50769f;margin-right:11px}
+.bar input{font-size:15px;letter-spacing:-.15px}
+.bar input::placeholder{color:#9ba6b3}
+.primary{min-height:43px;border-radius:6px;padding:11px 33px;font-size:14px;font-weight:750;background:#1769d1}
+.primary:hover{background:#1259b6}
+.quick-searches{margin-top:10px;gap:6px}
+.quick-title{font-size:11px;color:#8d97a4}
+.quick-searches button{font-size:12px;font-weight:520;color:#637183;padding:5px 8px;border:0;border-radius:5px}
+.quick-searches button:hover{background:#f0f5fb}
+.affiliate-banner{gap:8px;margin:3px 0 19px;padding:10px 0;background:none;border:0;border-top:1px solid #eff1f4;border-bottom:1px solid #eff1f4;border-radius:0;color:#7b8795;font-size:11px;line-height:1.6}
+.affiliate-banner strong{color:#5c6878;font-weight:670}
+.affiliate-banner-icon{width:17px;height:17px;flex-basis:17px;border:1px solid #9fabba;background:none;color:#8593a4;font-size:10px}
+.affiliate-banner>a{margin-left:auto;font-size:11px;color:#52749f;font-weight:620;text-underline-offset:3px}
+.category-hub{margin:18px 0 38px}
+.hub-heading{align-items:center;margin-bottom:15px}
+.hub-eyebrow{display:none}
+.hub-heading h2{font-size:20px;font-weight:800;letter-spacing:-.65px;margin:0 0 4px}
+.hub-heading p{font-size:12px;color:#8893a1}
+.hub-count{color:#9aa4b1;font-size:11px}
+.department-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.department{
+ display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+ gap:8px;min-height:118px;padding:13px 7px;background:#fff;
+ border:1px solid #e5e9ee;border-radius:10px;box-shadow:none;
+ transition:background .15s,border-color .15s
+}
+.department:hover{background:#f7faff;border-color:#8cb6e9;transform:none;box-shadow:none}
+.department:active{background:#eef5ff}
+.department-art,
+.department--food .department-art,.department--living .department-art,
+.department--digital .department-art,.department--beauty .department-art,
+.department--fashion .department-art,.department--kitchen .department-art{
+ width:40px;height:40px;flex:0 0 40px;border-radius:9px;background:#f3f6fa;color:#496986
+}
+.department-icon svg{width:24px;height:24px;stroke-width:1.7}
+.department-text{align-items:center;gap:0;flex:none}
+.department-name{font-size:14px;font-weight:730;line-height:1.3;color:#273747;letter-spacing:-.4px}
+.department-desc,.department-arrow{display:none}
+.hub-shortcuts{gap:14px;margin:13px 0 0;padding:12px 0 0;border-top:1px solid #f0f2f5;align-items:center}
+.hub-shortcuts-heading{margin:0;font-size:11px;color:#8a95a2;font-weight:600}
+.hub-quicklinks{gap:7px}
+.hub-quick{padding:6px 10px;border:1px solid #ecf0f4;border-radius:5px;background:#f9fafb;color:#647183;font-size:11px;font-weight:550}
+.hub-quick span{display:none}
+.hub-quick:hover{border-color:#cbd9ed}
+.deals{padding:1px 0 12px}
+.section,.section-head{gap:12px;margin-bottom:16px}
+.section .overline,.section-head .overline{display:none}
+.section h2,.section-head h2{font-size:23px;font-weight:780;letter-spacing:-.8px;margin:0 0 5px;color:#1f2b38}
+.section-sub,.section-head p{font-size:12px;color:#85909d;line-height:1.5}
+.tabs{gap:19px;background:transparent;padding:0;border:0;border-bottom:1px solid #e7eaee;border-radius:0}
+.tab{position:relative;border-radius:0;padding:11px 1px;color:#798594;font-size:13px;font-weight:650}
+.tab.active{color:#1c65bb;font-weight:800;background:transparent;box-shadow:none}
+.tab.active::after{content:"";height:3px;background:#1769d1;position:absolute;bottom:-1px;left:0;right:0;border-radius:2px}
+.tab:hover:not(.active){color:#275f9f}
+.results-meta{margin-bottom:13px;gap:12px}
+.results-meta .aside{font-size:11px;color:#9aa3af}
+.muted{font-size:12px;color:#81909e}
+.product-toolbar{padding:9px 0 12px;margin:0 0 11px;border:0;border-bottom:1px solid #e7ebef;border-radius:0;background:none}
+.toolbar-label{font-size:12px;font-weight:620;color:#556374}
+.toolbar-controls{gap:8px}
+.toolbar-controls label{color:#697787;font-size:11px;font-weight:560}
+.toolbar-controls select{min-height:35px;border:1px solid #dce2e9;border-radius:5px;background:#fff;padding:7px 24px 7px 10px;font-size:12px;color:#354455}
+.shop-disclaimer{font-size:10px;line-height:1.5;margin-bottom:14px}
+.grid,.product-discovery .discovery-grid{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:18px;row-gap:27px}
+.card{border:0;border-radius:0;box-shadow:none;background:#fff}
+.card--clickable .product-card-link:hover .picture{box-shadow:0 0 0 1px #c6d2df}
+.card--clickable .product-card-link:hover .picture img{transform:scale(1.025)}
+.product-card-link{border-radius:6px}
+.picture{aspect-ratio:1/1;border-radius:8px;background:#f6f7f8;box-shadow:inset 0 0 0 1px #f0f1f2}
+.picture img{border-radius:8px}
+.product-card-link .content{padding:10px 1px 3px}
+.product-card-link .product{font-size:14px;font-weight:550;line-height:1.47;min-height:42px;margin-bottom:7px;color:#2e3742;letter-spacing:-.22px}
+.product-card-link .pricing{min-height:35px;margin-bottom:5px;gap:4px}
+.product-card-link .price{font-size:24px;font-weight:800;letter-spacing:-.7px;color:#111923}
+.product-card-link .price-number{font-weight:800;letter-spacing:-.65px}
+.product-card-link .discount-rate{font-size:18px;font-weight:750;color:#d53d40}
+.product-card-link .regular-price{font-size:12px}
+.product-card-link .merchant-badge{margin-top:4px;color:#808c9b;gap:5px}
+.product-card-link .merchant-name{font-size:11px;font-weight:500;color:#7e8997}
+.product-card-link .merchant-logo{width:17px;height:17px;flex-basis:17px}
+.empty{background:#fafbfc;border:1px solid #edf0f2;border-radius:8px;padding:42px 18px;font-size:13px}
+.more-button,.product-discovery .discovery-more{border:1px solid #cbd5e2;color:#3d5f86;background:#fff;min-width:220px;padding:12px 20px;font-weight:670;font-size:12px;border-radius:6px}
+.more-button:hover:not(:disabled),.product-discovery .discovery-more:hover:not(:disabled){background:#f6f9fd;border-color:#9bb9e0}
+.recommendation-explore{display:flex;align-items:flex-end;gap:16px;padding:16px 0 17px;border:0;border-top:1px solid #edf0f3;border-bottom:1px solid #edf0f3;border-radius:0;margin:2px 0 22px;background:none}
+.recommendation-explore-copy{flex:1;min-width:0}
+.recommendation-explore strong{font-size:14px;font-weight:770;color:#263342}
+.recommendation-explore p{font-size:11px;color:#8390a0;line-height:1.65;margin:5px 0 0}
+.product-category-tabs{gap:7px;margin-top:12px}
+.product-category-chip{border:1px solid #e0e6ed;color:#556779;background:#fff;border-radius:6px;padding:9px 12px;min-height:37px;font-size:12px;font-weight:620}
+.product-category-chip:hover{border-color:#a0b9d8;background:#f9fbff}
+.product-category-chip.active,.product-category-chip[aria-pressed="true"]{border-color:#256ac6;background:#1769d1;color:#fff}
+.recommendation-explore-button{padding:10px 14px;background:#fff;color:#2369bd;border:1px solid #b8cde6;border-radius:6px;font-size:12px;font-weight:680;white-space:nowrap;min-height:38px}
+.product-discovery-tag{border-radius:3px;background:#f0f5fc;color:#446a97;padding:3px 6px;font-size:10px}
+.product-discovery{margin:27px 0 31px;padding:26px 0 4px;border-top:1px solid #e7eaed}
+.product-discovery .section-head{margin-bottom:17px}
+.product-discovery .section-head h2{font-size:21px;font-weight:780;letter-spacing:-.7px}
+.curated-section{margin:28px 0 31px;padding:23px 0 17px;border-radius:0;border-top:1px solid #e7eaed;background:#fff}
+.curated-section .section-head h2{font-size:21px;font-weight:780}
+.curated-grid{gap:14px;padding:3px 2px 13px}
+.curated-grid .card{border:1px solid #e9edf0;box-shadow:none;border-radius:9px;overflow:hidden}
+.curated-grid .product-card-link .picture{aspect-ratio:1.2;border-radius:8px 8px 0 0;background:#f6f7f9}
+.curated-grid .product-card-link .content{padding:12px 13px 14px}
+.curated-grid .product-card-link .product{font-size:13px;min-height:40px}
+.curated-grid .product-card-link .price{font-size:20px}
+.toss-slider-button{width:32px;height:32px;font-size:21px;border-color:#e1e5eb;color:#68778a}
+.policy-strip{border-top:1px solid #e9ecef;margin:26px 0 0;padding:22px 0}
+.policy-strip strong{font-size:13px;color:#374557}
+.policy-strip p{font-size:11px;color:#8993a1;line-height:1.65}
+.footer{background:#f9fafb;border-top:1px solid #e9edf1;margin-top:20px;padding:26px 0 33px}
+.foothead{font-size:22px;letter-spacing:-1px}
+.footer-meta,.footer-disclosure,.footer-note{font-size:11px;color:#87929d;line-height:1.7}
+.footer-links nav a{font-size:11px;font-weight:650;color:#617185}
+.footer-links .footer-note{max-width:480px}
+.category-intro{padding:20px 23px;min-height:108px;border-radius:7px;border:1px solid #edf0f4;background:#f8fafc;margin-bottom:18px}
+.browse-layout.category-open .category-intro{display:flex}
+.category-intro h2{font-size:23px}
+.category-intro-overline,.category-intro-stamp{display:none}
+.breadcrumb{margin-bottom:9px}
+.category-aside{top:85px;padding:14px 10px;border:1px solid #e8edf1;border-radius:7px}
+.side-head{font-size:12px}
+.side-link{font-size:12px;border-radius:5px}
+.side-link.active{background:#f0f5fc}
+.browse-layout.category-open{grid-template-columns:187px minmax(0,1fr);gap:21px}
+.browse-layout.category-open .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf1;border-radius:7px;background:#fff;margin:9px 0 17px}
+.category-heading{font-size:13px}
+.catbtn{border-radius:5px;padding:9px 12px}
+.subbtn{border-radius:5px}
+@media(min-width:731px) and (max-width:1070px){
+ .department-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .grid,.product-discovery .discovery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .brand-tag{display:none}
+ .nav{gap:14px}
+}
+@media(max-width:730px){
+ html{scroll-padding-top:68px}
+ .wrap{padding-inline:16px}
+ .header{position:static}
+ .headin{min-height:58px}
+ .brand{font-size:24px}
+ .brand b{font-size:24px}
+ .brand-tag{display:none}
+ .nav{gap:11px;font-size:11px}
+ .nav a{padding:18px 0 17px}
+ .hero{padding:18px 0 12px}
+ .hero-top{margin-bottom:11px}
+ .hero h1{font-size:20px}
+ .bar{min-height:52px;border-radius:8px;padding:4px 4px 4px 13px}
+ .bar input{font-size:13px}
+ .primary{min-height:42px;padding:10px 17px;font-size:12px}
+ .quick-searches{margin-top:7px}
+ .quick-title,.quick-searches button{font-size:10px}
+ .affiliate-banner{display:flex;align-items:flex-start;padding:8px 0;margin:2px 0 15px;gap:7px;font-size:10px}
+ .affiliate-banner>a{margin:0 0 0 auto;font-size:10px}
+ .category-hub{margin:12px 0 27px}
+ .hub-heading{margin-bottom:11px}
+ .hub-heading h2{font-size:18px}
+ .hub-heading p{font-size:11px}
+ .department-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .department{min-height:96px;padding:10px 4px;flex-direction:column;align-items:center;gap:6px;border-radius:7px}
+ .department-art,.department--food .department-art,.department--living .department-art,
+ .department--digital .department-art,.department--beauty .department-art,
+ .department--fashion .department-art,.department--kitchen .department-art{
+  width:34px;height:34px;flex-basis:34px;border-radius:7px
+ }
+ .department-icon svg{width:21px;height:21px}
+ .department-text{align-items:center}
+ .department-name{font-size:12px}
+ .hub-shortcuts{padding:10px 0 0;margin-top:11px;gap:7px}
+ .hub-shortcuts-heading{font-size:10px}
+ .hub-quick{padding:6px 8px;font-size:10px}
+ .section{margin-bottom:11px}
+ .section h2,.section-head h2{font-size:20px}
+ .tabs{margin-top:11px;gap:16px;max-width:100%}
+ .tab{font-size:12px;padding:8px 1px}
+ .results-meta{margin-bottom:9px}
+ .grid,.product-discovery .discovery-grid,.browse-layout.category-open .grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:11px;row-gap:21px}
+ .picture{aspect-ratio:1/1;border-radius:6px}
+ .picture img{border-radius:6px}
+ .product-card-link .content{padding:9px 0 4px}
+ .product-card-link .product{font-size:12px;min-height:36px;margin-bottom:6px}
+ .product-card-link .pricing{min-height:27px;margin-bottom:3px}
+ .product-card-link .price{font-size:21px}
+ .product-card-link .discount-rate{font-size:16px}
+ .product-card-link .merchant-name{font-size:10px}
+ .product-card-link .merchant-logo{width:16px;height:16px;flex-basis:16px}
+ .product-toolbar{padding:8px 0 9px;margin-bottom:10px}
+ .product-toolbar .toolbar-controls{grid-template-columns:40px minmax(0,1fr);gap:7px 9px}
+ .product-toolbar .toolbar-controls select{min-height:39px;border-radius:5px}
+ .recommendation-explore{display:block;padding:13px 0 15px;margin:1px 0 17px}
+ .recommendation-explore strong{font-size:13px}
+ .recommendation-explore p{font-size:10px}
+ .product-category-tabs{gap:6px;margin-top:9px}
+ .product-category-chip{font-size:11px;padding:9px 10px;min-height:39px;border-radius:5px}
+ .recommendation-explore-button{width:100%;min-height:41px;margin-top:10px}
+ .product-discovery{margin:18px 0 24px;padding-top:20px}
+ .product-discovery .section-head h2{font-size:19px}
+ .curated-section{margin:19px -16px 22px;padding:20px 16px;border-radius:0}
+ .curated-grid{margin-right:-16px;padding-right:16px}
+ .curated-grid .card{flex-basis:min(68vw,260px)}
+ .curated-grid .product-card-link .picture{border-radius:8px 8px 0 0}
+ .policy-strip{margin-top:23px;padding:18px 0}
+ .footer{margin-top:14px}
+ body.category-active .category-section{padding:10px 8px;border-radius:5px}
+ .category-intro{padding:15px 14px;border-radius:6px;min-height:0}
+ .category-intro h2{font-size:20px}
+ .category-intro p{font-size:11px}
+}
+@media(max-width:385px){
+ .nav a:last-child{display:none}
+ .department-name{font-size:11px}
+ .tab{font-size:11px}
+ .affiliate-banner{flex-wrap:wrap}
+ .affiliate-banner>a{margin-left:24px}
+}
+
 </style>
 </head>
-<body data-design-version="storefront-v3-20261025">
+<body data-design-version="retail-v5-20261026">
 
 <div class="site">
 <header class="header"><div class="wrap headin">
  <div class="brand-group">
   <a href="/" class="brand" aria-label="알뜰픽 홈">알뜰픽<b>·</b></a>
-  <span class="brand-tag">상품 탐색 · 제휴 쇼핑 · 판매처 연결</span>
+  <span class="brand-tag">상품 검색 · 가격 비교 · 판매처 연결</span>
  </div>
  <nav class="nav" aria-label="주 메뉴">
   <a href="/#shop-categories">카테고리</a><a href="#deals">베스트 상품</a><a href="#product-discovery">인기 상품</a><a href="#toss-picks">토스쇼핑</a><a href="/about.html">서비스 안내</a>
@@ -692,7 +942,7 @@ body.category-active .category-section{
 <main class="wrap">
 <section class="hero" aria-labelledby="hero-heading">
  <div class="hero-top">
-  <div><p class="eyebrow">ALTTUL PICK / SHOP SMARTER</p><h1 id="hero-heading">찾는 상품, <span>더 간편하게.</span></h1></div>
+  <div><p class="eyebrow">알뜰픽 상품 검색</p><h1 id="hero-heading">원하는 상품을 <span>찾아보세요</span></h1></div>
   <p class="hero-intro">여러 제휴 쇼핑몰 상품을 모아 보여드려요.<br>가격과 구매 조건은 판매처에서 확인하세요.</p>
  </div>
  <div class="search-surface">
@@ -717,7 +967,7 @@ body.category-active .category-section{
 </aside>
 <section id="shop-categories" class="category-hub" aria-labelledby="hub-title">
  <div class="hub-heading">
-  <div><span class="hub-eyebrow">SHOP BY CATEGORY</span><h2 id="hub-title">어떤 상품을 찾으세요?</h2><p>필요한 상품을 카테고리에서 빠르게 찾아보세요.</p></div>
+  <div><span class="hub-eyebrow">CATEGORY</span><h2 id="hub-title">카테고리</h2><p>품목을 선택하면 해당 상품을 바로 찾습니다.</p></div>
   <span class="hub-count">6개 카테고리</span>
  </div>
  <div class="department-grid" id="department-grid" role="group" aria-label="카테고리 쇼핑관">
@@ -786,7 +1036,7 @@ body.category-active .category-section{
 <section id="deals" class="deals" aria-label="상품 목록">
  <div id="category-intro" class="category-intro"><div class="category-intro-copy"><span class="breadcrumb" id="category-breadcrumb">홈 / 카테고리</span><span class="category-intro-overline">EXPLORE COLLECTION</span><h2 id="category-intro-title">카테고리 쇼핑관</h2><p id="category-intro-description">관련 상품을 살펴보세요.</p></div><span id="category-intro-stamp" class="category-intro-stamp" aria-hidden="true">PICK</span></div>
  <div class="section">
-  <div><span class="overline">CURATED BY PARTNER FEEDS</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">제휴 쇼핑몰에서 제공한 상품을 살펴보세요.</p></div>
+  <div><span class="overline">PRODUCT LIST</span><h2 id="product-heading">오늘의 추천 상품</h2><p class="section-sub">제휴 쇼핑몰에서 제공한 상품을 살펴보세요.</p></div>
   <div class="tabs" id="tabs" role="group" aria-label="추천 상품 구분">
    <button type="button" class="tab active" data-area="today" aria-pressed="true">오늘의 베스트</button>
    <button type="button" class="tab" data-area="popular" aria-pressed="false">인기상품</button>
@@ -837,7 +1087,7 @@ body.category-active .category-section{
 </div><!-- /browse-layout -->
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
-  <div><span class="overline">SELECTED / TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
+  <div><span class="overline">TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
   <div class="toss-slider-tools" aria-label="토스쇼핑 상품 탐색">
    <span id="toss-slide-count" class="toss-slide-count" aria-live="off">1 / 7</span>
    <button id="toss-prev" class="toss-slider-button" type="button" aria-label="이전 토스쇼핑 상품">‹</button>
@@ -849,7 +1099,7 @@ body.category-active .category-section{
 </section>
 <section id="product-discovery" class="product-discovery" aria-labelledby="discovery-title">
  <div class="section-head">
-  <div><span class="overline">MORE PRODUCTS / BIZ PARTNER FEEDS</span><h2 id="discovery-title">오늘 새롭게 둘러볼 상품</h2>
+  <div><span class="overline">MORE PRODUCTS</span><h2 id="discovery-title">다른 상품도 둘러보세요</h2>
   <p>한국 날짜에 따라 상품군을 바꿔 새롭게 소개합니다. 실제 구매 가능 여부는 판매처에서 확인해 주세요.</p></div>
  </div>
  <div id="discovery-products" class="discovery-grid" aria-live="polite">
