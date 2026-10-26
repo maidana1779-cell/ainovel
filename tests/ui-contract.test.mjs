@@ -20,7 +20,7 @@ test('Client script parses and binds revised category container',()=>{
 });
 test('Ad and partner disclosures remain in the interface',()=>{
   assert.match(html,/토스쇼핑 쉐어링크 활동의 일환/);
-  assert.match(html,/운영자가 수수료를 받을 수 있습니다/);
+  assert.match(html,/구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다/);
   assert.match(html,/최저가를 보장하지 않습니다/);
 });
 test('Mobile layout and semantic product sections remain present',()=>{
