@@ -952,6 +952,47 @@ body.category-active .category-section{padding:12px 14px;border:1px solid #e9edf
 }
 body.category-active .shopping-events{display:none}
 
+/* Above-the-fold promotional gallery: photoreal category themes appear immediately,
+   replaced with verified, licensed affiliate campaign banners if provided. */
+.top-shopping-feature{margin:16px 0 21px;padding:0;border:0}
+.top-shopping-feature .shopping-events-head{display:flex;align-items:end;justify-content:space-between;margin:0 0 12px}
+.top-shopping-feature .shopping-events-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:1.1px;color:#366fae;margin:0 0 6px}
+.top-shopping-feature .shopping-events-head h2{font-size:22px;font-weight:820;letter-spacing:-.7px;color:#1b2635;margin:0 0 4px}
+.top-shopping-feature .shopping-events-head p{font-size:12px;color:#8895a4;margin:0}
+.shopping-theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.shopping-theme-card{min-width:0;min-height:295px;position:relative;display:block;text-align:left;overflow:hidden;border:0;border-radius:12px;padding:0;color:#fff;background:#334c51;isolation:isolate}
+.shopping-theme-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .3s}
+.shopping-theme-card:hover img{transform:scale(1.035)}
+.shopping-theme-card::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,22,29,.81) 0%,rgba(11,22,29,.63) 40%,rgba(11,22,29,.16) 100%);z-index:-1}
+.shopping-theme-card.theme-fashion{background:#615952}
+.shopping-theme-card.theme-fashion::before{background:linear-gradient(90deg,rgba(24,22,21,.78) 0%,rgba(24,22,21,.48) 43%,rgba(24,22,21,.02) 100%)}
+.shopping-theme-text{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:295px;gap:9px;padding:26px 28px}
+.shopping-theme-tag{font-size:10px;font-weight:740;letter-spacing:1.3px;color:#e7eff7}
+.shopping-theme-text strong{font-size:28px;line-height:1.3;letter-spacing:-1.05px;font-weight:820;word-break:keep-all}
+.shopping-theme-sub{font-size:12px;font-weight:550;color:#e1e7e8}
+.shopping-theme-action{font-size:12px;font-weight:730;display:inline-flex;align-items:center;gap:9px;margin-top:8px;padding:9px 12px;border:1px solid #ffffff80;border-radius:5px}
+.shopping-theme-card:focus-visible{outline:3px solid #156ddb;outline-offset:3px}
+.top-shopping-feature .shopping-event-grid{grid-template-columns:1fr 1fr;gap:14px}
+.top-shopping-feature .shopping-event-card{border-radius:12px;overflow:hidden}
+.top-shopping-feature .shopping-event-media{aspect-ratio:1.8}
+.top-shopping-feature .shopping-event-copy{padding:12px 16px}
+@media(max-width:730px){
+ .top-shopping-feature{margin:12px 0 14px}
+ .top-shopping-feature .shopping-events-head{margin-bottom:10px}
+ .top-shopping-feature .shopping-events-head h2{font-size:20px}
+ .top-shopping-feature .shopping-events-head p{font-size:11px;line-height:1.45}
+ .shopping-theme-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;scrollbar-width:none;overscroll-behavior-x:contain;padding:0 1px 5px}
+ .shopping-theme-grid::-webkit-scrollbar{display:none}
+ .shopping-theme-card{flex:0 0 90%;min-height:272px;scroll-snap-align:start;border-radius:10px}
+ .shopping-theme-text{min-height:272px;padding:24px 22px}
+ .shopping-theme-text strong{font-size:26px}
+ .top-shopping-feature .shopping-event-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;scrollbar-width:none;padding:1px 1px 7px}
+ .top-shopping-feature .shopping-event-grid::-webkit-scrollbar{display:none}
+ .top-shopping-feature .shopping-event-card{flex:0 0 92%;scroll-snap-align:start}
+ .top-shopping-feature .shopping-event-media{aspect-ratio:1.65}
+}
+@media(prefers-reduced-motion:reduce){.shopping-theme-grid{scroll-behavior:auto}.shopping-theme-card img{transition:none}}
+
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -967,6 +1008,22 @@ body.category-active .shopping-events{display:none}
  </nav>
 </div></header>
 <main class="wrap">
+<section id="shopping-events" class="shopping-events top-shopping-feature" aria-labelledby="shopping-events-title">
+ <div class="shopping-events-head">
+  <div><span class="shopping-events-kicker">ALTTUL PICK / FEATURED</span><h2 id="shopping-events-title">지금 둘러볼 쇼핑 테마</h2><p id="shopping-events-description">생활 속 필요한 상품부터 관심 있는 스타일 아이템까지</p></div>
+ </div>
+ <div id="shopping-theme-grid" class="shopping-theme-grid" role="group" aria-label="추천 쇼핑 테마">
+  <button type="button" class="shopping-theme-card theme-living" data-feature-department="간편식" aria-label="식품·커피 상품 보러가기">
+   <img src="https://images.unsplash.com/photo-1721406769891-f2ba651401d9?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000" alt="차분한 주방의 커피잔과 커피 도구" loading="eager" fetchpriority="high" decoding="async" referrerpolicy="no-referrer">
+   <span class="shopping-theme-text"><span class="shopping-theme-tag">FOOD &amp; DAILY</span><strong>매일 필요한<br>생활 속 아이템</strong><span class="shopping-theme-sub">식품 · 커피 · 간편식</span><span class="shopping-theme-action">상품 둘러보기 <span aria-hidden="true">↗</span></span></span>
+  </button>
+  <button type="button" class="shopping-theme-card theme-fashion" data-feature-department="의류" aria-label="패션 상품 보러가기">
+   <img src="https://images.unsplash.com/photo-1603400521630-9f2de124b33b?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000" alt="편집숍에 진열된 다양한 색상의 의류" loading="eager" decoding="async" referrerpolicy="no-referrer">
+   <span class="shopping-theme-text"><span class="shopping-theme-tag">FASHION &amp; STYLE</span><strong>나만의 스타일을<br>찾는 시간</strong><span class="shopping-theme-sub">패션 · 의류 · 데일리웨어</span><span class="shopping-theme-action">상품 둘러보기 <span aria-hidden="true">↗</span></span></span>
+  </button>
+ </div>
+ <div id="shopping-event-grid" class="shopping-event-grid" hidden></div>
+</section>
 <section class="hero" aria-labelledby="hero-heading">
  <div class="hero-top">
   <div><p class="eyebrow">알뜰픽 상품 검색</p><h1 id="hero-heading">원하는 상품을 <span>찾아보세요</span></h1></div>
@@ -1113,10 +1170,6 @@ body.category-active .shopping-events{display:none}
  </div>
 </section>
 </div><!-- /browse-layout -->
-<section id="shopping-events" class="shopping-events" aria-labelledby="shopping-events-title" hidden>
-  <div class="shopping-events-head"><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p>진행 중인 행사를 둘러보세요. 행사 및 구매 조건은 판매처에서 확인할 수 있습니다.</p></div>
-  <div id="shopping-event-grid" class="shopping-event-grid"></div>
-</section>
 <section id="toss-picks" class="curated-section" aria-label="토스쇼핑 추천 상품" hidden>
  <div class="section-head">
   <div><span class="overline">TOSS SHOPPING</span><h2>토스쇼핑 추천 상품</h2><p>직접 등록한 상품이에요. 상품 정보와 구매 조건은 토스쇼핑에서 확인해 주세요.</p></div>
@@ -2094,6 +2147,9 @@ function eligibleShoppingEvent(event,today=shoppingEventTodayKst()){
 function renderShoppingEvents(items,today=shoppingEventTodayKst()){
  const section=document.getElementById("shopping-events");
  const grid=document.getElementById("shopping-event-grid");
+ const themes=document.getElementById("shopping-theme-grid");
+ const title=document.getElementById("shopping-events-title");
+ const description=document.getElementById("shopping-events-description");
  const rows=Array.isArray(items)?items.slice(0,12):[];
  const used=new Set();
  const eligible=rows.filter(event=>{
@@ -2101,7 +2157,13 @@ function renderShoppingEvents(items,today=shoppingEventTodayKst()){
   used.add(event.url);return true;
  }).slice(0,6);
  grid.replaceChildren();
- if(!eligible.length){section.hidden=true;return 0}
+ function showThemes(){
+  grid.hidden=true;themes.hidden=false;
+  title.textContent="지금 둘러볼 쇼핑 테마";
+  description.textContent="생활 속 필요한 상품부터 관심 있는 스타일 아이템까지";
+  section.hidden=false;
+ }
+ if(!eligible.length){showThemes();return 0}
  for(const event of eligible){
   const a=document.createElement("a");
   a.className="shopping-event-card";
@@ -2110,12 +2172,15 @@ function renderShoppingEvents(items,today=shoppingEventTodayKst()){
   a.setAttribute("aria-label",event.mall+" "+event.title+" · 기획전으로 이동");
   const photo=document.createElement("span");photo.className="shopping-event-media";
   const img=document.createElement("img");img.src=event.image_url;img.alt=event.title+" 기획전 배너";img.loading="lazy";img.decoding="async";
-  img.addEventListener("error",()=>{a.remove();if(!grid.children.length)section.hidden=true},{once:true});
+  img.addEventListener("error",()=>{
+   a.remove();
+   if(!grid.children.length)showThemes();
+  },{once:true});
   photo.append(img);
   const content=document.createElement("span");content.className="shopping-event-copy";
   const mall=document.createElement("span");mall.className="shopping-event-merchant";mall.textContent=event.mall;
-  const title=document.createElement("span");title.className="shopping-event-title";title.textContent=event.title;
-  content.append(mall,title);
+  const eventTitle=document.createElement("span");eventTitle.className="shopping-event-title";eventTitle.textContent=event.title;
+  content.append(mall,eventTitle);
   if(event.description.trim()){
    const desc=document.createElement("span");desc.className="shopping-event-description";
    desc.textContent=event.description;content.append(desc);
@@ -2124,7 +2189,9 @@ function renderShoppingEvents(items,today=shoppingEventTodayKst()){
   date.textContent="행사 종료 "+event.ends_on.replaceAll("-",".")+" · 자세한 조건은 판매처에서 확인";
   content.append(date);a.append(photo,content);grid.append(a);
  }
- section.hidden=false;
+ themes.hidden=true;grid.hidden=false;section.hidden=false;
+ title.textContent="진행 중인 쇼핑몰 기획전";
+ description.textContent="행사와 구매 조건은 판매처에서 확인할 수 있습니다.";
  return eligible.length;
 }
 async function loadShoppingEvents(){
@@ -2135,6 +2202,11 @@ async function loadShoppingEvents(){
   renderShoppingEvents(body?.events);
  }catch{/* No campaign data means no promotional section. */ }
 }
+document.getElementById("shopping-theme-grid").addEventListener("click",event=>{
+ const chosen=event.target.closest("[data-feature-department]");
+ if(!chosen)return;
+ changeDepartment(chosen.dataset.featureDepartment,{scroll:true});
+});
 void loadShoppingEvents();
 loadCuratedProducts();
 
