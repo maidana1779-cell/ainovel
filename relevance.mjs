@@ -1,3 +1,4 @@
+import {inStorefrontCatalog} from './catalog-policy.mjs';
 // Conservative, explainable classification for current Adpick search responses.
 // No product data is persisted. The API does not provide trusted product taxonomy.
 const CATEGORY_ALIASES = {
@@ -107,6 +108,7 @@ function categoryAccessoryOnly(query,title){
 }
 export function relevantItem(query,item){
   if(!item||typeof item.title!=="string"||!item.title.trim())return false;
+  if(!inStorefrontCatalog(item))return false;
   const q=normalize(query), title=item.title, tokens=productTokens(title);
   if(!q)return false;
   if(DETERGENT_QUERIES.has(q))return genuineDetergent(q,title,String(item.cp_name||""));
@@ -116,6 +118,11 @@ export function relevantItem(query,item){
     return genuineGrocery(q,tokens,title);
   }
   const aliases=CATEGORY_ALIASES[q];
+  if(q==="무선이어폰"){
+    const exactWireless=hasAny(tokens,aliases);
+    const separatedWireless=hasAny(tokens,["이어폰"])&&hasAny(tokens,["무선","블루투스"]);
+    return !categoryAccessoryOnly(q,title)&&(exactWireless||separatedWireless);
+  }
   if(aliases)return !categoryAccessoryOnly(q,title)&&hasAny(tokens,aliases);
   const words=productTokens(query).filter(w=>w.length>=2);
   return words.length>=1 && words.every(w=>hasPhraseToken(tokens,w));
