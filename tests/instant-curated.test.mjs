@@ -15,7 +15,7 @@ test('All manually curated Toss items show immediately without another API reque
  const saved=curatedProducts();
  assert.deepEqual(featured.map(p=>p.commissionlink),saved.map(p=>p.commissionlink));
  assert.deepEqual(featured.map(p=>p.title),saved.map(p=>p.title));
- const loader=script.slice(end,script.indexOf('\n// Curated feed is requested',end));
+ const loader=script.slice(end,script.indexOf('\nfunction instantMatchingTossProducts(query){',end));
  assert.doesNotMatch(loader,/fetch|async|await/);
  assert.match(loader,/show\(featuredTossProducts,false,target\)/);
  assert.match(loader,/panel.hidden=false/);
