@@ -21,7 +21,8 @@ test('One unambiguous commission notice appears immediately with product listing
  assert.equal(page.split('<aside class="affiliate-banner"').length-1,1);
  assert.match(notice,/광고·제휴 안내/);
  assert.match(notice,/상품 링크를 통한 구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다/);
- assert.match(notice,/주문·결제는 판매처에서 진행됩니다/);
+ assert.doesNotMatch(notice,/주문·결제는 판매처에서 진행됩니다/);
+ assert.doesNotMatch(notice,/affiliate-banner-icon|href="\/guide.html"/);
  assert.doesNotMatch(notice,/수수료를 받을 수 있습니다|소정의 수수료/);
 });
 test('Detailed guide and independent Toss Sharelink disclosure remain visible',()=>{
@@ -30,4 +31,14 @@ test('Detailed guide and independent Toss Sharelink disclosure remain visible',(
  assert.match(page,/토스쇼핑 쉐어링크 활동의 일환/);
  assert.match(page,/표시 가격은 최종 결제 금액과 다를 수 있으며/);
  assert.doesNotMatch(page,/여러 제휴 쇼핑몰 상품을 모아 보여드려요/);
+});
+
+test('Product-area commission notice is concise and clearly differentiated',()=>{
+ const noticeMarkup=page.slice(noticeStart,page.indexOf('</aside>',noticeStart));
+ assert.match(noticeMarkup,/상품 링크를 통한 구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다/);
+ assert.equal((noticeMarkup.match(/<strong>/g)||[]).length,1);
+ assert.ok(page.indexOf('<aside class="sponsor-ticker"')<noticeStart);
+ assert.match(page,/\.affiliate-banner\{[\s\S]*?background:#f4f7fb!important/);
+ assert.match(page,/\.affiliate-banner\{[\s\S]*?border-left:3px solid #366b9f!important/);
+ assert.match(page,/\.affiliate-banner\{[\s\S]*?font-size:14px!important/);
 });

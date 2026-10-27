@@ -1079,6 +1079,22 @@ body.category-active .shopping-events{display:none}
 .sponsor-ticker:hover .sponsor-ticker__track,.sponsor-ticker:focus-within .sponsor-ticker__track{animation-play-state:paused}
 @media(max-width:730px){.sponsor-ticker,.sponsor-ticker__viewport{min-height:36px}.sponsor-ticker__copy{padding:0 2.75rem 0 1rem;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.sponsor-ticker__track{animation:none;will-change:auto}.sponsor-ticker__viewport{overflow-x:auto;overscroll-behavior-x:contain}}
+/* Compact but always-visible product-list disclosure; reference marquee stays unchanged. */
+.affiliate-banner{
+ display:block!important;margin:8px 0 17px!important;padding:10px 13px!important;
+ background:#f4f7fb!important;border:1px solid #c8d6e8!important;
+ border-left:3px solid #366b9f!important;border-radius:8px!important;
+ box-shadow:none!important;color:#26374a!important;font-size:14px!important;
+ font-weight:600!important;line-height:1.55!important
+}
+.affiliate-banner strong{
+ display:inline!important;margin-right:4px!important;color:#17436d!important;
+ font-size:14px!important;font-weight:850!important
+}
+@media(max-width:730px){
+ .affiliate-banner{display:block!important;padding:9px 11px!important;font-size:14px!important;line-height:1.6!important}
+ .affiliate-banner strong{font-size:14px!important}
+}
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -1225,9 +1241,7 @@ body.category-active .shopping-events{display:none}
   </div>
  </div>
  <aside class="affiliate-banner" aria-label="광고·제휴 수익 안내">
-  <span class="affiliate-banner-icon" aria-hidden="true">i</span>
-  <span><strong>광고·제휴 안내</strong> · 상품 링크를 통한 구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다. 주문·결제는 판매처에서 진행됩니다.</span>
-  <a href="/guide.html">자세히 보기</a>
+  <span><strong>광고·제휴 안내</strong> <span aria-hidden="true">·</span> 상품 링크를 통한 구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다.</span>
  </aside>
  <div class="results-meta">
   <div class="status-row"><div id="status" class="muted" role="status" aria-live="polite">상품을 불러오는 중입니다...</div><button id="retry-main" type="button" class="retry-main" hidden>상품 다시 불러오기</button></div>
