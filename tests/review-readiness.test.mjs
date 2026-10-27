@@ -19,7 +19,7 @@ test('Homepage is discoverable and transparent for affiliate platform review',()
  assert.match(html,/name="twitter:image"/);
  assert.match(html,/광고·제휴 안내/);
  assert.match(html,/구매가 발생하면 운영자에게 제휴 수수료가 지급됩니다/);
- assert.match(html,/판매처에서 진행됩니다/);
+ assert.match(html,/알뜰픽은 상품을 직접 판매하지 않는 상품 안내 서비스입니다/);
  assert.match(html,/토스쇼핑 쉐어링크 활동의 일환/);
  assert.match(html,/id="retry-main"/);
  assert.doesNotMatch(script,/show\(demo,true\)/);
