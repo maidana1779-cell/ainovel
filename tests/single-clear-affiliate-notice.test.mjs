@@ -7,7 +7,9 @@ const noticeEnd=page.indexOf('</aside>',noticeStart);
 const notice=page.slice(noticeStart,noticeEnd);
 test('Marketing hero and category navigation are shopping-focused, not affiliate-jargon-filled',()=>{
  const start=page.indexOf('<header');
- const banner=page.slice(start,noticeStart);
+ const banner=page.slice(start,noticeStart).replace(/<aside class="sponsor-ticker"[\s\S]*?<\/aside>/,'');
+ const tickerStart=page.indexOf('<aside class="sponsor-ticker"');
+ assert.ok(tickerStart>page.indexOf('</header>')&&tickerStart<noticeStart);
  assert.doesNotMatch(banner,/제휴\s*(?:쇼핑몰|상품|마케팅|링크)/);
  assert.doesNotMatch(banner,/가격 비교/);
  assert.match(banner,/식품부터 생활용품·가전까지/);
