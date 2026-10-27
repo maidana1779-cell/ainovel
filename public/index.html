@@ -1069,11 +1069,51 @@ body.category-active .shopping-events{display:none}
  .affiliate-banner>a{grid-column:2;margin:0!important;font-size:13px!important}
  .curated-disclosure{font-size:14px!important}
 }
+/* First-screen disclosure ticker: fixed label, readable contrast, visible at the top before any promotion. */
+.sponsor-ticker{
+ display:flex;align-items:center;box-sizing:border-box;width:100%;min-height:46px;
+ background:#fff4dc;border-bottom:2px solid #b06a19;color:#272017;
+ overflow:hidden;position:relative;isolation:isolate
+}
+.sponsor-ticker__label{
+ display:flex;align-items:center;align-self:stretch;flex:0 0 auto;z-index:1;
+ background:#763c0f;color:#fff;padding:8px 13px;font-size:14px;font-weight:850;
+ line-height:1.45;white-space:nowrap
+}
+.sponsor-ticker__viewport{display:flex;align-items:center;flex:1 1 auto;min-width:0;overflow:hidden;min-height:44px}
+.sponsor-ticker__viewport:focus-visible{outline:3px solid #184db8;outline-offset:-3px}
+.sponsor-ticker__track{display:flex;align-items:center;flex:0 0 auto;width:max-content;animation:affiliate-notice-marquee 38s linear infinite;will-change:transform}
+.sponsor-ticker__copy{display:block;flex:0 0 auto;padding:0 3rem 0 1.25rem;white-space:nowrap;color:#272017;font-size:14px;font-weight:700;line-height:1.5}
+@keyframes affiliate-notice-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.sponsor-ticker:hover .sponsor-ticker__track,.sponsor-ticker:focus-within .sponsor-ticker__track,.sponsor-ticker.is-paused .sponsor-ticker__track{animation-play-state:paused}
+.sponsor-ticker__toggle{flex:0 0 44px;align-self:stretch;z-index:1;border:0;border-left:1px solid #d9a967;
+ background:#fff4dc;color:#65340c;font-size:17px;font-weight:850;cursor:pointer;min-height:44px}
+.sponsor-ticker__toggle:hover,.sponsor-ticker__toggle:focus-visible{background:#f6dfb5;outline-offset:-3px}
+@media(max-width:730px){
+ .sponsor-ticker{min-height:44px}
+ .sponsor-ticker__label{padding:7px 10px;font-size:13px}
+ .sponsor-ticker__copy{font-size:14px;padding:0 2.5rem 0 1rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .sponsor-ticker__track{animation:none;will-change:auto}
+ .sponsor-ticker__viewport{overflow-x:auto;overscroll-behavior-x:contain}
+ .sponsor-ticker__toggle{display:none}
+}
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
 
 <div class="site">
+<aside class="sponsor-ticker" role="note" aria-label="광고·제휴 안내: 이 페이지는 광고·제휴 활동을 포함합니다. 상품 링크를 통해 구매하면 알뜰픽 운영자가 일정액의 수수료를 지급받을 수 있습니다. 알뜰픽이 구매자에게 별도 리워드를 제공하지는 않습니다.">
+ <strong class="sponsor-ticker__label">광고·제휴 안내</strong>
+ <div class="sponsor-ticker__viewport" tabindex="0" aria-label="운영자 수수료 안내 문구, 키보드로 초점을 맞추면 움직임이 멈춥니다">
+  <div class="sponsor-ticker__track" aria-hidden="true">
+   <span class="sponsor-ticker__copy">이 페이지는 광고·제휴 활동을 포함합니다. 상품 링크를 통해 구매하면 알뜰픽 운영자가 일정액의 수수료를 지급받을 수 있습니다. 알뜰픽이 구매자에게 별도 리워드를 제공하지는 않습니다.</span>
+   <span class="sponsor-ticker__copy">이 페이지는 광고·제휴 활동을 포함합니다. 상품 링크를 통해 구매하면 알뜰픽 운영자가 일정액의 수수료를 지급받을 수 있습니다. 알뜰픽이 구매자에게 별도 리워드를 제공하지는 않습니다.</span>
+  </div>
+ </div>
+ <button type="button" class="sponsor-ticker__toggle" aria-label="안내 문구 움직임 멈추기" aria-pressed="false" title="안내 문구 일시정지">Ⅱ</button>
+</aside>
 <header class="header"><div class="wrap headin">
  <div class="brand-group">
   <a href="/" class="brand" aria-label="알뜰픽 홈">알뜰픽<b>·</b></a>
@@ -1084,10 +1124,7 @@ body.category-active .shopping-events{display:none}
  </nav>
 </div></header>
 <main class="wrap">
-<aside class="sponsor-notice" aria-label="광고·제휴 수수료 안내">
- <strong class="sponsor-notice-label">[광고·제휴 안내]</strong>
- <p>이 페이지는 광고·제휴 활동을 포함합니다. 상품 링크를 통해 구매하면 알뜰픽 운영자가 일정액의 수수료를 지급받을 수 있습니다. 알뜰픽이 구매자에게 별도 리워드를 제공하지는 않습니다.</p>
-</aside>
+
 <section id="shopping-events" class="shopping-events top-shopping-feature" aria-labelledby="shopping-events-title">
  <div class="shopping-events-head">
   <div><span class="shopping-events-kicker">SHOPPING EVENTS</span><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p id="shopping-events-description">11번가 생필품과 아디다스 가을 스타일을 둘러보세요.</p></div>
@@ -2327,6 +2364,17 @@ function initShoppingCampaignSlider(){
  window.addEventListener("pagehide",()=>clearInterval(timer),{once:true});
  show(0);
 }
+/* Pause the first-screen affiliate disclosure on touch, click, focus or reduced motion. */
+const sponsorTicker=document.querySelector(".sponsor-ticker");
+const sponsorTickerToggle=sponsorTicker?.querySelector(".sponsor-ticker__toggle");
+sponsorTickerToggle?.addEventListener("click",()=>{
+ const paused=sponsorTicker.classList.toggle("is-paused");
+ sponsorTickerToggle.setAttribute("aria-pressed",String(paused));
+ sponsorTickerToggle.setAttribute("aria-label",paused?"안내 문구 다시 움직이기":"안내 문구 움직임 멈추기");
+ sponsorTickerToggle.setAttribute("title",paused?"안내 문구 재생":"안내 문구 일시정지");
+ sponsorTickerToggle.textContent=paused?"▶":"Ⅱ";
+});
+
 initShoppingCampaignSlider();
 void loadShoppingEvents();
 loadCuratedProducts();
