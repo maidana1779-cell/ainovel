@@ -1040,6 +1040,35 @@ body.category-active .shopping-events{display:none}
  .shopping-campaign-slider .shopping-theme-card.theme-fashion{min-height:0;aspect-ratio:768/429}
 }
 
+/* Clear, above-first-link disclosure required for affiliate review. */
+.sponsor-notice{
+ display:flex;align-items:flex-start;gap:13px;margin:14px 0 18px;padding:15px 18px;
+ border:2px solid #bd661b;border-radius:12px;background:#fff9ed;color:#302014;
+ font-size:15px;font-weight:530;line-height:1.65;letter-spacing:0;box-shadow:0 1px 4px #27140712
+}
+.sponsor-notice-label{display:inline-block;flex:0 0 auto;white-space:nowrap;color:#783900;font-size:15px;font-weight:850}
+.sponsor-notice p{margin:0;color:#302014;font-size:15px;font-weight:550;line-height:1.65}
+.affiliate-banner{
+ background:#fff9ed!important;border:2px solid #bd661b!important;
+ border-radius:12px!important;padding:13px 16px!important;color:#302014!important;
+ font-size:14px!important;line-height:1.65!important;gap:11px!important
+}
+.affiliate-banner strong{color:#783900!important;font-weight:850!important;font-size:14px}
+.affiliate-banner-icon{border-color:#bd661b!important;color:#783900!important;background:#fff!important}
+.affiliate-banner>a{color:#783900!important;font-size:13px!important;font-weight:750!important}
+.curated-disclosure{padding:12px 14px!important;border:1px solid #bd661b!important;
+ border-radius:9px!important;background:#fff9ed!important;color:#302014!important;
+ font-size:14px!important;font-weight:650!important;line-height:1.65!important}
+.curated-disclosure strong{color:#783900}
+@media(max-width:730px){
+ .sponsor-notice{display:block;margin:10px 0 16px;padding:12px 14px}
+ .sponsor-notice-label{display:block;margin-bottom:4px;font-size:14px}
+ .sponsor-notice p{font-size:14px;line-height:1.6}
+ .affiliate-banner{display:grid!important;grid-template-columns:24px minmax(0,1fr);
+  gap:8px 9px!important;padding:12px 13px!important;font-size:14px!important}
+ .affiliate-banner>a{grid-column:2;margin:0!important;font-size:13px!important}
+ .curated-disclosure{font-size:14px!important}
+}
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -1055,6 +1084,10 @@ body.category-active .shopping-events{display:none}
  </nav>
 </div></header>
 <main class="wrap">
+<aside class="sponsor-notice" aria-label="광고·제휴 수수료 안내">
+ <strong class="sponsor-notice-label">[광고·제휴 안내]</strong>
+ <p>이 페이지는 광고·제휴 활동을 포함합니다. 상품 링크를 통해 구매하면 알뜰픽 운영자가 일정액의 수수료를 지급받을 수 있습니다. 알뜰픽이 구매자에게 별도 리워드를 제공하지는 않습니다.</p>
+</aside>
 <section id="shopping-events" class="shopping-events top-shopping-feature" aria-labelledby="shopping-events-title">
  <div class="shopping-events-head">
   <div><span class="shopping-events-kicker">SHOPPING EVENTS</span><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p id="shopping-events-description">11번가 생필품과 아디다스 가을 스타일을 둘러보세요.</p></div>
@@ -1232,7 +1265,7 @@ body.category-active .shopping-events{display:none}
   </div>
  </div>
  <div id="toss-products" class="curated-grid" tabindex="0" role="region" aria-label="토스쇼핑 상품 슬라이더, 좌우로 스크롤 가능"></div>
- <p class="curated-disclosure">✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+ <p class="curated-disclosure"><strong>[광고·제휴 안내]</strong> 이 영역은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
 </section>
 <section id="product-discovery" class="product-discovery" aria-labelledby="discovery-title">
  <div class="section-head">
