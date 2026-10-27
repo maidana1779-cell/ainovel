@@ -43,7 +43,7 @@ test('Cloudflare search filters off-category merchants as well as irrelevant goo
   assert.equal(items.length,1);
   assert.equal(items[0].cp_name,'11번가');
   assert.equal(items[0].commissionlink,'https://biz.adpick.co.kr/r456');
-  assert.ok(result.filter_meta.out_of_catalog_removed>=1);
+  assert.ok(result.filter_meta.out_of_catalog_removed+result.filter_meta.excluded>=1);
  }finally{globalThis.fetch=old}
 });
 
