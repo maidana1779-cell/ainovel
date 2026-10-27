@@ -15,7 +15,7 @@ test('All manually curated Toss items show immediately without another API reque
  const saved=curatedProducts();
  assert.deepEqual(featured.map(p=>p.commissionlink),saved.map(p=>p.commissionlink));
  assert.deepEqual(featured.map(p=>p.title),saved.map(p=>p.title));
- const loader=script.slice(end,script.indexOf('\n// Curated feed is requested',end));
+ const loader=script.slice(end,script.indexOf('\nfunction instantMatchingTossProducts(query){',end));
  assert.doesNotMatch(loader,/fetch|async|await/);
  assert.match(loader,/show\(featuredTossProducts,false,target\)/);
  assert.match(loader,/panel.hidden=false/);
@@ -30,4 +30,24 @@ test('UI remains responsive when external font CDN or cold fallback server is sl
  assert.doesNotMatch(withoutNoscript,/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/gh\/orioncactus/);
  assert.match(script,/if\(jsonResponse&&\(response\.ok\|\|!\[502,503,504\]\.includes\(response\.status\)\)\)return response/);
  assert.match(script,/setTimeout\(\(\)=>backup\.abort\(\),22000\)/);
+});
+
+test('Live search can instantly show a verified query-matching Toss item during API wake-up',()=>{
+ const start=script.indexOf('const featuredTossProducts=');
+ const helper=script.indexOf('function instantMatchingTossProducts(query){',start);
+ const end=script.indexOf('\nconst retryMain=',helper);
+ assert.ok(start>=0&&helper>start&&end>helper,'preloaded Toss matching is available before initial search');
+ const code=script.slice(start,end).replace(/function loadCuratedProducts\(\)\{[\s\S]*?\n\}/,'');
+ const match=new Function(code+'return instantMatchingTossProducts;')();
+ const result=match('생수');
+ assert.equal(result.length,1);
+ assert.match(result[0].title,/스파클 생수/);
+ assert.equal(result[0].affiliate_source,'toss_sharelink');
+ assert.equal(result[0].price,null);
+ assert.equal(match('이어폰').length,0,'never display an unrelated product as a search match');
+ assert.match(script,/else if\(instantMatches\.length\)\{[\s\S]*?renderListing\(\)/);
+ assert.match(script,/토스쇼핑 등록 상품/);
+ assert.match(script,/애드픽 검색 결과 없음/);
+ assert.match(script,/if\(instantMatches\.length\)\{statusEl\.textContent/);
+ assert.match(script,/}else if\(instantMatches\.length\)\{\s*statusEl\.textContent=/);
 });
