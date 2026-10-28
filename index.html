@@ -1340,18 +1340,36 @@ body.category-active .shopping-events{display:none}
 <script>
 const API_ORIGIN='https://alttulpick-api.maidana1779.workers.dev';
 const BACKUP_API_ORIGIN='https://alttulpick-preview.onrender.com';
+let preferBackupUntil=0;
 async function fetchProducts(path,onBackupStart){
+ // Avoid repeating a known Worker gateway timeout on consecutive live searches.
+ if(Date.now()<preferBackupUntil){
+  const warmBackup=new AbortController();
+  const warmTimeout=setTimeout(()=>warmBackup.abort(),11000);
+  try{
+   onBackupStart?.();
+   const response=await fetch(BACKUP_API_ORIGIN+path,{cache:"no-store",signal:warmBackup.signal});
+   const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
+   if(jsonResponse&&response.ok)return response;
+  }catch{/* Let the primary Worker recover if the backup is unavailable. */}
+  finally{clearTimeout(warmTimeout)}
+  preferBackupUntil=0;
+ }
  const primary=new AbortController();
  const timer=setTimeout(()=>primary.abort(),15000);
  let needsFallback=false;
  try{
   const response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:primary.signal});
   const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
-  if(jsonResponse&&(response.ok||![502,503,504].includes(response.status)))return response;
+  if(jsonResponse&&(response.ok||![502,503,504].includes(response.status))){
+   preferBackupUntil=0;
+   return response;
+  }
   needsFallback=true;
  }catch{needsFallback=true}
  finally{clearTimeout(timer)}
  if(!needsFallback)throw Error("상품 연결 오류");
+ preferBackupUntil=Date.now()+90000;
  onBackupStart?.();
  // Render Free may sleep after idle and can take nearly a minute to wake.
  // Retry only temporary gateway / spinning-up responses, not upstream JSON errors.
@@ -1367,6 +1385,7 @@ async function fetchProducts(path,onBackupStart){
   finally{clearTimeout(timeout)}
   if(attempt<3)await new Promise(resolve=>setTimeout(resolve,4000));
  }
+ preferBackupUntil=0;
  throw Error("백업 API를 사용할 수 없습니다");
 }
 const grid=document.getElementById("products"),statusEl=document.getElementById("status"),tabs=document.getElementById("tabs"),categories=document.getElementById("categories-buttons"),heading=document.getElementById("product-heading"),input=document.getElementById("q");

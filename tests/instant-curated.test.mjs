@@ -28,7 +28,7 @@ test('UI remains responsive when external font CDN or cold fallback server is sl
  assert.match(html,/onload="this\.onload=null;this\.rel='stylesheet'"/);
  const withoutNoscript=html.replace(/<noscript>[\s\S]*?<\/noscript>/g,'');
  assert.doesNotMatch(withoutNoscript,/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/gh\/orioncactus/);
- assert.match(script,/if\(jsonResponse&&\(response\.ok\|\|!\[502,503,504\]\.includes\(response\.status\)\)\)return response/);
+ assert.match(script,/if\(jsonResponse&&\(response\.ok\|\|!\[502,503,504\]\.includes\(response\.status\)\)\)\{/);
  assert.match(script,/setTimeout\(\(\)=>backup\.abort\(\),22000\)/);
 });
 
