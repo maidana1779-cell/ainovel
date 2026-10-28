@@ -98,6 +98,20 @@ export function isGroceryQuery(query){
 // Suppress accessory-only results for broad earphone and beauty searches.
 const EARPHONE_ACCESSORY=/케이스|커버|이어팁|이어캡|보호필름|스트랩|키링|거치대|파우치|스티커|이어후크|보호캡/i;
 const EARPHONE_MAIN=/이어폰\s*본체|이어버드\s*본체|에어팟\s*본체|버즈\s*본체|이어폰\s*세트/i;
+// A true earphone listing must describe an audio device, not an e-book, tour, or novelty accessory.
+const EARPHONE_SERVICE_CONTEXT=/(?:투어|시티버스|관광버스|티켓|탑승권|예약권|가이드\s*지도|리셀|부수입|부업|n\s*잡|돈버는|수익화|창업|노하우|전자\s*책|책자|e[\s-]*book|이\s*북|pdf|epub|강의|강좌|수강|사용법\s*가이드|튜토리얼)/i;
+const EARPHONE_DEVICE_WORD=/(?:이어폰(?=$|[^가-힣a-z0-9]|본체|세트|무선|유선|형|타입)|이어버드(?=$|[^가-힣a-z0-9]|본체|세트|무선)|에어팟|갤럭시\s*버즈|버즈\s*프로)/i;
+export function genuineEarphoneProduct(item){
+ const title=String(item?.title||"").normalize("NFKC").toLowerCase();
+ const merchant=String(item?.cp_name||"").normalize("NFKC").toLowerCase();
+ if(!title||EARPHONE_SERVICE_CONTEXT.test(title)||/(?:크몽|kmong|kkday|케이케이데이)/i.test(merchant))return false;
+ if(!EARPHONE_DEVICE_WORD.test(title))return false;
+ if(categoryAccessoryOnly("이어폰",title))return false;
+ // An actual earphone with a charging case remains eligible; the case alone does not.
+ if(/(?:이어폰|에어팟|버즈)\s*(?:모양|모형|인형|굿즈|키링|스티커|피규어|홀더|보관함|케이스|파우치|커버)/i.test(title)&&
+    !EARPHONE_MAIN.test(title))return false;
+ return true;
+}
 const HOME_CUSHION=/(?:소파|쇼파|의자|방석|차량|침대)\s*쿠션|쿠션\s*(?:방석|솜|베개|인테리어|소파|쇼파)/i;
 const FOOD_CREAM=/생크림|아이스크림|휘핑크림|크림빵|크림치즈/i;
 const COSMETIC_ACCESSORY=/(?:화장품|메이크업)\s*(?:보관함|정리함|수납함|파우치|가방|공병|진열대)/i;
@@ -119,10 +133,12 @@ export function relevantItem(query,item){
   }
   const aliases=CATEGORY_ALIASES[q];
   if(q==="무선이어폰"){
+    if(!genuineEarphoneProduct(item))return false;
     const exactWireless=hasAny(tokens,aliases);
     const separatedWireless=hasAny(tokens,["이어폰"])&&hasAny(tokens,["무선","블루투스"]);
-    return !categoryAccessoryOnly(q,title)&&(exactWireless||separatedWireless);
+    return exactWireless||separatedWireless;
   }
+  if(q==="이어폰")return genuineEarphoneProduct(item)&&hasAny(tokens,aliases);
   if(aliases)return !categoryAccessoryOnly(q,title)&&hasAny(tokens,aliases);
   const words=productTokens(query).filter(w=>w.length>=2);
   return words.length>=1 && words.every(w=>hasPhraseToken(tokens,w));
