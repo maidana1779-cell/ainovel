@@ -1491,6 +1491,8 @@ let availableItems=[],currentDepartment="",currentCategoryTerm="";
 function storefrontEligible(p){
  const merchant=String(p?.cp_name||"").normalize("NFKC").toLowerCase().replace(/[\s._-]+/g,"");
  if(/(?:yes24|예스24|예스이십사|교보문고|알라딘|리디북스|밀리의서재|마이리얼트립|myrealtrip|클룩|klook|와그|여기어때|야놀자|트립닷컴|tripcom|아고다|agoda|익스피디아|expedia|클래스101|class101|인프런|패스트캠퍼스|탈잉|유데미|udemy)/.test(merchant))return false;
+ if(/(?:크몽|kmong|kkday|케이케이데이)/i.test(merchant))return false;
+ if(/(?:시티\s*투어|관광\s*(?:투어|버스|티켓)|투어\s*(?:버스|티켓|패스)|버스\s*(?:투어|티켓|탑승권)|(?:버스|항공|관광)\s*티켓|가이드\s*지도|(?:전자|디지털)\s*(?:콘텐츠|문서|파일)|(?:리셀|부업|부수입|재테크|n\s*잡|수익화|창업)\s*(?:로|을|을\s*통해|방법|노하우|가이드|만들|만든|벌|하는)|(?:돈|부수입)\s*(?:버는|벌기|만드는|만든)\s*방법|(?:이어폰|에어팟|버즈).{0,18}(?:리셀|부업|부수입|노하우|가이드북|수익화))/i.test(String(p?.title||"").normalize("NFKC")))return false;
  return typeof p?.title==="string"&&!!p.title.trim()&&!/(?:전자\s*책|전자\s*도서|전자\s*교재|e[\s-]*book|e\s*북|이\s*북|오디오\s*북|(?:^|[^a-z0-9])(?:pdf|epub)(?=$|[^a-z0-9])|디지털\s*(?:도서|서적|교재)|온라인\s*(?:강의|강좌|수업))/i.test(p.title.normalize("NFKC"))&&!/(?:전자책|e-?book|온라인\s*(?:강의|강좌|수업)|인강|수강권|학습지|(?:^|[\s[(])(?:도서|교재|서적|문제집|참고서)(?=\s|$)|항공권|숙박권|호텔\s*(?:예약|숙박)|펜션\s*(?:예약|숙박)|여행\s*(?:상품|패키지|투어|일정)|관광\s*(?:투어|입장권)|(?:콘서트|뮤지컬|공연|전시)\s*(?:티켓|관람권)|체험\s*(?:예약|입장권|프로그램))/i.test(p.title);
 }
 
@@ -1499,6 +1501,13 @@ function storefrontSearchMatch(query,p){
  if(normalized!=="이어폰"&&normalized!=="무선이어폰")return true;
  const title=String(p?.title||"").normalize("NFKC").toLowerCase();
  const compact=title.replace(/[^가-힣a-z0-9]/g,"");
+ // Only physical earphone devices belong in an earphone query, even on stale feeds.
+ if(/(?:투어|시티버스|관광버스|티켓|탑승권|예약권|가이드\s*지도|리셀|부수입|부업|n\s*잡|돈버는|수익화|창업|노하우|전자\s*책|책자|e[\s-]*book|이\s*북|pdf|epub|강의|강좌|수강|사용법\s*가이드|튜토리얼)/i.test(title))return false;
+ if(/(?:크몽|kmong|kkday|케이케이데이)/i.test(String(p?.cp_name||"")))return false;
+ if(!/(?:이어폰(?=$|[^가-힣a-z0-9]|본체|세트|무선|유선|형|타입)|이어버드(?=$|[^가-힣a-z0-9]|본체|세트|무선)|에어팟|갤럭시\s*버즈|버즈\s*프로)/i.test(title))return false;
+ if(/(?:이어폰|에어팟|버즈)\s*(?:모양|모형|인형|굿즈|키링|스티커|피규어|홀더|보관함|케이스|파우치|커버)/i.test(title)&&
+    !/(?:이어폰\s*본체|이어버드\s*본체|에어팟\s*본체|버즈\s*본체|이어폰\s*세트)/i.test(title))return false;
+
  if(!/(?:이어폰|에어팟|갤럭시버즈|이어버드|버즈프로)/.test(compact))return false;
  // A listing that mentions earphones can still be a paid tutorial or download.
  if(/(?:전자\s*책|전자\s*도서|전자\s*교재|e[\s-]*book|e\s*북|이\s*북|오디오\s*북|(?:^|[^a-z0-9])(?:pdf|epub)(?=$|[^a-z0-9])|디지털\s*(?:도서|서적|교재)|온라인\s*(?:강의|강좌|수업))/i.test(title)||/(?:강의|강좌|수강권|사용법\s*(?:가이드|강좌)|튜토리얼)/i.test(title))return false;
