@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {relevantItem,isDetergentQuery} from '../relevance.mjs';
-import {getSearchPlan,uniqueProductResults,FOOD_STORES,HOUSEHOLD_STORES} from '../search-plan.mjs';
+import {getSearchPlan,uniqueProductResults} from '../search-plan.mjs';
 import {readFileSync} from 'node:fs';
 
 const detergentCases=[
@@ -54,12 +54,21 @@ test('Broad shopping intent searches at most two keywords',()=>{
   assert.ok(plan.terms.length<=2);
  }
 });
-test('Detergent searches only verified household retailers',()=>{
- assert.deepEqual(getSearchPlan('세제').codes,HOUSEHOLD_STORES);
- assert.equal(getSearchPlan('세제').codes.length,5);
- assert.deepEqual(getSearchPlan('간편식').codes,FOOD_STORES);
- assert.equal(getSearchPlan('간편식').codes.length,5);
- assert.equal(getSearchPlan('이어폰').codes,null);
+test('Grocery and household searches include every API-enabled merchant, including newly approved Coupang',()=>{
+ for(const q of ['세제','세탁세제','간편식','라면','생수','커피','이어폰','노트북','물티슈']){
+  assert.equal(getSearchPlan(q).codes,null,q);
+ }
+});
+test('Additional relevant shopping searches are available only through explicit pagination',()=>{
+ for(const q of ['노트북','충전기','물티슈','화장지','청소기','샴푸','운동화','과자']){
+  const first=getSearchPlan(q,0),next=getSearchPlan(q,1);
+  assert.equal(first.terms.length,1,q+' initial search stays one request');
+  assert.ok(next.terms.length>=1&&next.terms.length<=2,q);
+  assert.ok(first.totalBatches>=2,q);
+  assert.equal(first.batch,0);
+  assert.equal(next.batch,1);
+  assert.ok(first.terms.every(term=>term.includes(q)),q+' must remain relevant to user intent');
+ }
 });
 test('Union result removes duplicates but retains distinct merchants or pack prices',()=>{
  const items=[
