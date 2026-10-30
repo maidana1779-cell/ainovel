@@ -47,6 +47,8 @@ async function readSmallJson(req){
 
 const TIME_WINDOW=60000, MAX_CALLS=8, hits=[];
 const bestFeedCache=createBestFeedCache();
+// Only successful, verified public search results; short-lived, bounded and never persisted.
+const searchFeedCache=createBestFeedCache({freshMs:90000,staleMs:180000,maxEntries:80});
 const send=(res,code,obj)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))};
 const server=createServer(async(req,res)=>{
 const url=new URL(req.url||'/', 'http://localhost');
@@ -153,7 +155,16 @@ async function loadBestPayload(){
 }
 const cacheKey=endpoint==='best'?params.area+'|'+params.limit:null;
 const cached=cacheKey?bestFeedCache.peek(cacheKey):null;
+const searchKey=endpoint==='search'?params.q.normalize('NFKC').trim()+'|'+plan.batch+'|'+requested:null;
+const cachedSearch=searchKey?searchFeedCache.peek(searchKey):null;
+if(cachedSearch){send(res,200,cachedSearch.stale?searchFeedCache.stalePayload(cachedSearch):cachedSearch.payload);return}
 if(cached&&!cached.stale){send(res,200,cached.payload);return}
+const searchInFlight=searchKey?searchFeedCache.pending(searchKey):null;
+if(searchInFlight){
+ try{send(res,200,await searchInFlight)}
+ catch{send(res,502,{success:false,message:'제휴사 검색 응답 지연'})}
+ return;
+}
 const inFlight=cacheKey?bestFeedCache.pending(cacheKey):null;
 const now=Date.now();while(hits.length&&now-hits[0]>TIME_WINDOW)hits.shift();
 const remaining=MAX_CALLS-hits.length;
@@ -168,7 +179,12 @@ if(inFlight){
  catch{send(res,502,{success:false,message:'제휴사 연결 실패'});}
  return;
 }
-if(remaining<1){send(res,429,{success:false,message:'잠시 후 다시 시도해 주세요'});return}
+if(remaining<1){
+ const retry=Math.max(1,Math.ceil((TIME_WINDOW-(now-hits[0]))/1000));
+ res.setHeader('Retry-After',String(retry));
+ send(res,429,{success:false,code:'SEARCH_QUOTA_COOLDOWN',retry_after_seconds:retry,message:'검색 요청이 몰렸습니다. 잠시 후 다시 조회해 주세요'});
+ return;
+}
 // If the remaining API quota only permits one call, preserve the core keyword search.
 const activeTerms=endpoint==='search'?plan.terms.slice(0,remaining):[];
 const callCount=endpoint==='search'?activeTerms.length:1;
@@ -176,11 +192,12 @@ for(let i=0;i<callCount;i++)hits.push(now);
 
 try{
  if(endpoint==='search'){
+   const searchPayload=await searchFeedCache.load(searchKey,async()=>{
    // One bounded follow-up keyword for broad categories, never an unbounded crawler.
    const requests=activeTerms.map(term=>fetchAffiliate('search',{...params,q:term}));
    const batches=await Promise.allSettled(requests);
    const successes=batches.filter(batch=>batch.status==='fulfilled').map(batch=>batch.value).filter(data=>Array.isArray(data.data)||Array.isArray(data.data?.list));
-   if(!successes.length){send(res,502,{success:false,message:'제휴사 검색 응답을 받지 못했습니다'});return}
+   if(!successes.length)throw Error('UPSTREAM_SEARCH_UNAVAILABLE');
    const incoming=successes.flatMap(data=>Array.isArray(data.data)?data.data:(Array.isArray(data.data?.list)?data.data.list:[]));
    const allowed=plan.codes?new Set(plan.codes):null;
    const scoped=allowed?incoming.filter(item=>allowed.has(String(item?.cp_code||'').toLowerCase())):incoming;
@@ -194,7 +211,7 @@ try{
    analytics.search(params.q,combined.length);
    const original=successes[0];
    const filteredData=Array.isArray(original.data)?combined:{...original.data,list:combined};
-   send(res,200,{...original,data:filteredData,filter_meta:{
+   return {...original,data:filteredData,filter_meta:{
      received:incoming.length,matched:combined.length,excluded:incoming.length-matched.length,
      duplicates_removed:matched.length-distinct.length,stores_restricted:Boolean(allowed),
      merchants_count:merchantCount(combined),
@@ -204,7 +221,9 @@ try{
      quota_limited:activeTerms.length<plan.terms.length,verification,
      explicitly_unavailable_removed:sourceFiltered.removed,
      out_of_catalog_removed:catalog.removed
-   }});
+   }};
+   });
+   send(res,200,searchPayload);
    return;
  }
  const payload=await bestFeedCache.load(cacheKey,loadBestPayload);

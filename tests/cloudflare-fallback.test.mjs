@@ -9,10 +9,10 @@ test('Cloudflare primary API retries cold Render backup without accepting HTML s
  assert.doesNotThrow(()=>new Script(js));
  assert.match(js,/const API_ORIGIN='https:\/\/alttulpick-api\.maidana1779\.workers\.dev'/);
  assert.match(js,/const BACKUP_API_ORIGIN='https:\/\/alttulpick-preview\.onrender\.com'/);
- assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),15000\)/);
+ assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),8500\)/);
  assert.match(js,/애드픽 추천 상품 연결이 지연되고 있어요/);
- assert.match(js,/setTimeout\(\(\)=>backup\.abort\(\),22000\)/);
- assert.match(js,/for\(let attempt=0;attempt<4;attempt\+\+\)/);
+ assert.match(js,/setTimeout\(\(\)=>backup\.abort\(\),9000\)/);
+ assert.match(js,/for\(let attempt=0;attempt<2;attempt\+\+\)/);
  assert.match(js,/jsonResponse=\(response\.headers\.get\("content-type"\)/);
  assert.match(js,/if\(jsonResponse\)return response/);
  assert.match(js,/fetch\(BACKUP_API_ORIGIN\+path/);
@@ -24,5 +24,5 @@ test('Partial keyword search results visibly say some terms were not checked and
  assert.match(js,/const partial=Boolean\(currentQuery\)/);
  assert.match(js,/일부 검색어 미확인/);
  assert.match(js,/if\(partial\)retryMain.hidden=false/);
- assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),15000\)/);
+ assert.match(js,/setTimeout\(\(\)=>primary\.abort\(\),8500\)/);
 });

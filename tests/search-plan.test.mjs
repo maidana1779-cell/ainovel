@@ -35,17 +35,17 @@ test('Classify detergent terms for retail-mall routing',()=>{
   for(const q of ['세제','세탁세제','주방세제','캡슐세제','액체세제'])assert.equal(isDetergentQuery(q),true,q);
   for(const q of ['넥타이','라면','커피','이어폰'])assert.equal(isDetergentQuery(q),false,q);
 });
-test('Broad shopping intent searches at most two keywords',()=>{
+test('Broad shopping first page uses one provider keyword to protect shared API quota',()=>{
  const plans={
-  '세제':['세제','주방세제'],
-  '간편식':['간편식','즉석밥'],
-  '커피':['커피','커피믹스'],
-  '라면':['라면','컵라면'],
-  '생수':['생수','삼다수'],
-  '이어폰':['이어폰','무선이어폰'],
+  '세제':['세제'],
+  '간편식':['간편식'],
+  '커피':['커피'],
+  '라면':['라면'],
+  '생수':['생수'],
+  '이어폰':['이어폰'],
   '화장품':['화장품'],
-  '의류':['의류','티셔츠'],
-  '주방용품':['주방용품','프라이팬'],
+  '의류':['의류'],
+  '주방용품':['주방용품'],
   '노트북':['노트북']
  };
  for(const [q,expected] of Object.entries(plans)){

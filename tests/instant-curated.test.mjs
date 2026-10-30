@@ -29,7 +29,7 @@ test('UI remains responsive when external font CDN or cold fallback server is sl
  const withoutNoscript=html.replace(/<noscript>[\s\S]*?<\/noscript>/g,'');
  assert.doesNotMatch(withoutNoscript,/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/gh\/orioncactus/);
  assert.match(script,/if\(jsonResponse&&\(response\.ok\|\|!\[502,503,504\]\.includes\(response\.status\)\)\)\{/);
- assert.match(script,/setTimeout\(\(\)=>backup\.abort\(\),22000\)/);
+ assert.match(script,/setTimeout\(\(\)=>backup\.abort\(\),9000\)/);
 });
 
 test('Live search can instantly show a verified query-matching Toss item during API wake-up',()=>{

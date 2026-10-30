@@ -28,9 +28,9 @@ test('Every category has at most 3 distinct keyword batches',()=>{
 });
 
 test('Additional detergent rounds use actual detergent categories, not random strings',()=>{
- assert.deepEqual(getSearchPlan('세제',0).terms,['세제','주방세제']);
- assert.deepEqual(getSearchPlan('세제',1).terms,['캡슐세제','액체세제']);
- assert.deepEqual(getSearchPlan('세제',2).terms,['세탁세제','분말세제']);
+ assert.deepEqual(getSearchPlan('세제',0).terms,['세제']);
+ assert.deepEqual(getSearchPlan('세제',1).terms,['주방세제','캡슐세제']);
+ assert.deepEqual(getSearchPlan('세제',2).terms,['액체세제','세탁세제']);
 });
 
 test('Same merchant and product duplicates are suppressed independently of referral URL',()=>{

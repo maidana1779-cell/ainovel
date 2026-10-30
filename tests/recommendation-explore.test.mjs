@@ -58,7 +58,7 @@ test('More button now only loads later terms in selected category',()=>{
  assert.match(switching,/recommendationExploreButton\.hidden=!category\|\|done/);
  assert.match(fetchFlow,/step>=PRODUCT_CATEGORY_TERMS\[category\]\.length/);
  assert.match(fetchFlow,/response\.ok\|\|payload\.success!==true/);
- assert.match(fetchFlow,/검색 한도에 도달/);
+ assert.match(fetchFlow,/검색 요청이 몰렸습니다/);
  assert.match(fetchFlow,/if\(id===requestId&&!recommendationExplore\.hidden\)\{/);
 });
 

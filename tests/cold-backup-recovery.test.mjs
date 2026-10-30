@@ -102,3 +102,16 @@ test('A dead backup gives the recovered Worker a chance and resets backup prefer
  assert.equal(result.status,200);
  assert.deepEqual(calls.map(url=>url.startsWith(primary)?'edge':'backup'),['edge','backup','backup','edge']);
 });
+
+test('Search-only Worker 429 falls back to Render without retrying the same limited Worker',async()=>{
+ const calls=[];
+ const fetcher=client(async url=>{
+  calls.push(String(url));
+  if(String(url).startsWith(primary))return response(JSON.stringify({success:false,code:'SEARCH_QUOTA_COOLDOWN'}),429);
+  return response(JSON.stringify({success:true,data:[{title:'쿠팡 충전기',cp_name:'쿠팡',commissionlink:'https://bitl.bz/BHrbPz'}]}));
+ });
+ const result=await fetcher('/api/search?q='+encodeURIComponent('충전기')+'&limit=20');
+ assert.equal(result.status,200);
+ assert.equal((await result.json()).data[0].cp_name,'쿠팡');
+ assert.deepEqual(calls.map(url=>url.startsWith(primary)?'edge':'backup'),['edge','backup']);
+});
