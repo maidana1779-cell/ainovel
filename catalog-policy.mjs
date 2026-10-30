@@ -10,6 +10,10 @@ export function catalogMerchantExcluded(value){
  return excludedSeller.test(String(value??'').normalize('NFKC').toLowerCase().replace(/[\s._-]+/g,''));
 }
 export function inStorefrontCatalog(item){
+ // Retired Toss Sharelinks are not active Adpick offers and must never reappear.
+ if(item?.affiliate_source==="toss_sharelink"||
+    /(?:토스쇼핑|tossshopping)/i.test(String(item?.cp_name||"").replace(/\s+/g,""))||
+    /^https:\/\/toss\.shopping\//i.test(String(item?.commissionlink||"")))return false;
  return !!item&&typeof item.title==='string'&&!!item.title.trim()&&
  !catalogMerchantExcluded(item.cp_name)&&!excludedServiceSeller.test(String(item.cp_name||''))&&
  !excludedServiceTitle.test(item.title.normalize('NFKC'))&&!excludedDigitalMedia.test(item.title.normalize('NFKC'))&&
