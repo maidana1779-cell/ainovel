@@ -196,7 +196,7 @@ async function handleWorkerFetch(request,env={},ctx={}){
    'access-control-allow-headers':'Content-Type','access-control-max-age':'600','vary':'Origin'
   }});
  }
- if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker',revision:'catalog-policy-v6-20261026',adpick_binding:adpickBindingState(env),best_fresh_seconds:BEST_FRESH_SECONDS,best_stale_seconds:BEST_STALE_SECONDS},200,origin);
+ if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker',revision:'binding-diagnostic-v3-20261025',adpick_binding:adpickBindingState(env),best_fresh_seconds:BEST_FRESH_SECONDS,best_stale_seconds:BEST_STALE_SECONDS},200,origin);
  if(path==='/api/telemetry'&&request.method==='POST'){
   if(!ORIGINS.has(origin)||!(request.headers.get('content-type')||'').startsWith('application/json'))return json({success:false},403,origin);
   try{
