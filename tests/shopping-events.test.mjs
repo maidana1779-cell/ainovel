@@ -17,19 +17,25 @@ function eventValidator(){
 const event={mall:'테스트 쇼핑몰',title:'테스트용 기획전',description:'공식 행사 페이지로 이동',
  starts_on:'2026-10-20',ends_on:'2026-10-30',image_url:'https://cdn.adpick.co.kr/official-event.jpg',
  url:'https://link.adpick.co.kr/owner-generated-link',asset_authorized:true,link_confirmed:true};
-test('Above-the-fold carousel shows BOTH supplied tracking links and actual photographic banners',()=>{
+test('Above-the-fold carousel shows all three supplied tracking links and original creatives',()=>{
  assert.ok(script);assert.doesNotThrow(()=>new Script(script));
  const top=html.slice(html.indexOf('<section id="shopping-events"'),html.indexOf('<section class="hero"'));
  assert.match(top,/class="shopping-events top-shopping-feature"/);
  assert.ok(html.indexOf('id="shopping-events"')<html.indexOf('id="searchform"'));
  assert.match(top,/class="shopping-theme-grid shopping-campaign-slider"/);
  assert.match(top,/href="https:\/\/bitl\.bz\/jKubOI"/);
- assert.match(top,/href="https:\/\/bitl\.bz\/Bmbhq2"/);
- assert.match(top,/alt="11번가 베스트 생필품 총집합 기획전 공식 이미지"/);
- assert.match(top,/아디다스 온라인 스토어/);
- assert.match(top,/src="\/events\/11st-living\.avif"/);
- assert.match(top,/src="\/events\/adidas-autumn\.avif"/);
- assert.equal((top.match(/rel="sponsored nofollow noopener noreferrer"/g)||[]).length,2);
+ assert.match(top,/href="https:\/\/bitl\.bz\/l0gfEs"/);
+ assert.match(top,/href="https:\/\/bitl\.bz\/DfTQat"/);
+ assert.match(top,/alt="11번가 베스트 생필품 총집합 기획전 이미지"/);
+ assert.match(top,/샤오미 스마트 밴드 11/);
+ assert.match(top,/쿠팡 인텔 코어 Ultra 시리즈 3/);
+ assert.match(top,/src="\/events\/11st-living\.png"/);
+ assert.match(top,/src="\/events\/xiaomi-smart-band-11\.jpg"/);
+ assert.match(top,/src="\/events\/intel-core-ultra-coupang\.jpg"/);
+ assert.doesNotMatch(top,/아디다스 온라인 스토어/);
+ assert.equal((top.match(/data-campaign-slide="\d+"/g)||[]).length,3);
+ assert.equal((top.match(/data-campaign-dot="\d+"/g)||[]).length,3);
+ assert.equal((top.match(/rel="sponsored nofollow noopener noreferrer"/g)||[]).length,3);
  assert.match(top,/행사 및 구매 조건은 판매처에서 확인해 주세요/);
  assert.doesNotMatch(top,/images\.unsplash\.com|배너는 연출 사진입니다/);
  assert.doesNotMatch(top,/class="shopping-theme-text"/);
@@ -101,16 +107,17 @@ test('A verified promotion replaces—not follows—the top photo feature cards'
  assert.doesNotMatch(html,/id="shopping-events"[^>]*hidden/);
 });
 
-test('Supplied campaign images are real, nonempty AVIF assets rather than external stock photos',()=>{
- const fs=readFileSync;
- for(const [path,sha] of [
-  ['../public/events/11st-living.avif','cf3d680a84da17ab8930f5c694dc589b501a36ec'],
-  ['../public/events/adidas-autumn.avif','0322356c935c8d706c0c0307102b17855e521500']
- ]){
-  const bytes=fs(new URL(path,import.meta.url));
-  assert.ok(bytes.length>5000,'Campaign image is not an empty placeholder');
-  assert.equal(bytes.subarray(4,12).toString('ascii'),'ftypavif');
+test('All three merchant creative files match original user-uploaded bytes, without generation or recompression',()=>{
+ const originals=[
+  {path:'../public/events/11st-living.png',git:'fbf6be397dcd6e3b530d90a43976cfc3a923c311',minBytes:700000,prefix:'89504e470d0a1a0a'},
+  {path:'../public/events/xiaomi-smart-band-11.jpg',git:'b688882d80dd020949fc4cba8d7378afb7c6027d',minBytes:320000,prefix:'ffd8'},
+  {path:'../public/events/intel-core-ultra-coupang.jpg',git:'13ece7e4e56e5447090a2524a9b522e73802041e',minBytes:250000,prefix:'ffd8'}
+ ];
+ for(const original of originals){
+  const bytes=readFileSync(new URL(original.path,import.meta.url));
+  assert.ok(bytes.length>original.minBytes,original.path);
+  assert.equal(bytes.subarray(0,original.prefix.length/2).toString('hex'),original.prefix);
   const gitBlob=Buffer.concat([Buffer.from('blob '+bytes.length+String.fromCharCode(0)),bytes]);
-  assert.equal(createHash('sha1').update(gitBlob).digest('hex'),sha,'Media bytes must match uploaded photograph');
+  assert.equal(createHash('sha1').update(gitBlob).digest('hex'),original.git,'Merchant image bytes must be unchanged');
  }
 });

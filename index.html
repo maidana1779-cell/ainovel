@@ -1040,6 +1040,10 @@ body.category-active .shopping-events{display:none}
  .shopping-campaign-slider .shopping-theme-card.theme-fashion{min-height:0;aspect-ratio:768/429}
 }
 
+/* Brand-matched letterboxing preserves complete merchant artwork and embedded text. */
+.shopping-campaign-slider .shopping-theme-card.theme-living{background:#eee1d3}
+.shopping-campaign-slider .shopping-theme-card.theme-digital{background:#074064}
+.shopping-campaign-slider .shopping-theme-card.theme-intel{background:#1648b4}
 /* Clear, above-first-link disclosure required for affiliate review. */
 .sponsor-notice{
  display:flex;align-items:flex-start;gap:13px;margin:14px 0 18px;padding:15px 18px;
@@ -1134,20 +1138,24 @@ body.category-active .shopping-events{display:none}
 
 <section id="shopping-events" class="shopping-events top-shopping-feature" aria-labelledby="shopping-events-title">
  <div class="shopping-events-head">
-  <div><span class="shopping-events-kicker">SHOPPING EVENTS</span><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p id="shopping-events-description">11번가 생필품과 아디다스 가을 스타일을 둘러보세요.</p></div>
+  <div><span class="shopping-events-kicker">SHOPPING EVENTS</span><h2 id="shopping-events-title">쇼핑몰 기획전</h2><p id="shopping-events-description">11번가 생필품, 샤오미 스마트 밴드 11, 쿠팡 인텔 노트북 기획전을 둘러보세요.</p></div>
  </div>
  <div id="shopping-theme-grid" class="shopping-theme-grid shopping-campaign-slider" role="region" aria-label="쇼핑몰 기획전 사진 배너" aria-roledescription="슬라이드">
- <a class="shopping-theme-card theme-living is-active" data-campaign-slide="0" href="https://bitl.bz/jKubOI" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="false" aria-label="11번가 생필품BEST 기획전 바로가기">
-  <img src="/events/11st-living.avif" alt="11번가 베스트 생필품 총집합 기획전 공식 이미지" width="768" height="429" loading="eager" fetchpriority="high" decoding="async">
+ <a class="shopping-theme-card theme-living is-active" data-campaign-slide="0" href="https://bitl.bz/jKubOI" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="false" aria-label="11번가 베스트 생필품 기획전 바로가기">
+  <img src="/events/11st-living.png" alt="11번가 베스트 생필품 총집합 기획전 이미지" width="640" height="640" loading="eager" fetchpriority="high" decoding="async">
  </a>
- <a class="shopping-theme-card theme-fashion" data-campaign-slide="1" href="https://bitl.bz/Bmbhq2" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="true" tabindex="-1" aria-label="아디다스 온라인 스토어 가을 스타일 기획전 바로가기">
-  <img src="/events/adidas-autumn.avif" alt="아디다스 온라인 스토어 가을 스타일 공식 기획전 이미지" width="768" height="429" loading="lazy" decoding="async">
+ <a class="shopping-theme-card theme-digital" data-campaign-slide="1" href="https://bitl.bz/l0gfEs" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="true" tabindex="-1" aria-label="샤오미 스마트 밴드 11 기획전 바로가기">
+  <img src="/events/xiaomi-smart-band-11.jpg" alt="샤오미 스마트 밴드 11 프로모션 원본 이미지" width="1279" height="499" loading="lazy" decoding="async">
+ </a>
+ <a class="shopping-theme-card theme-intel" data-campaign-slide="2" href="https://bitl.bz/DfTQat" target="_blank" rel="sponsored nofollow noopener noreferrer" aria-hidden="true" tabindex="-1" aria-label="쿠팡 인텔 코어 Ultra 시리즈 3 노트북 기획전 바로가기">
+  <img src="/events/intel-core-ultra-coupang.jpg" alt="쿠팡 인텔 코어 Ultra 시리즈 3 노트북 기획전 원본 이미지" width="800" height="800" loading="lazy" decoding="async">
  </a>
  <button type="button" class="shopping-campaign-arrow shopping-campaign-prev" aria-label="이전 기획전">‹</button>
  <button type="button" class="shopping-campaign-arrow shopping-campaign-next" aria-label="다음 기획전">›</button>
  <div class="shopping-campaign-dots" role="group" aria-label="기획전 배너 선택">
   <button type="button" data-campaign-dot="0" aria-label="11번가 기획전" aria-current="true"></button>
-  <button type="button" data-campaign-dot="1" aria-label="아디다스 기획전" aria-current="false"></button>
+  <button type="button" data-campaign-dot="1" aria-label="샤오미 스마트 밴드 11 기획전" aria-current="false"></button>
+  <button type="button" data-campaign-dot="2" aria-label="쿠팡 인텔 노트북 기획전" aria-current="false"></button>
  </div>
 </div>
 <p class="shopping-campaign-footnote">배너를 누르면 각 쇼핑몰 행사 페이지로 이동합니다. 행사 및 구매 조건은 판매처에서 확인해 주세요.</p>
