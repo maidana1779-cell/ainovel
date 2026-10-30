@@ -23,7 +23,8 @@ test('Every category has at most 3 distinct keyword batches',()=>{
   assert.deepEqual(getSearchPlan(q,base.totalBatches).terms,[]);
  }
  assert.deepEqual(getSearchPlan('노트북',0).terms,['노트북']);
- assert.deepEqual(getSearchPlan('노트북',1).terms,[]);
+ assert.deepEqual(getSearchPlan('노트북',1).terms,['게이밍노트북','삼성 노트북']);
+ assert.deepEqual(getSearchPlan('노트북',3).terms,[]);
 });
 
 test('Additional detergent rounds use actual detergent categories, not random strings',()=>{
