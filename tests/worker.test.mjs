@@ -8,7 +8,7 @@ function request(path,init){return new Request(BASE+path,init)}
 test('Worker health, origin permissions, and missing secret response',async()=>{
  const health=await workerFetch(request('/health'));assert.equal(health.status,200);
  const details=await health.json();
- assert.equal(details.revision,'catalog-policy-v6-20261026');
+ assert.equal(details.revision,'binding-diagnostic-v3-20261025');
  assert.equal(details.adpick_binding,'not_bound');
  assert.equal(details.best_fresh_seconds,180);
  assert.equal(details.best_stale_seconds,900);
