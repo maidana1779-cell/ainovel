@@ -1040,10 +1040,35 @@ body.category-active .shopping-events{display:none}
  .shopping-campaign-slider .shopping-theme-card.theme-fashion{min-height:0;aspect-ratio:768/429}
 }
 
-/* Brand-matched letterboxing preserves complete merchant artwork and embedded text. */
-.shopping-campaign-slider .shopping-theme-card.theme-living{background:#eee1d3}
-.shopping-campaign-slider .shopping-theme-card.theme-digital{background:#074064}
-.shopping-campaign-slider .shopping-theme-card.theme-intel{background:#1648b4}
+/* Blur only the side gutters using the SAME user-supplied originals.
+   Do not crop, blur or alter the sharp centered image / affiliate artwork. */
+.shopping-campaign-slider .shopping-theme-card{isolation:isolate}
+.shopping-campaign-slider .shopping-theme-card::before{
+ display:block!important;
+ content:"";
+ position:absolute;
+ inset:-32px;
+ z-index:0;
+ pointer-events:none;
+ background-image:var(--campaign-blur-image)!important;
+ background-position:center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+ filter:blur(24px) brightness(.76);
+ opacity:.82;
+}
+.shopping-campaign-slider .shopping-theme-card img{
+ position:relative;z-index:1;
+}
+.shopping-campaign-slider .shopping-theme-card.theme-living{
+ --campaign-blur-image:url("/events/11st-living.png");background:#eee1d3
+}
+.shopping-campaign-slider .shopping-theme-card.theme-digital{
+ --campaign-blur-image:url("/events/xiaomi-smart-band-11.jpg");background:#074064
+}
+.shopping-campaign-slider .shopping-theme-card.theme-intel{
+ --campaign-blur-image:url("/events/intel-core-ultra-coupang.jpg");background:#1648b4
+}
 /* Clear, above-first-link disclosure required for affiliate review. */
 .sponsor-notice{
  display:flex;align-items:flex-start;gap:13px;margin:14px 0 18px;padding:15px 18px;
