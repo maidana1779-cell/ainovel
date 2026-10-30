@@ -4,7 +4,7 @@ import {getSearchPlan,uniqueProductResults} from '../search-plan.mjs';
 import {removeClearlyUnavailable} from '../availability-labels.mjs';
 import {verifyProductBatchWithMeta} from '../merchant-offers.mjs';
 import {interleaveSearchMerchants,merchantCount} from '../merchant-diversity.mjs';
-import {filterCatalogProducts,restrictCatalogPayload} from '../catalog-policy.mjs';
+import {filterCatalogProducts,restrictCatalogPayload,inStorefrontCatalog} from '../catalog-policy.mjs';
 
 const ORIGINS=new Set(['https://alttulpick-shop.onrender.com']);
 const RENDER_AFFILIATE_API='https://alttulpick-preview.onrender.com';
@@ -196,7 +196,7 @@ async function handleWorkerFetch(request,env={},ctx={}){
    'access-control-allow-headers':'Content-Type','access-control-max-age':'600','vary':'Origin'
   }});
  }
- if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker',revision:'binding-diagnostic-v3-20261025',adpick_binding:adpickBindingState(env),best_fresh_seconds:BEST_FRESH_SECONDS,best_stale_seconds:BEST_STALE_SECONDS},200,origin);
+ if(path==='/health'&&request.method==='GET')return json({status:'ok',runtime:'cloudflare-worker',revision:'catalog-policy-v6-20261026',adpick_binding:adpickBindingState(env),best_fresh_seconds:BEST_FRESH_SECONDS,best_stale_seconds:BEST_STALE_SECONDS},200,origin);
  if(path==='/api/telemetry'&&request.method==='POST'){
   if(!ORIGINS.has(origin)||!(request.headers.get('content-type')||'').startsWith('application/json'))return json({success:false},403,origin);
   try{
@@ -211,7 +211,7 @@ async function handleWorkerFetch(request,env={},ctx={}){
  }
  if(!['/api/best','/api/search','/api/curated'].includes(path))return json({success:false,message:'Not found'},404,origin);
  if(request.method!=='GET')return json({success:false,message:'GET only'},405,origin);
- if(path==='/api/curated')return json({success:true,data:curatedProducts()},200,origin);
+ if(path==='/api/curated')return json({success:true,data:curatedProducts().filter(inStorefrontCatalog)},200,origin);
  const key=env.ADPICK_API_KEY;
  if(!key)return proxyRenderFeed(u,origin,ctx);
  // Serve successful public feeds from free Worker edge cache, without touching BIZ.
