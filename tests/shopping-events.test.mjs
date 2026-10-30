@@ -82,6 +82,20 @@ test('Original affiliate links survive unchanged and no third-party event feed i
  assert.match(html,/토스쇼핑 쉐어링크 활동의 일환/);
 });
 
+test('Campaign side gutters blur uploaded artwork while center image remains uncropped and sharp',()=>{
+ const css=html.slice(html.indexOf('/* Blur only the side gutters'),html.indexOf('/* Clear, above-first-link disclosure'));
+ assert.match(css,/\.shopping-campaign-slider \.shopping-theme-card::before\{/);
+ assert.match(css,/display:block!important/);
+ assert.match(css,/background-image:var\(--campaign-blur-image\)!important/);
+ assert.match(css,/filter:blur\(24px\) brightness\(\.76\)/);
+ assert.match(css,/\.shopping-campaign-slider \.shopping-theme-card img\{\s*position:relative;z-index:1/);
+ assert.match(html,/object-fit:contain;object-position:center/);
+ for(const asset of ['11st-living.png','xiaomi-smart-band-11.jpg','intel-core-ultra-coupang.jpg']){
+  assert.ok(css.includes('--campaign-blur-image:url("/events/'+asset+'")'),asset+' original CSS background');
+  assert.ok(html.includes('<img src="/events/'+asset+'"'),asset+' sharp foreground');
+
+ }
+});
 test('Campaign slider has responsive navigation, accessible inactive slides and safe playback',()=>{
  assert.match(script,/function initShoppingCampaignSlider\(\)/);
  assert.match(script,/setAttribute\("aria-hidden",String\(!on\)\)/);
