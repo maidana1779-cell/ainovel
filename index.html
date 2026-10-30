@@ -1356,14 +1356,17 @@ async function fetchProducts(path,onBackupStart){
   preferBackupUntil=0;
  }
  const primary=new AbortController();
- const timer=setTimeout(()=>primary.abort(),15000);
+ const timer=setTimeout(()=>primary.abort(),8500);
  let needsFallback=false;
  try{
   const response=await fetch(API_ORIGIN+path,{cache:"no-store",signal:primary.signal});
   const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
   if(jsonResponse&&(response.ok||![502,503,504].includes(response.status))){
-   preferBackupUntil=0;
-   return response;
+   // The best feed should report its quota immediately; only SEARCH may retry Render.
+   if(!(path.startsWith("/api/search")&&response.status===429)){
+    preferBackupUntil=0;
+    return response;
+   }
   }
   needsFallback=true;
  }catch{needsFallback=true}
@@ -1373,9 +1376,9 @@ async function fetchProducts(path,onBackupStart){
  onBackupStart?.();
  // Render Free may sleep after idle and can take nearly a minute to wake.
  // Retry only temporary gateway / spinning-up responses, not upstream JSON errors.
- for(let attempt=0;attempt<4;attempt++){
+ for(let attempt=0;attempt<2;attempt++){
   const backup=new AbortController();
-  const timeout=setTimeout(()=>backup.abort(),22000);
+  const timeout=setTimeout(()=>backup.abort(),9000);
   try{
    const response=await fetch(BACKUP_API_ORIGIN+path,{cache:"no-store",signal:backup.signal});
    const jsonResponse=(response.headers.get("content-type")||"").includes("application/json");
@@ -1383,7 +1386,7 @@ async function fetchProducts(path,onBackupStart){
    // Render may return an HTML warm-up page while the free service starts.
   }catch{/* Wake-up may abort while the free instance is starting. */}
   finally{clearTimeout(timeout)}
-  if(attempt<3)await new Promise(resolve=>setTimeout(resolve,4000));
+  if(attempt<1)await new Promise(resolve=>setTimeout(resolve,4000));
  }
  preferBackupUntil=0;
  throw Error("백업 API를 사용할 수 없습니다");
@@ -1626,6 +1629,7 @@ const PRODUCT_CATEGORY_NAMES={food:"식품",living:"리빙·주방",digital:"가
 const productCategoryTabs=document.getElementById("product-category-tabs");
 let selectedProductCategory="",recommendationExploreProgress={},recommendationExploreItems={},recommendationExploreBusy=false,recommendationExploreQueued=null;
 const categoryResponseCache=new Map(); // Per-page short-lived successful Adpick results; never store provider products persistently.
+let searchCooldownUntil=0; // Shared cooldown after a real 429: changing tabs must not hammer the API.
 function recommendationExploreVisible(url){
  const u=new URL(url,location.href);
  return u.pathname==="/api/best"&&["today","popular","pick"].includes(u.searchParams.get("area"));
@@ -1635,7 +1639,7 @@ function updateRecommendationExploreButton(){
  const category=selectedProductCategory,terms=PRODUCT_CATEGORY_TERMS[category];
  const done=!terms||(recommendationExploreProgress[category]||0)>=terms.length;
  recommendationExploreButton.hidden=!category||done;
- recommendationExploreButton.disabled=!category||recommendationExplore.hidden||done||recommendationExploreBusy||primaryPending;
+ recommendationExploreButton.disabled=!category||recommendationExplore.hidden||done||recommendationExploreBusy||primaryPending||Date.now()<searchCooldownUntil;
  recommendationExploreButton.textContent=category?selectedExploreLabel(category)+" 상품 더 보기 +":"상품 더 보기 +";
  productCategoryTabs.querySelectorAll("[data-product-category]").forEach(b=>{
   const key=b.dataset.productCategory,active=key===category;
@@ -1859,6 +1863,11 @@ try{
 async function fetchRecommendationCategory(category){
  const step=recommendationExploreProgress[category]||0;
  if(recommendationExploreBusy||primaryPending||recommendationExplore.hidden||step>=PRODUCT_CATEGORY_TERMS[category].length)return;
+ if(Date.now()<searchCooldownUntil){
+  const seconds=Math.ceil((searchCooldownUntil-Date.now())/1000);
+  recommendationExploreNote.textContent="현재 검색 요청이 몰려 있어요. 약 "+seconds+"초 뒤 상품 조회를 다시 눌러주세요.";
+  return;
+ }
  const id=requestId,term=PRODUCT_CATEGORY_TERMS[category][step],label=selectedExploreLabel(category);
  recommendationExploreBusy=true;
  updateRecommendationExploreButton();
@@ -1877,7 +1886,13 @@ async function fetchRecommendationCategory(category){
   }
   const payload=await response.json();
   if(id!==requestId||recommendationExplore.hidden)return;
-  if(!response.ok||payload.success!==true)throw Error(response.status===429?"API 검색 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.":"상품 연결 지연");
+  if(response.status===429){
+   const seconds=Math.min(60,Math.max(5,Number(payload.retry_after_seconds||response.headers.get("Retry-After")||20)));
+   searchCooldownUntil=Date.now()+seconds*1000;
+   setTimeout(updateRecommendationExploreButton,seconds*1000+200);
+   throw Error("검색 요청이 몰렸습니다. 약 "+seconds+"초 뒤 다시 조회해 주세요.");
+  }
+  if(!response.ok||payload.success!==true)throw Error("상품 연결 지연");
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
   if(!list)throw Error("유효하지 않은 상품 목록");
   if(!saved||Date.now()-saved.at>=60000)categoryResponseCache.set(categoryCacheKey,{at:Date.now(),payload});
@@ -1907,7 +1922,7 @@ async function fetchRecommendationCategory(category){
   }
  }catch(err){
   if(id===requestId&&!recommendationExplore.hidden&&selectedProductCategory===category){
-   recommendationExploreNote.textContent=String(err?.message||"상품 조회 지연")+" · 다른 품목을 둘러보거나 아래 버튼으로 다시 시도해 주세요.";
+   recommendationExploreNote.textContent=String(err?.message||"상품 조회 지연")+" · 현재 표시된 상품은 그대로 유지됩니다.";
    if(!(recommendationExploreItems[category]||[]).length){
     grid.replaceChildren(make("div","empty","표시할 상품을 확인하지 못했습니다. 조회가 가능해지면 새로운 상품을 표시합니다."));
     statusEl.textContent=label+" 상품 조회 실패 · 재시도 가능";
