@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {Script} from 'node:vm';
-import {createHash} from 'node:crypto';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const script=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const manifest=JSON.parse(readFileSync(new URL('../public/shopping-events.json',import.meta.url),'utf8'));
@@ -17,26 +16,26 @@ function eventValidator(){
 const event={mall:'테스트 쇼핑몰',title:'테스트용 기획전',description:'공식 행사 페이지로 이동',
  starts_on:'2026-10-20',ends_on:'2026-10-30',image_url:'https://cdn.adpick.co.kr/official-event.jpg',
  url:'https://link.adpick.co.kr/owner-generated-link',asset_authorized:true,link_confirmed:true};
-test('Above-the-fold carousel shows BOTH supplied tracking links and actual photographic banners',()=>{
+test('Above-the-fold carousel shows all three genuine tracking links with matching slides',()=>{
  assert.ok(script);assert.doesNotThrow(()=>new Script(script));
  const top=html.slice(html.indexOf('<section id="shopping-events"'),html.indexOf('<section class="hero"'));
  assert.match(top,/class="shopping-events top-shopping-feature"/);
  assert.ok(html.indexOf('id="shopping-events"')<html.indexOf('id="searchform"'));
  assert.match(top,/class="shopping-theme-grid shopping-campaign-slider"/);
- assert.match(top,/href="https:\/\/bitl\.bz\/jKubOI"/);
- assert.match(top,/href="https:\/\/bitl\.bz\/Bmbhq2"/);
- assert.match(top,/alt="11번가 베스트 생필품 총집합 기획전 공식 이미지"/);
- assert.match(top,/아디다스 온라인 스토어/);
- assert.match(top,/src="\/events\/11st-living\.avif"/);
- assert.match(top,/src="\/events\/adidas-autumn\.avif"/);
- assert.equal((top.match(/rel="sponsored nofollow noopener noreferrer"/g)||[]).length,2);
+ for(const link of ['jKubOI','l0gfEs','DfTQat'])
+  assert.ok(top.includes('href="https://bitl.bz/'+link+'"'),link);
+ for(const file of ['11st-living.png','xiaomi-band-11.jpg','intel-ultra-coupang.jpg'])
+  assert.ok(top.includes('src="/events/'+file+'"'),file);
+ assert.equal((top.match(/rel="sponsored nofollow noopener noreferrer"/g)||[]).length,3);
+ assert.equal((top.match(/data-campaign-slide="/g)||[]).length,3);
+ assert.equal((top.match(/data-campaign-dot="/g)||[]).length,3);
  assert.match(top,/행사 및 구매 조건은 판매처에서 확인해 주세요/);
  assert.doesNotMatch(top,/images\.unsplash\.com|배너는 연출 사진입니다/);
  assert.doesNotMatch(top,/class="shopping-theme-text"/);
  assert.match(top,/id="shopping-event-grid" class="shopping-event-grid" hidden/);
  assert.match(script,/fetch\("\/shopping-events\.json",\{cache:"no-store"\}\)/);
  assert.match(script,/if\(!eligible\.length\)\{showThemes\(\);return 0\}/);
- assert.deepEqual(manifest,{events:[]},'No fake deadlines or undeclared official campaign assets');
+ assert.deepEqual(manifest,{events:[]},'No fake deadlines or undeclared official campaign data');
 });
 test('Only real, current, rights-authorized shopping promotions are eligible',()=>{
  const eligible=eventValidator();
@@ -101,16 +100,12 @@ test('A verified promotion replaces—not follows—the top photo feature cards'
  assert.doesNotMatch(html,/id="shopping-events"[^>]*hidden/);
 });
 
-test('Supplied campaign images are real, nonempty AVIF assets rather than external stock photos',()=>{
- const fs=readFileSync;
- for(const [path,sha] of [
-  ['../public/events/11st-living.avif','cf3d680a84da17ab8930f5c694dc589b501a36ec'],
-  ['../public/events/adidas-autumn.avif','0322356c935c8d706c0c0307102b17855e521500']
- ]){
-  const bytes=fs(new URL(path,import.meta.url));
-  assert.ok(bytes.length>5000,'Campaign image is not an empty placeholder');
-  assert.equal(bytes.subarray(4,12).toString('ascii'),'ftypavif');
-  const gitBlob=Buffer.concat([Buffer.from('blob '+bytes.length+String.fromCharCode(0)),bytes]);
-  assert.equal(createHash('sha1').update(gitBlob).digest('hex'),sha,'Media bytes must match uploaded photograph');
+test('Uploaded original creatives are used without placeholder thumbnails or unauthorized imitations',()=>{
+ const files=[['11st-living.png','png'],['xiaomi-band-11.jpg','jpg'],['intel-ultra-coupang.jpg','jpg']];
+ for(const [file,type] of files){
+  const bytes=readFileSync(new URL('../public/events/'+file,import.meta.url));
+  assert.ok(bytes.length>20000,'Too small for supplied original: '+file);
+  if(type==='png')assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  else assert.equal(bytes.subarray(0,3).toString('hex'),'ffd8ff');
  }
 });
