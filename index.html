@@ -1508,6 +1508,10 @@ const sortSelect=document.getElementById("product-sort"),visibleCount=document.g
 const sortDisclaimer=document.getElementById("sort-disclaimer");
 let availableItems=[],currentDepartment="",currentCategoryTerm="";
 function storefrontEligible(p){
+ // Disallow stale Toss products from browser cache, legacy Worker responses or search fallback.
+ if(p?.affiliate_source==="toss_sharelink"||
+    /(?:토스쇼핑|tossshopping)/i.test(String(p?.cp_name||"").replace(/\s+/g,""))||
+    /^https:\/\/toss\.shopping\//i.test(String(p?.commissionlink||"")))return false;
  const merchant=String(p?.cp_name||"").normalize("NFKC").toLowerCase().replace(/[\s._-]+/g,"");
  if(/(?:yes24|예스24|예스이십사|교보문고|알라딘|리디북스|밀리의서재|마이리얼트립|myrealtrip|클룩|klook|와그|여기어때|야놀자|트립닷컴|tripcom|아고다|agoda|익스피디아|expedia|클래스101|class101|인프런|패스트캠퍼스|탈잉|유데미|udemy)/.test(merchant))return false;
  if(/(?:크몽|kmong|kkday|케이케이데이)/i.test(merchant))return false;
@@ -1621,6 +1625,7 @@ const PRODUCT_CATEGORY_TERMS=Object.freeze({
 const PRODUCT_CATEGORY_NAMES={food:"식품",living:"리빙·주방",digital:"가전·디지털",beauty:"뷰티",fashion:"패션"};
 const productCategoryTabs=document.getElementById("product-category-tabs");
 let selectedProductCategory="",recommendationExploreProgress={},recommendationExploreItems={},recommendationExploreBusy=false,recommendationExploreQueued=null;
+const categoryResponseCache=new Map(); // Per-page short-lived successful Adpick results; never store provider products persistently.
 function recommendationExploreVisible(url){
  const u=new URL(url,location.href);
  return u.pathname==="/api/best"&&["today","popular","pick"].includes(u.searchParams.get("area"));
@@ -1707,7 +1712,7 @@ function updateMoreControls(hasMore){
   moreButton.textContent=moreBusy?"새 상품 찾는 중…":"관련 상품 더 보기 +";
 }
 function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
-const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v2:";
+const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v3:";
 function recentFeed(url){
  try{
   const value=JSON.parse(sessionStorage.getItem(RECENT_FEED_PREFIX+url)||"null");
@@ -1755,9 +1760,9 @@ updateMoreControls(false);
 updateRecommendationExplore(url);
 relatedBrowse.hidden=true;relatedList.replaceChildren();
 const cachedItems=recentFeed(url);
-// Display already registered, query-matching Toss links immediately while the Adpick API wakes.
-// Do not invent prices, expand keywords, or mistake curated links for live Adpick results.
-const instantMatches=!cachedItems&&currentQuery?instantMatchingTossProducts(currentQuery):[];
+// Use only live Adpick results or a recently successful result from this session.
+// Never display retired Toss Sharelinks during slow affiliate API startup.
+const instantMatches=[]; // The retired Toss products must not be surfaced by the old instant-search fallback.
 if(cachedItems){
  availableItems=cachedItems;shownCount=cachedItems.length;
  refreshMerchantOptions();renderListing();
@@ -1772,7 +1777,7 @@ if(cachedItems){
 }
 try{
   const res=await fetchProducts(url,()=>{
-   if(id===requestId)statusEl.textContent=cachedItems?"최근 조회 상품 표시 중 · 애드픽 연결 재시도 중":instantMatches.length?"토스쇼핑 등록 상품 "+instantMatches.length+"개 표시 중 · 애드픽 연결 재시도 중":"애드픽 상품 연결이 지연되어 백업 서버를 확인하고 있습니다. 아래 토스쇼핑 상품은 바로 볼 수 있어요.";
+   if(id===requestId)statusEl.textContent=cachedItems?"최근 조회 상품 표시 중 · 애드픽 연결 재시도 중":"상품 연결이 지연되어 백업 서버를 확인하고 있습니다.";
   });
   const payload=await res.json();
   if(id!==requestId)return;
@@ -1861,12 +1866,21 @@ async function fetchRecommendationCategory(category){
   recommendationExploreNote.textContent=label+" · "+term+" 상품을 조회하는 중입니다.";
  }
  try{
-  const response=await fetchProducts("/api/search?q="+encodeURIComponent(term)+"&limit=20");
+  // One user-selected product search at a time, reusing recent successful responses.
+  const categoryCacheKey="category:"+term;
+  const saved=categoryResponseCache.get(categoryCacheKey);
+  let response;
+  if(saved&&Date.now()-saved.at<60000){
+   response=new Response(JSON.stringify(saved.payload),{status:200,headers:{"content-type":"application/json"}});
+  }else{
+   response=await fetchProducts("/api/search?q="+encodeURIComponent(term)+"&limit=20");
+  }
   const payload=await response.json();
   if(id!==requestId||recommendationExplore.hidden)return;
-  if(!response.ok||payload.success!==true)throw Error("상품 검색 실패");
+  if(!response.ok||payload.success!==true)throw Error(response.status===429?"API 검색 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.":"상품 연결 지연");
   const list=Array.isArray(payload.data)?payload.data:Array.isArray(payload.data?.list)?payload.data.list:null;
   if(!list)throw Error("유효하지 않은 상품 목록");
+  if(!saved||Date.now()-saved.at>=60000)categoryResponseCache.set(categoryCacheKey,{at:Date.now(),payload});
   const items=recommendationExploreItems[category]||[];
   const seen=new Set(items.map(productKey));
   const fresh=[];
@@ -1891,11 +1905,11 @@ async function fetchRecommendationCategory(category){
     statusEl.textContent=label+" 신규 상품 0개 · 다른 품목 검색 가능";
    }
   }
- }catch{
+ }catch(err){
   if(id===requestId&&!recommendationExplore.hidden&&selectedProductCategory===category){
-   recommendationExploreNote.textContent=label+" 상품 조회가 지연되거나 검색 한도에 도달했습니다. 아래 버튼으로 다시 시도해 주세요.";
+   recommendationExploreNote.textContent=String(err?.message||"상품 조회 지연")+" · 다른 품목을 둘러보거나 아래 버튼으로 다시 시도해 주세요.";
    if(!(recommendationExploreItems[category]||[]).length){
-    grid.replaceChildren(make("div","empty","상품을 가져오지 못했습니다. 아래 상품 더 보기 버튼으로 다시 시도해 주세요."));
+    grid.replaceChildren(make("div","empty","표시할 상품을 확인하지 못했습니다. 조회가 가능해지면 새로운 상품을 표시합니다."));
     statusEl.textContent=label+" 상품 조회 실패 · 재시도 가능";
    }
   }
@@ -2241,7 +2255,7 @@ function renderDiscovered(){
   discoveryMore.hidden=discoveryStep>=2;
   discoveryMore.disabled=discoveryBusy;
   discoveryMore.textContent=discoveryBusy?"상품을 가져오는 중…":discoveryStep===0?"인기 상품 불러오기 +":"추천 상품 더 보기 +";
-  discoveryStatus.textContent=discoveryError?"상품 연결이 원활하지 않습니다. 버튼을 눌러 다시 시도해 주세요.":"오늘의 "+featuredTopic+" 포함 "+visible.length+"개 · 재고·가격·배송은 판매처에서 확인";
+  discoveryStatus.textContent=discoveryError?"상품 연결이 원활하지 않습니다. 버튼을 눌러 다시 시도해 주세요.":"다른 추천 상품 "+visible.length+"개 · 재고·가격·배송은 판매처에서 확인";
 }
 async function loadDiscoveryStep(){
   if(discoveryBusy||discoveryStep>=2||document.body.classList.contains("category-active"))return;
@@ -2250,7 +2264,7 @@ async function loadDiscoveryStep(){
   discoveryMore.hidden=false;discoveryMore.disabled=true;
   discoveryStatus.textContent="새 상품을 확인하는 중입니다.";
   const area=step===0?"popular":"pick";
-  const endpoint=step===0?"/api/search?q="+encodeURIComponent(featuredTopic)+"&limit=20":"/api/best?area="+area+"&limit=10";
+  const endpoint="/api/best?area="+area+"&limit=10"; // One bounded, edge-cacheable request instead of two keyword API calls.
   try{
     const response=await fetchProducts(endpoint);
     const payload=await response.json();
@@ -2281,7 +2295,7 @@ function ensureDiscovery(){
    discoveryGrid.replaceChildren(make("div","empty","애드픽 추천 상품 연결이 지연되고 있어요. 아래 버튼을 눌러 다시 조회할 수 있습니다."));
    discoveryMore.hidden=false;discoveryMore.disabled=false;
    discoveryMore.textContent="인기 상품 다시 불러오기";
-   discoveryStatus.textContent="토스쇼핑 추천 상품은 위에서 바로 확인할 수 있어요.";
+   discoveryStatus.textContent="추가 상품을 확인하려면 아래 버튼을 눌러주세요.";
    return;
   }
   if(!discoveryLoaded&&!discoveryBusy)loadDiscoveryStep();

@@ -51,6 +51,8 @@ export function reviewPreflight({homepage,contact,privacy,guide,products=[]}={})
   /link\.target="_blank"/.test(homepage),'제휴 URL 검증·새 창·후원 링크 속성');
  const failures=[];
  for(const p of products){
+  // Retired Toss products remain in historical records, not in the active storefront.
+  if(p?.affiliate_source==='toss_sharelink')continue;
   const link=affiliateLinkInspection(p.commissionlink,p);
   if(!link.valid||!inStorefrontCatalog(p)||!p.title)failures.push({title:String(p.title||'').slice(0,80),reason:link.reason||'not_in_catalog'});
  }

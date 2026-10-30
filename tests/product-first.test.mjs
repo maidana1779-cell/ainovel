@@ -28,7 +28,7 @@ test('BIZ best remains customer-focused and does not show operator-commission pi
 test('Main today grid and distinct additional popular-product grid render live products',()=>{
  assert.match(script,/load\("\/api\/best\?area=today&limit=10"\)/);
  assert.match(script,/const area=step===0\?"popular":"pick"/);
- assert.match(script,/const endpoint=step===0\?"\/api\/search\?q="/);
+ assert.match(script,/const endpoint="\/api\/best\?area="\+area\+"&limit=10"/);
  assert.match(script,/fetchProducts\(endpoint\)/);
  assert.match(script,/timeZone:"Asia\/Seoul"/);
  assert.match(html,/상품의 재고와 판매 여부는 실시간으로 확인되지 않으며/);
