@@ -62,7 +62,7 @@ test('Grocery and household searches include every API-enabled merchant, includi
 test('Additional relevant shopping searches are available only through explicit pagination',()=>{
  for(const q of ['노트북','충전기','물티슈','화장지','청소기','샴푸','운동화','과자']){
   const first=getSearchPlan(q,0),next=getSearchPlan(q,1);
-  assert.equal(first.terms.length,2,q);
+  assert.equal(first.terms.length,1,q+' initial search stays one request');
   assert.ok(next.terms.length>=1&&next.terms.length<=2,q);
   assert.ok(first.totalBatches>=2,q);
   assert.equal(first.batch,0);
