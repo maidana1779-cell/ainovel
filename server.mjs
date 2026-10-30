@@ -9,10 +9,10 @@ import {removeClearlyUnavailable} from './availability-labels.mjs';
 import {createBestFeedCache} from './best-feed-cache.mjs';
 import {interleaveSearchMerchants,merchantCount} from './merchant-diversity.mjs';
 import {filterCatalogProducts,inStorefrontCatalog} from './catalog-policy.mjs';
+import {catalogEnabled,catalogStatus,CATALOG_CATEGORIES} from './catalog-core.mjs';
+import {catalogPage} from './catalog-store.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
-const tossPage=(await import('node:fs/promises')).readFile(new URL('./public/toss.html',import.meta.url),'utf8');
-const tossFeed=(await import('node:fs/promises')).readFile(new URL('./public/toss-products.json',import.meta.url),'utf8');
 const analytics=createAnalytics();
 const trackHits=[];
 const TRACK_LIMIT=120;
@@ -66,14 +66,6 @@ if(req.method==='GET'&&(url.pathname==='/'||url.pathname==='/index.html')){
  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
  res.end(await page);return;
 }
-if(req.method==='GET'&&(url.pathname==='/toss'||url.pathname==='/toss/'||url.pathname==='/toss.html')){
- res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
- res.end(await tossPage);return;
-}
-if(req.method==='GET'&&url.pathname==='/toss-products.json'){
- res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
- res.end(await tossFeed);return;
-}
 if(req.method==='GET'&&(url.pathname==='/admin'||url.pathname==='/admin/')){
  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store, private','X-Robots-Tag':'noindex, nofollow','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','X-Content-Type-Options':'nosniff'});
  res.end(await adminPage);return;
@@ -100,6 +92,23 @@ if(req.method==='POST'&&url.pathname==='/api/telemetry'){
 }
 if(!url.pathname.startsWith('/api/')){res.writeHead(404);res.end('Not found');return}
 if(req.method!=='GET'){send(res,405,{success:false,message:'GET only'});return}
+if(url.pathname==='/api/catalog/status'){
+ send(res,200,catalogStatus());
+ return;
+}
+if(url.pathname==='/api/catalog'){
+ // Never persist API-derived products without the separately licensed feed contract.
+ if(!catalogEnabled()){send(res,503,{success:false,code:'CATALOG_NOT_CONFIGURED',message:'상품 데이터 이용 승인 및 영구 DB 연결이 필요합니다'});return}
+ const category=url.searchParams.get('category')||'food';
+ const limit=Number(url.searchParams.get('limit')||24),offset=Number(url.searchParams.get('offset')||0);
+ if(!CATALOG_CATEGORIES.includes(category)||!Number.isInteger(limit)||limit<1||limit>48||
+  !Number.isInteger(offset)||offset<0||offset>5000){
+  send(res,400,{success:false,code:'CATALOG_BAD_QUERY'});return;
+ }
+ try{send(res,200,await catalogPage(process.env.CATALOG_DATABASE_URL,{category,limit,offset}))}
+ catch{send(res,503,{success:false,code:'CATALOG_DATABASE_UNAVAILABLE',message:'상품 카탈로그 DB 연결을 확인해 주세요'})}
+ return;
+}
 if(url.pathname==='/api/curated'){
   send(res,200,{success:true,data:curatedProducts().filter(inStorefrontCatalog)});
   return;
