@@ -1040,6 +1040,7 @@ body.category-active .shopping-events{display:none}
  .shopping-campaign-slider .shopping-theme-card.theme-fashion{min-height:0;aspect-ratio:768/429}
 }
 
+
 /* Blur only the side gutters using the SAME user-supplied originals.
    Do not crop, blur or alter the sharp centered image / affiliate artwork. */
 .shopping-campaign-slider .shopping-theme-card{isolation:isolate}
@@ -1108,6 +1109,7 @@ body.category-active .shopping-events{display:none}
 .sponsor-ticker:hover .sponsor-ticker__track,.sponsor-ticker:focus-within .sponsor-ticker__track{animation-play-state:paused}
 @media(max-width:730px){.sponsor-ticker,.sponsor-ticker__viewport{min-height:36px}.sponsor-ticker__copy{padding:0 2.75rem 0 1rem;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.sponsor-ticker__track{animation:none;will-change:auto}.sponsor-ticker__viewport{overflow-x:auto;overscroll-behavior-x:contain}}
+
 /* Compact but always-visible product-list disclosure; reference marquee stays unchanged. */
 .affiliate-banner{
  display:block!important;margin:8px 0 17px!important;padding:10px 13px!important;
@@ -1124,6 +1126,7 @@ body.category-active .shopping-events{display:none}
  .affiliate-banner{display:block!important;padding:9px 11px!important;font-size:14px!important;line-height:1.6!important}
  .affiliate-banner strong{font-size:14px!important}
 }
+
 /* Use the same accessible disclosure palette in Toss and general product sections. */
 .curated-disclosure{
  display:block!important;margin:8px 0 0!important;padding:10px 13px!important;
@@ -1136,6 +1139,21 @@ body.category-active .shopping-events{display:none}
 @media(max-width:730px){
  .curated-disclosure{padding:9px 11px!important;font-size:14px!important;line-height:1.6!important}
 }
+
+/* Additional product categories and separate live merchant directory entry. */
+body.category-active .extra-categories,body.category-active .mall-directory-promo{display:none}
+.extra-categories{margin-top:23px;padding-top:20px;border-top:1px solid #e5ebf3}
+.extra-categories h3{font-size:18px;letter-spacing:-.5px;margin:0 0 8px}
+.extra-categories p{font-size:12px;color:#6e8099;margin:0 0 14px}
+.extra-category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.extra-category{display:flex;flex-direction:column;gap:6px;min-width:0;text-align:left;border:1px solid #e0e8f2;border-radius:12px;padding:15px;background:#fff;cursor:pointer}
+.extra-category:hover,.extra-category:focus-visible{border-color:#7faded;background:#f5f9ff}
+.extra-category strong{font-size:14px;color:#193c63}.extra-category small{font-size:11px;color:#71859f}
+.mall-directory-promo{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:17px 0 25px;padding:18px 20px;background:#f3f8ff;border:1px solid #d6e5fc;border-radius:13px}
+.mall-directory-promo h2{font-size:19px;color:#184775;margin:0 0 6px}.mall-directory-promo p{font-size:12px;color:#58708a;margin:0}
+.mall-directory-promo a{display:inline-flex;justify-content:center;align-items:center;min-height:42px;padding:10px 15px;background:#1966c5;color:white;text-decoration:none;border-radius:8px;white-space:nowrap;font-size:12px;font-weight:700}
+@media(max-width:900px){.extra-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:730px){.extra-category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mall-directory-promo{flex-direction:column;align-items:stretch}.mall-directory-promo a{width:100%}}
 </style>
 </head>
 <body data-design-version="retail-v5-20261026">
@@ -1148,7 +1166,7 @@ body.category-active .shopping-events{display:none}
   
  </div>
  <nav class="nav" aria-label="주 메뉴">
-  <a href="/#shop-categories">카테고리</a><a href="#deals">베스트 상품</a><a href="#product-discovery">인기 상품</a><a href="/about.html">서비스 안내</a>
+  <a href="/#shop-categories">카테고리</a><a href="/malls.html">제휴몰별 탐색</a><a href="#deals">베스트 상품</a><a href="#product-discovery">인기 상품</a><a href="/toss.html">토스 특가관</a><a href="/about.html">서비스 안내</a>
  </nav>
 </div></header>
 <aside class="sponsor-ticker" role="note" aria-label="광고·제휴 안내: 광고·제휴 상품 링크를 통한 구매 시 알뜰픽 운영자가 일정액의 수수료를 받습니다. 구매자에게 별도의 알뜰픽 리워드는 제공되지 않습니다.">
@@ -1210,7 +1228,7 @@ body.category-active .shopping-events{display:none}
 <section id="shop-categories" class="category-hub" aria-labelledby="hub-title">
  <div class="hub-heading">
   <div><span class="hub-eyebrow">CATEGORY</span><h2 id="hub-title">카테고리</h2><p>품목을 선택하면 해당 상품을 바로 찾습니다.</p></div>
-  <span class="hub-count">6개 카테고리</span>
+  <span class="hub-count">13개 카테고리</span>
  </div>
  <div class="department-grid" id="department-grid" role="group" aria-label="카테고리 쇼핑관">
  <button type="button" class="department department--food" data-department="간편식" aria-label="식품 카테고리 열기">
@@ -1256,6 +1274,20 @@ body.category-active .shopping-events{display:none}
   </div>
  </div>
 </section>
+<section class="extra-categories" aria-labelledby="extra-categories-title">
+<h3 id="extra-categories-title">더 다양한 상품 카테고리</h3><p>품목을 선택하면 애드픽에서 실제 상품을 검색합니다.</p>
+<div class="extra-category-grid" id="extra-category-grid" role="group" aria-label="추가 상품 카테고리">
+<button type="button" class="extra-category" data-extra-department="사료"><strong>반려동물</strong><small>사료 · 간식 · 용품</small></button>
+<button type="button" class="extra-category" data-extra-department="기저귀"><strong>출산·유아동</strong><small>기저귀 · 유아용품</small></button>
+<button type="button" class="extra-category" data-extra-department="운동용품"><strong>스포츠·레저</strong><small>운동용품 · 캠핑</small></button>
+<button type="button" class="extra-category" data-extra-department="의자"><strong>가구·인테리어</strong><small>의자 · 조명 · 수납</small></button>
+<button type="button" class="extra-category" data-extra-department="차량용품"><strong>자동차·DIY</strong><small>차량용품 · 공구</small></button>
+<button type="button" class="extra-category" data-extra-department="필기구"><strong>문구·취미</strong><small>필기구 · 취미</small></button>
+<button type="button" class="extra-category" data-extra-department="마사지기"><strong>건강관리</strong><small>마사지기 · 측정기</small></button>
+</div></section>
+<section class="mall-directory-promo" aria-labelledby="mall-directory-title"><div><h2 id="mall-directory-title">제휴몰별 탐색</h2>
+<p>교복몰·인프런·지식마켓부터 여행·도서까지, 애드픽 제휴처를 분야별로 확인하세요.</p></div>
+<a href="/malls.html">제휴몰 전체 보기 ↗</a></section>
 <section id="categories" class="category-section" aria-label="상품 카테고리">
  <div class="category-heading"><span class="category-heading-mark" aria-hidden="true">▦</span><span>카테고리 탐색</span><span class="category-heading-tip">원하는 카테고리를 골라보세요</span></div>
  <div id="categories-buttons" class="category-list" role="group" aria-label="카테고리 선택">
@@ -1266,6 +1298,13 @@ body.category-active .shopping-events{display:none}
   <button type="button" class="catbtn" aria-pressed="false" data-query="화장품">뷰티</button>
   <button type="button" class="catbtn" aria-pressed="false" data-query="의류">패션</button>
   <button type="button" class="catbtn" aria-pressed="false" data-query="주방용품">주방</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="사료">반려동물</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="기저귀">유아동</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="운동용품">스포츠</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="의자">가구</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="차량용품">자동차</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="필기구">문구</button>
+<button type="button" class="catbtn" aria-pressed="false" data-query="마사지기">건강관리</button>
  </div>
  <div id="subcategories" class="subcat-panel" hidden><span class="note">세부 품목</span><div id="subcatlist" class="subcat-list"></div></div>
  <p class="category-caption">현재 조회된 일부 상품을 보여줍니다. 관련 품목도 함께 검색하며, 검색 결과는 최대 30개까지 표시합니다.</p>
@@ -1749,7 +1788,7 @@ function updateMoreControls(hasMore){
   moreButton.textContent=moreBusy?"새 상품 찾는 중…":"관련 상품 더 보기 +";
 }
 function activate(group,button){group.querySelectorAll("button").forEach(b=>{const active=b===button;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))})}
-const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v3:";
+const RECENT_FEED_MS=90000,RECENT_FEED_PREFIX="alttulpick:feed:v3:"; // Ignore old session cache containing Toss links.
 function recentFeed(url){
  try{
   const value=JSON.parse(sessionStorage.getItem(RECENT_FEED_PREFIX+url)||"null");
@@ -1766,7 +1805,7 @@ function keepRecentFeed(url,items){
 }
 const featuredTossProducts=[{"title":"스파클 생수, 무라벨, 500ml, 80개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/fEfXH2Dz","affiliate_source":"toss_sharelink","icon":"💧"},{"title":"EMS 스마트 발 마사지기, 리모컨 포함, 블랙, 1개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/T3YXM88A","affiliate_source":"toss_sharelink","icon":"🦶"},{"title":"썬리지 호주산 네이블 오렌지, 중과, 3.5kg, 1박스","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/vUfumnfn","affiliate_source":"toss_sharelink","icon":"🍊"},{"title":"명식품 파래김, 100매, 1개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/9DX0e7mh","affiliate_source":"toss_sharelink","icon":"🍙"},{"title":"대식가 일키로 부대찌개, 1kg, 3팩","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/b8L8owyC","affiliate_source":"toss_sharelink","icon":"🍲"},{"title":"포레스티 국내제조 땅콩버터, 무첨가, 무가당, 무설탕, 450g, 2개","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/vd1C807g","affiliate_source":"toss_sharelink","icon":"🥜"},{"title":"코주부 밀가루 없는 3분 어묵탕, 210g, 4팩","cp_name":"토스쇼핑","cp_icon":"https://static.toss.im/icons/png/4x/icon-toss-logo.png","price":null,"photo":null,"commissionlink":"https://toss.shopping/_m/73U6YhQD","affiliate_source":"toss_sharelink","icon":"🍢"}];
 function loadCuratedProducts(){
- // The Toss Shopping recommendation section is retired; leave it hidden.
+ // Hide retired Toss recommendation section; all other shop features stay active.
  return;
  const panel=document.getElementById("toss-picks");
  const target=document.getElementById("toss-products");
@@ -2026,7 +2065,14 @@ const subQueries={
   "이어폰":["무선이어폰","충전기","키보드","마우스","노트북","보조배터리","모니터"],
   "화장품":["선크림","스킨케어","쿠션","클렌징","립스틱","핸드크림"],
   "의류":["티셔츠","운동화","가방","재킷","양말","청바지"],
-  "주방용품":["프라이팬","냄비","밀폐용기","그릇","주방세제","수세미"]
+  "주방용품":["프라이팬","냄비","밀폐용기","그릇","주방세제","수세미"],
+"사료":["강아지사료","고양이사료","배변패드"],
+"기저귀":["아기기저귀","물티슈","젖병"],
+"운동용품":["요가매트","아령","캠핑용품"],
+"의자":["책상의자","수납장","조명"],
+"차량용품":["세차용품","차량용충전기","공구"],
+"필기구":["볼펜","노트","색연필"],
+"마사지기":["발마사지기","혈압계","체중계"]
 };
 const departmentInfo={
  "간편식":{name:"식품",badge:"FOOD",description:"간편식부터 생수·커피·라면까지, 필요한 먹거리를 품목별로 살펴보세요."},
@@ -2034,7 +2080,14 @@ const departmentInfo={
  "이어폰":{name:"디지털",badge:"TECH",description:"이어폰·충전기·노트북 등 디지털 제품을 세부 품목부터 탐색하세요."},
  "화장품":{name:"뷰티",badge:"BEAUTY",description:"스킨케어와 색조 제품을 원하는 종류별로 찾아보세요."},
  "의류":{name:"패션",badge:"STYLE",description:"의류와 패션잡화를 품목 중심으로 둘러보세요."},
- "주방용품":{name:"주방",badge:"KITCHEN",description:"프라이팬·냄비·도마·보관용기를 종류별로 확인하세요."}
+ "주방용품":{name:"주방",badge:"KITCHEN",description:"프라이팬·냄비·도마·보관용기를 종류별로 확인하세요."},
+"사료":{name:"반려동물",badge:"PET",description:"반려동물 상품을 세부 품목별로 찾아보세요."},
+"기저귀":{name:"출산·유아동",badge:"BABY",description:"출산·유아동 상품을 세부 품목별로 찾아보세요."},
+"운동용품":{name:"스포츠·레저",badge:"SPORTS",description:"스포츠·레저 상품을 세부 품목별로 찾아보세요."},
+"의자":{name:"가구·인테리어",badge:"HOME",description:"가구·인테리어 상품을 세부 품목별로 찾아보세요."},
+"차량용품":{name:"자동차·DIY",badge:"AUTO",description:"자동차·DIY 상품을 세부 품목별로 찾아보세요."},
+"필기구":{name:"문구·취미",badge:"HOBBY",description:"문구·취미 상품을 세부 품목별로 찾아보세요."},
+"마사지기":{name:"건강관리",badge:"CARE",description:"건강관리 상품을 세부 품목별로 찾아보세요."}
 };
 function markSideSelected(term){
  sideLinks.querySelectorAll("button").forEach(b=>{
@@ -2109,7 +2162,10 @@ sideLinks.addEventListener("click",e=>{
  if(!btn)return;
  selectCategoryTerm(btn.dataset.sidequery);
 });
-departmentGrid.addEventListener("click",e=>{
+document.getElementById("extra-category-grid").addEventListener("click",e=>{
+ const b=e.target.closest("[data-extra-department]");if(b)changeDepartment(b.dataset.extraDepartment,{scroll:true});
+});
+ departmentGrid.addEventListener("click",e=>{
  const btn=e.target.closest("[data-department]");
  if(btn)changeDepartment(btn.dataset.department,{scroll:true});
 });
@@ -2501,6 +2557,7 @@ function initShoppingCampaignSlider(){
 initShoppingCampaignSlider();
 void loadShoppingEvents();
 loadCuratedProducts();
+
 
 
 
