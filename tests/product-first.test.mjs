@@ -7,16 +7,17 @@ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const server=readFileSync(new URL('../server.mjs',import.meta.url),'utf8');
 const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1];
 
-test('Homepage prioritizes product feeds and no longer advertises a mall directory',()=>{
+test('Homepage prioritizes product feeds while separate directory covers non-product partners',()=>{
  assert.ok(script);assert.doesNotThrow(()=>new Script(script));
  for(const id of ['product-discovery','discovery-products','discovery-status','discovery-more']){
    assert.equal(html.split('id="'+id+'"').length-1,1,id);
  }
  assert.ok(html.indexOf('id="product-discovery"')>html.indexOf('id="deals"'));
  assert.ok(html.indexOf('id="toss-picks"')<html.indexOf('id="product-discovery"'));
- assert.doesNotMatch(html,/제휴몰 둘러보기|partner-malls|쇼핑몰 찾기/);
+ assert.match(html,/href="\/malls\.html"/);
+ assert.match(server,/url\.pathname==='\/api\/malls'/);
+ // The homepage product feed must not load partner metadata as a product list.
  assert.doesNotMatch(script,/\/api\/malls|loadPartnerMalls|mallGrid/);
- assert.doesNotMatch(server,/\/api\/malls|normalizePartnerMalls/);
 });
 test('BIZ best remains customer-focused and does not show operator-commission picks',()=>{
  for(const area of ['today','popular','pick']){
