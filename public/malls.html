@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="애드픽 제휴몰을 업종별로 둘러보세요. 교복, 온라인 강의, 여행, 지식 콘텐츠부터 일반 쇼핑까지.">
+<title>제휴몰별 탐색 | 알뜰픽</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;color:#1d2d42;background:#f6f8fc;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+header{background:#fff;border-bottom:1px solid #e6ebf3}
+.nav{max-width:1160px;margin:auto;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:24px;font-weight:850;letter-spacing:-1px}.brand b{color:#246fea}
+.nav-links{display:flex;gap:16px;font-size:13px;color:#546b87;flex-wrap:wrap}
+.nav-links a:hover,.nav-links a:focus-visible{color:#165dc1;text-decoration:underline}
+main{max-width:1160px;margin:auto;padding:32px 22px 72px}
+.eyebrow{color:#2869c7;font-weight:800;letter-spacing:.1em;font-size:11px}
+h1{font-size:32px;letter-spacing:-1.1px;margin:9px 0 12px}
+.lead{color:#60728a;max-width:760px;line-height:1.65;font-size:14px;margin:0 0 20px}
+.notice{background:#edf5ff;color:#2d517d;border:1px solid #d2e5ff;border-radius:12px;padding:13px 15px;font-size:12px;line-height:1.6;margin-bottom:23px}
+.search{width:100%;padding:13px 15px;border-radius:11px;border:1px solid #cbd7e6;background:#fff;font-size:14px;margin-bottom:15px}
+.search:focus{outline:3px solid #b9d5ff;outline-offset:1px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.filter{border:1px solid #dbe5f1;background:white;border-radius:999px;padding:9px 12px;font-size:12px;cursor:pointer;color:#38506c}
+.filter[aria-pressed="true"]{background:#1b62b9;border-color:#1b62b9;color:white}
+.summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px;color:#526783;font-size:13px}
+.summary strong{color:#1e426e}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.mall-card{min-width:0;display:flex;flex-direction:column;gap:13px;background:#fff;border:1px solid #e3e9f2;border-radius:15px;padding:18px}
+.mall-top{display:flex;align-items:center;gap:11px}
+.mall-icon{width:49px;height:49px;flex:0 0 49px;display:grid;place-items:center;background:#f0f5fd;border:1px solid #e5ecf5;border-radius:12px;font-size:17px;font-weight:800;color:#4573ae;overflow:hidden}
+.mall-icon img{width:100%;height:100%;object-fit:contain}
+.mall-name{font-size:17px;font-weight:750;letter-spacing:-.4px;line-height:1.4;word-break:keep-all}
+.mall-type{display:block;margin-top:4px;color:#7790ad;font-size:11px;font-weight:650}
+.mall-description{font-size:12px;color:#718198;line-height:1.65;min-height:40px;margin:0}
+.mall-action{margin-top:auto;min-height:40px;display:flex;justify-content:center;align-items:center;border-radius:9px;background:#1d66c2;color:white;font-weight:700;font-size:12px}
+.mall-action:hover,.mall-action:focus-visible{background:#15529f}
+.mall-unlinked{background:#f1f4f8;color:#718096;cursor:default}
+.empty{grid-column:1/-1;padding:35px 15px;text-align:center;background:#fff;border:1px solid #e0e7f2;border-radius:12px;color:#637792;line-height:1.6}
+.retry{border:1px solid #a9c7ef;background:#f6faff;color:#1a5ba8;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:12px}
+.fineprint{font-size:12px;color:#74859a;line-height:1.65;margin-top:24px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.nav{padding:13px 15px;align-items:flex-start;flex-direction:column}.brand{font-size:22px}.nav-links{gap:12px}main{padding:24px 15px 60px}h1{font-size:26px}.grid{grid-template-columns:1fr}.mall-description{min-height:0}}
+</style>
+</head>
+<body>
+<header><nav class="nav" aria-label="상단 메뉴"><a class="brand" href="/">알뜰픽<b>·</b></a><div class="nav-links"><a href="/">상품 검색</a><a href="/#shop-categories">상품 카테고리</a><a href="/malls.html" aria-current="page">제휴몰별 탐색</a></div></nav></header>
+<main>
+ <span class="eyebrow">ADPICK PARTNERS</span>
+ <h1>제휴몰별 탐색</h1>
+ <p class="lead">일반 쇼핑몰부터 교복·도서·온라인 강의·여행·지식 콘텐츠까지, 애드픽 API에 연결된 제휴처를 분야별로 찾아보세요.</p>
+ <aside class="notice" role="note"><strong>[광고·제휴 안내]</strong> 아래 제휴 링크를 통해 상품이나 서비스를 구매하면 알뜰픽 운영자에게 수수료가 지급될 수 있습니다. 구매자에게 별도의 알뜰픽 리워드는 제공되지 않습니다. 제휴 조건은 각 제휴처에서 확인해 주세요.</aside>
+ <label for="mall-search" class="sr-only">제휴몰 이름 검색</label>
+ <input id="mall-search" class="search" type="search" placeholder="제휴몰 이름 검색 (예: 인프런, 교복몰)" autocomplete="off">
+ <div id="mall-filters" class="filters" role="group" aria-label="제휴몰 업종 필터"></div>
+ <div class="summary"><strong id="mall-count" aria-live="polite">제휴몰 정보를 불러오는 중입니다…</strong><button id="mall-retry" class="retry" type="button" hidden>다시 불러오기</button></div>
+ <div id="mall-grid" class="grid" aria-live="polite"><div class="empty">제휴몰 목록을 확인하고 있습니다.</div></div>
+ <p class="fineprint">제휴몰 목록은 애드픽 BIZ API의 응답을 기준으로 표시됩니다. 개별 상품 검색 가능 여부는 판매처마다 다릅니다. 커미션 링크가 제공되지 않은 제휴처에는 이동 버튼을 표시하지 않으며, 임의 링크를 만들지 않습니다.</p>
+</main>
+<script>
+const grid=document.getElementById('mall-grid'),filters=document.getElementById('mall-filters');
+const search=document.getElementById('mall-search'),count=document.getElementById('mall-count');
+const retry=document.getElementById('mall-retry');
+let malls=[],group='전체';
+const GROUP_ORDER=['온라인 강의','지식·전문서비스','도서','여행·숙박·체험','학생·유아동','반려동물','식품·건강','뷰티','스포츠·레저','패션·잡화','가전·디지털','리빙·인테리어','종합쇼핑','기타 제휴몰'];
+function make(tag,cls,value){
+ const el=document.createElement(tag);
+ if(cls)el.className=cls;
+ if(value!=null)el.textContent=value;
+ return el;
+}
+function safeUrl(raw){
+ if(typeof raw!=='string')return '';
+ try{const url=new URL(raw);return url.protocol==='https:'&&!url.username&&!url.password?raw:''}catch{return ''}
+}
+function selectedMalls(){
+ const q=search.value.normalize('NFKC').toLowerCase().trim();
+ return malls.filter(m=>(group==='전체'||m.category===group)&&(!q||(m.name+' '+m.title+' '+m.category).normalize('NFKC').toLowerCase().includes(q)));
+}
+function renderFilters(){
+ const groups=['전체',...GROUP_ORDER.filter(category=>malls.some(m=>m.category===category))];
+ filters.replaceChildren();
+ for(const category of groups){
+  const button=make('button','filter',category);
+  button.type='button';button.dataset.mallCategory=category;
+  button.setAttribute('aria-pressed',String(category===group));
+  filters.append(button);
+ }
+}
+function render(){
+ const list=selectedMalls();
+ count.textContent='현재 확인된 제휴몰 '+malls.length+'곳 · 화면에 '+list.length+'곳 표시';
+ grid.replaceChildren();
+ if(!list.length){grid.append(make('div','empty',malls.length?'일치하는 제휴몰이 없습니다. 다른 업종이나 검색어를 선택해 주세요.':'제휴몰 목록을 확인하지 못했습니다.'));return}
+ for(const mall of list){
+  const card=make('article','mall-card'),top=make('div','mall-top');
+  const icon=make('span','mall-icon',mall.name.slice(0,1));
+  const imageUrl=safeUrl(mall.icon);
+  if(imageUrl){
+   const img=document.createElement('img');img.src=imageUrl;img.alt='';
+   img.loading='lazy';img.referrerPolicy='no-referrer';
+   img.addEventListener('error',()=>{icon.textContent=mall.name.slice(0,1)},{once:true});
+   icon.replaceChildren(img);
+  }
+  const heading=make('div','');
+  heading.append(make('div','mall-name',mall.name),make('span','mall-type',mall.category));
+  top.append(icon,heading);
+  card.append(top,make('p','mall-description',mall.title||'애드픽 제휴몰'));
+  const link=safeUrl(mall.commissionlink);
+  if(link){
+   const a=make('a','mall-action','제휴몰 방문 ↗');
+   a.href=link;a.target='_blank';a.rel='sponsored nofollow noopener noreferrer';
+   a.setAttribute('aria-label',mall.name+' 제휴몰 방문');
+   card.append(a);
+  }else{
+   card.append(make('span','mall-action mall-unlinked','현재 제휴 링크 미제공'));
+  }
+  grid.append(card);
+ }
+}
+async function requestMalls(){
+ // The public storefront may be hosted separately from the Worker API.
+ // Try same-origin first, then the existing trusted product API hosts.
+ const urls=['/api/malls',
+  'https://alttulpick-api.maidana1779.workers.dev/api/malls',
+  'https://alttulpick-preview.onrender.com/api/malls'];
+ for(const url of urls){
+  try{
+   const response=await fetch(url,{headers:{accept:'application/json'},cache:'no-store'});
+   if(!response.ok)continue;
+   const payload=await response.json();
+   if(payload.success===true&&Array.isArray(payload.data))return payload;
+  }catch{/* Another trusted endpoint may still be available. */}
+ }
+ throw Error('mall sources unavailable');
+}
+async function loadMalls(){
+ retry.hidden=true;count.textContent='제휴몰 목록을 불러오는 중입니다…';
+ try{
+  const payload=await requestMalls();
+  malls=payload.data.filter(m=>m&&typeof m.name==='string'&&m.name.trim()&&typeof m.category==='string');
+  group='전체';renderFilters();render();
+ }catch{
+  retry.hidden=false;count.textContent='제휴몰 연결 지연';
+  if(!malls.length)grid.replaceChildren(make('div','empty','현재 제휴몰 목록을 불러오지 못했습니다. 다시 불러오기를 눌러 주세요.'));
+ }
+}
+filters.addEventListener('click',event=>{
+ const button=event.target.closest('[data-mall-category]');if(!button)return;
+ group=button.dataset.mallCategory;renderFilters();render();
+});
+search.addEventListener('input',render);
+retry.addEventListener('click',loadMalls);
+void loadMalls();
+</script>
+</body>
+</html>
