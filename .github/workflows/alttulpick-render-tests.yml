@@ -1,0 +1,21 @@
+name: Alttulpick Render sync checks
+on:
+  pull_request:
+    branches: [alttulpick-deploy]
+  push:
+    branches: [alttulpick-deploy]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies without postinstall side effects
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run Render regression suite
+        run: npm test
