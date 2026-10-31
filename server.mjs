@@ -1,6 +1,7 @@
 import {createServer} from 'node:http';
 import {createHash,timingSafeEqual} from 'node:crypto';
 import {createAnalytics} from './analytics.mjs';
+import {normalizeMallsResponse} from './merchant-directory.mjs';
 import {selectRelevantProducts} from './relevance.mjs';
 import {curatedProducts,matchingCuratedProducts} from './curated-products.mjs';
 import {getSearchPlan,uniqueProductResults} from './search-plan.mjs';
@@ -13,6 +14,8 @@ import {catalogEnabled,catalogStatus,CATALOG_CATEGORIES} from './catalog-core.mj
 import {catalogPage} from './catalog-store.mjs';
 const page = (await import('node:fs/promises')).readFile(new URL('./index.html',import.meta.url),'utf8');
 const adminPage=(await import('node:fs/promises')).readFile(new URL('./admin.html',import.meta.url),'utf8');
+const mallsPage=(await import('node:fs/promises')).readFile(new URL('./public/malls.html',import.meta.url),'utf8');
+let mallSnapshot=null,mallLoading=null;
 const analytics=createAnalytics();
 const trackHits=[];
 const TRACK_LIMIT=120;
@@ -62,6 +65,10 @@ if(req.method==='OPTIONS'&&url.pathname.startsWith('/api/')){
  if(req.headers.origin!==storefrontOrigin){res.writeHead(403);res.end();return}
  res.writeHead(204,{'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600'});
  res.end();return;
+}
+if(req.method==='GET'&&(url.pathname==='/malls'||url.pathname==='/malls/'||url.pathname==='/malls.html')){
+ res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
+ res.end(await mallsPage);return;
 }
 if(req.method==='GET'&&(url.pathname==='/'||url.pathname==='/index.html')){
  analytics.pageView();
@@ -114,6 +121,26 @@ if(url.pathname==='/api/catalog'){
 if(url.pathname==='/api/curated'){
   send(res,200,{success:true,data:curatedProducts().filter(inStorefrontCatalog)});
   return;
+}
+if(url.pathname==='/api/malls'){
+ if(url.search){send(res,400,{success:false,message:'지원하지 않는 조회 조건입니다'});return}
+ if(mallSnapshot&&Date.now()-mallSnapshot.at<900000){send(res,200,mallSnapshot.payload);return}
+ const key=process.env.ADPICK_API_KEY;
+ if(!key){send(res,503,{success:false,message:'제휴몰 연결 준비 중'});return}
+ if(!mallLoading){
+  mallLoading=(async()=>{
+   const endpoint=new URL('https://biz.adpick.co.kr/api/'+encodeURIComponent(key)+'/malls');
+   endpoint.searchParams.set('rewardmalls','false');
+   const response=await fetch(endpoint,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+   if(!response.ok)throw Error('UPSTREAM_MALLS_HTTP_'+response.status);
+   const payload=normalizeMallsResponse(await response.json());
+   mallSnapshot={payload,at:Date.now()};
+   return payload;
+  })().finally(()=>{mallLoading=null});
+ }
+ try{send(res,200,await mallLoading)}
+ catch{send(res,502,{success:false,message:'제휴몰 목록 연결 지연'})}
+ return;
 }
 let endpoint,params={},plan=null,requested=1;
 if(url.pathname==='/api/best'){
